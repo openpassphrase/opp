@@ -1,0 +1,5 @@
+.venv
+.tox
+.cache
+opp.egg-info
+*.pyc
