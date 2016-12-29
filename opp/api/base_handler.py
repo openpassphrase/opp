@@ -73,7 +73,7 @@ class BaseResponseHandler(object):
         elif action == 'delete':
             response = self._handle_delete(phrase)
         else:
-            response = error("Action uncrecognized")
+            response = error("Action unrecognized!")
 
         return response
 
