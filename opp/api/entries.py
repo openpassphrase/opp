@@ -2,8 +2,8 @@
 
 
 import base_handler
-from common import aescipher
-from common import utils
+from opp.common import aescipher
+from opp.common import utils
 
 
 class ResponseHandler(base_handler.BaseResponseHandler):
