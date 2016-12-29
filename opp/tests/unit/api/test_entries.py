@@ -25,9 +25,9 @@ class TestResponseHandler(unittest.TestCase):
     def test_respond_getall(self, mock_connect, mock_cgi, f):
         mock_connect.return_value = MockConnection()
         mock_cgi.return_value = {'phrase': MockValue('123'),
-								 'action': MockValue('getall')}
+                                 'action': MockValue('getall')}
         handler = eh.ResponseHandler('POST', '', '')
-        response = handler.respond()
+        handler.respond()
         self._check_called(eh.ResponseHandler._handle_getall,
                            '123')
 
@@ -37,9 +37,9 @@ class TestResponseHandler(unittest.TestCase):
     def test_respond_create(self, mock_connect, mock_cgi, f):
         mock_connect.return_value = MockConnection()
         mock_cgi.return_value = {'phrase': MockValue('123'),
-								 'action': MockValue('create')}
+                                 'action': MockValue('create')}
         handler = eh.ResponseHandler('POST', '', '')
-        response = handler.respond()
+        handler.respond()
         self._check_called(eh.ResponseHandler._handle_create,
                            '123')
 
@@ -49,9 +49,9 @@ class TestResponseHandler(unittest.TestCase):
     def test_respond_update(self, mock_connect, mock_cgi, f):
         mock_connect.return_value = MockConnection()
         mock_cgi.return_value = {'phrase': MockValue('123'),
-								 'action': MockValue('update')}
+                                 'action': MockValue('update')}
         handler = eh.ResponseHandler('POST', '', '')
-        response = handler.respond()
+        handler.respond()
         self._check_called(eh.ResponseHandler._handle_update,
                            '123')
 
@@ -61,8 +61,8 @@ class TestResponseHandler(unittest.TestCase):
     def test_respond_delete(self, mock_connect, mock_cgi, f):
         mock_connect.return_value = MockConnection()
         mock_cgi.return_value = {'phrase': MockValue('123'),
-								 'action': MockValue('delete')}
+                                 'action': MockValue('delete')}
         handler = eh.ResponseHandler('POST', '', '')
-        response = handler.respond()
+        handler.respond()
         self._check_called(eh.ResponseHandler._handle_delete,
                            '123')

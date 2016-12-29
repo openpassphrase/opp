@@ -47,8 +47,8 @@ class TestConfig(unittest.TestCase):
             pass
 
     def test_invalid_path(self):
-		# this should not raise any exception
-        CONF = opp_config.OppConfig('some / invalid / path')
+        # this should not raise any exception
+        opp_config.OppConfig('some / invalid / path')
 
     def test_valid_option(self):
         sql_connect = "sqlite:///:memory:"
@@ -63,4 +63,4 @@ class TestConfig(unittest.TestCase):
         with open(self.file_path, 'w') as f:
             f.write("sql_connect: %s" % sql_connect)
         with self.assertRaises(config.ConfigFormatError):
-            CONF = opp_config.OppConfig(self.file_path)
+            opp_config.OppConfig(self.file_path)

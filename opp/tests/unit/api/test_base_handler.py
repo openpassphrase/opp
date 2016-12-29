@@ -93,9 +93,9 @@ class TestBaseResponseHandler(unittest.TestCase):
     def test_respond_getall(self, mock_connect, mock_cgi, f):
         mock_connect.return_value = MockConnection()
         mock_cgi.return_value = {'phrase': MockValue('123'),
-								 'action': MockValue('getall')}
+                                 'action': MockValue('getall')}
         handler = bh.BaseResponseHandler('POST', '', '')
-        response = handler.respond()
+        handler.respond()
         self._check_called(bh.BaseResponseHandler._handle_getall,
                            '123')
 
@@ -105,9 +105,9 @@ class TestBaseResponseHandler(unittest.TestCase):
     def test_respond_create(self, mock_connect, mock_cgi, f):
         mock_connect.return_value = MockConnection()
         mock_cgi.return_value = {'phrase': MockValue('123'),
-								 'action': MockValue('create')}
+                                 'action': MockValue('create')}
         handler = bh.BaseResponseHandler('POST', '', '')
-        response = handler.respond()
+        handler.respond()
         self._check_called(bh.BaseResponseHandler._handle_create,
                            '123')
 
@@ -117,9 +117,9 @@ class TestBaseResponseHandler(unittest.TestCase):
     def test_respond_update(self, mock_connect, mock_cgi, f):
         mock_connect.return_value = MockConnection()
         mock_cgi.return_value = {'phrase': MockValue('123'),
-								 'action': MockValue('update')}
+                                 'action': MockValue('update')}
         handler = bh.BaseResponseHandler('POST', '', '')
-        response = handler.respond()
+        handler.respond()
         self._check_called(bh.BaseResponseHandler._handle_update,
                            '123')
 
@@ -129,9 +129,9 @@ class TestBaseResponseHandler(unittest.TestCase):
     def test_respond_delete(self, mock_connect, mock_cgi, f):
         mock_connect.return_value = MockConnection()
         mock_cgi.return_value = {'phrase': MockValue('123'),
-								 'action': MockValue('delete')}
+                                 'action': MockValue('delete')}
         handler = bh.BaseResponseHandler('POST', '', '')
-        response = handler.respond()
+        handler.respond()
         self._check_called(bh.BaseResponseHandler._handle_delete,
                            '123')
 
