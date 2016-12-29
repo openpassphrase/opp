@@ -1,10 +1,13 @@
+import config
+import os
 import unittest
 
 from opp.common import aescipher
+from opp.common import opp_config
 from opp.common import utils
 
 
-class TestCommonUtils(unittest.TestCase):
+class TestUtils(unittest.TestCase):
 
     def test_extract_path(self):
         env = {'PATH_INFO': "/api/v1/endpoint"}
@@ -30,3 +33,34 @@ class TestAESCipher(unittest.TestCase):
         encrypted = cipher.encrypt("My Secret Message")
         decrypted = cipher.decrypt(encrypted)
         self.assertEqual(decrypted, "My Secret Message")
+
+
+class TestConfig(unittest.TestCase):
+
+    def setUp(self):
+        self.file_path = '/tmp/opp.cfg'
+
+    def tearDown(self):
+        try:
+            os.remove(self.file_path)
+        except OSError:
+            pass
+
+    def test_invalid_path(self):
+		# this should not raise any exception
+        CONF = opp_config.OppConfig('some / invalid / path')
+
+    def test_valid_option(self):
+        sql_connect = "sqlite:///:memory:"
+        with open(self.file_path, 'w') as f:
+            f.write("sql_connect: %s" % utils.qq(sql_connect))
+        CONF = opp_config.OppConfig(self.file_path)
+        self.assertEqual(CONF['sql_connect'], sql_connect)
+        self.assertEqual(CONF['sql_connec'], None)
+
+    def test_invalid_option(self):
+        sql_connect = "sqlite:///:memory:"
+        with open(self.file_path, 'w') as f:
+            f.write("sql_connect: %s" % sql_connect)
+        with self.assertRaises(config.ConfigFormatError):
+            CONF = opp_config.OppConfig(self.file_path)

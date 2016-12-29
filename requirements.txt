@@ -1,2 +1,4 @@
+config>=0.3.7 # Public Domain
 pycrypto>=2.6 # Public Domain
 PyMySQL>=0.7.5 # MIT
+SQLAlchemy>=1.0.16 # MIT
