@@ -1,1 +1,2 @@
 pycrypto>=2.6 # Public Domain
+PyMySQL>=0.7.5 # MIT
