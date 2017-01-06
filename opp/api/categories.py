@@ -38,8 +38,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                 sql = ("INSERT INTO categories (category_blob)"
                        "VALUES (%s)" % utils.qq(cat_blob))
                 if self.db_cursor.execute(sql) == 1:
-                    resp = {'category': cat,
-                            'status': "success: created"}
+                    resp = {'category': cat, 'status': "success: created"}
                 else:
                     resp = {'category': cat,
                             'status': "error: failed to create"}
@@ -97,16 +96,13 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         payload = []
         for cat_id in cat_list:
             if not cat_id:
-                resp = {'id': None,
-                        'status': "error: empty category id"}
+                resp = {'id': None, 'status': "error: empty category id"}
             else:
                 sql = "DELETE FROM categories WHERE id=%s" % cat_id
                 if self.db_cursor.execute(sql) == 1:
-                    resp = {'id': cat_id,
-                            'status': "success: deleted"}
+                    resp = {'id': cat_id, 'status': "success: deleted"}
                 else:
-                    resp = {'id': cat_id,
-                            'status': "error: does not exist"}
+                    resp = {'id': cat_id, 'status': "error: does not exist"}
 
                 # TODO(alex_bash): report # entries removed to user?
                 sql = "DELETE FROM entries WHERE category_id=%s" % cat_id

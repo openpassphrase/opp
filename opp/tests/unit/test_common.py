@@ -48,7 +48,10 @@ class TestConfig(unittest.TestCase):
 
     def test_invalid_path(self):
         # this should not raise any exception
-        opp_config.OppConfig('some / invalid / path')
+        try:
+            opp_config.OppConfig('some / invalid / path')
+        except Exception:
+            self.fail("Unexpected exception while loading configuration!")
 
     def test_valid_option(self):
         sql_connect = "sqlite:///:memory:"

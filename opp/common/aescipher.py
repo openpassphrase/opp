@@ -12,12 +12,10 @@ BS = 16
 
 def pad(s):
     return s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
-# pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 
 
 def unpad(s):
     return s[0:-ord(s[-1])]
-# unpad = lambda s: s[0:-ord(s[-1])]
 
 
 # Usage:

@@ -135,11 +135,9 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             else:
                 sql = "DELETE FROM entries WHERE id=%s" % ent_id
                 if self.db_cursor.execute(sql) == 1:
-                    resp = {'id': ent_id,
-                            'status': "success: deleted"}
+                    resp = {'id': ent_id, 'status': "success: deleted"}
                 else:
-                    resp = {'id': ent_id,
-                            'status': "error: does not exist"}
+                    resp = {'id': ent_id, 'status': "error: does not exist"}
 
             payload.append(resp)
 
