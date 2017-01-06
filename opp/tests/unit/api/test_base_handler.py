@@ -96,8 +96,7 @@ class TestBaseResponseHandler(unittest.TestCase):
                                  'action': MockValue('getall')}
         handler = bh.BaseResponseHandler('POST', '', '')
         handler.respond()
-        self._check_called(bh.BaseResponseHandler._handle_getall,
-                           '123')
+        self._check_called(bh.BaseResponseHandler._handle_getall, '123')
 
     @mock.patch.object(bh.BaseResponseHandler, '_handle_create')
     @mock.patch('cgi.FieldStorage')
@@ -108,8 +107,7 @@ class TestBaseResponseHandler(unittest.TestCase):
                                  'action': MockValue('create')}
         handler = bh.BaseResponseHandler('POST', '', '')
         handler.respond()
-        self._check_called(bh.BaseResponseHandler._handle_create,
-                           '123')
+        self._check_called(bh.BaseResponseHandler._handle_create, '123')
 
     @mock.patch.object(bh.BaseResponseHandler, '_handle_update')
     @mock.patch('cgi.FieldStorage')
@@ -120,8 +118,7 @@ class TestBaseResponseHandler(unittest.TestCase):
                                  'action': MockValue('update')}
         handler = bh.BaseResponseHandler('POST', '', '')
         handler.respond()
-        self._check_called(bh.BaseResponseHandler._handle_update,
-                           '123')
+        self._check_called(bh.BaseResponseHandler._handle_update, '123')
 
     @mock.patch.object(bh.BaseResponseHandler, '_handle_delete')
     @mock.patch('cgi.FieldStorage')
@@ -132,8 +129,7 @@ class TestBaseResponseHandler(unittest.TestCase):
                                  'action': MockValue('delete')}
         handler = bh.BaseResponseHandler('POST', '', '')
         handler.respond()
-        self._check_called(bh.BaseResponseHandler._handle_delete,
-                           '123')
+        self._check_called(bh.BaseResponseHandler._handle_delete, '123')
 
     @mock.patch('cgi.FieldStorage')
     @mock.patch('pymysql.connect')
@@ -143,8 +139,7 @@ class TestBaseResponseHandler(unittest.TestCase):
                                  'action': MockValue('bad')}
         handler = bh.BaseResponseHandler('POST', '', '')
         response = handler.respond()
-        expected = {'result': 'error',
-                    'message': 'Action unrecognized!'}
+        expected = {'result': 'error', 'message': 'Action unrecognized!'}
         self.assertEqual(response, expected)
 
 
