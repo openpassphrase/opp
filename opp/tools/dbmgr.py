@@ -3,12 +3,11 @@
 import sys
 
 import click
-from sqlalchemy import create_engine
-import sqlalchemy.exc as exc
+from sqlalchemy import create_engine, exc
 from sqlalchemy_utils import database_exists, create_database
 
 from opp.common import opp_config
-import opp.db.sqlalchemy.models as models
+from opp.db import models
 
 
 class Config:
@@ -44,9 +43,9 @@ def init(config):
         try:
             if not database_exists(engine.url):
                 create_database(engine.url)
-                models.Base.metadata.create_all(engine)
         except exc.OperationalError as e:
             sys.exit("Error: %s" % str(e))
+        models.Base.metadata.create_all(engine)
     else:
         sys.exit("Error: database connection string not "
                  "found in any of the configuration files")

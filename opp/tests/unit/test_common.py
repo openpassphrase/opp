@@ -2,9 +2,7 @@ import config
 import os
 import unittest
 
-from opp.common import aescipher
-from opp.common import opp_config
-from opp.common import utils
+from opp.common import aescipher, opp_config, utils
 
 
 class TestUtils(unittest.TestCase):
