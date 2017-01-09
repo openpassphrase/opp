@@ -47,9 +47,11 @@ class TestConfig(unittest.TestCase):
             pass
 
     def test_invalid_path(self):
-        # this should not raise any exception
+        # this should not raise any exceptions
         try:
             opp_config.OppConfig('some / invalid / path')
+            opp_config.OppConfig(None)
+            opp_config.OppConfig()
         except Exception:
             self.fail("Unexpected exception while loading configuration!")
 

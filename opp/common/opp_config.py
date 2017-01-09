@@ -4,14 +4,14 @@ from os import path
 
 class OppConfig(object):
 
-    def __init__(self, top_config):
-        usr_config = '~/.opp/opp.cfg'
+    def __init__(self, top_config=None):
+        usr_config = path.expanduser('~/.opp/opp.cfg')
         sys_config = '/etc/opp/opp.cfg'
 
         self.cfglist = ConfigList()
 
         # Load configs in order of decreasing priority
-        if path.isfile(top_config):
+        if top_config and path.isfile(top_config):
             self.cfglist.append(Config(file(top_config)))
         if path.isfile(usr_config):
             self.cfglist.append(Config(file(usr_config)))

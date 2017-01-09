@@ -94,7 +94,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return error
 
         payload = []
-        for cat_id in cat_list:
+        for cat_id, cascade in cat_list:
             if not cat_id:
                 resp = {'id': None, 'status': "error: empty category id"}
             else:
@@ -105,7 +105,11 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                     resp = {'id': cat_id, 'status': "error: does not exist"}
 
                 # TODO(alex_bash): report # entries removed to user?
-                sql = "DELETE FROM entries WHERE category_id=%s" % cat_id
+                if cascade is True:
+                    sql = "DELETE FROM entries WHERE category_id=%s" % cat_id
+                else:
+                    sql = ("UPDATE entries set category_id=NULL"
+                           "WHERE category_id=%s" % cat_id)
                 self.db_cursor.execute(sql)
 
             payload.append(resp)
