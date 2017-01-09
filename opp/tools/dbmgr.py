@@ -8,7 +8,7 @@ import sqlalchemy.exc as exc
 from sqlalchemy_utils import database_exists, create_database
 
 from opp.common import opp_config
-from opp.db.sqlalchemy.models import categories, entries
+import opp.db.sqlalchemy.models as models
 
 
 class Config:
@@ -44,7 +44,7 @@ def init(config):
         try:
             if not database_exists(engine.url):
                 create_database(engine.url)
-                categories.Base.metadata.create_all(engine)
+                models.Base.metadata.create_all(engine)
         except exc.OperationalError as e:
             sys.exit("Error: %s" % str(e))
     else:
