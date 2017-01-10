@@ -1,6 +1,5 @@
 import cgi
 import json
-import pymysql
 
 
 def error(msg=None):
@@ -14,11 +13,6 @@ class BaseResponseHandler(object):
         self.path = path
         self.query = query
         self.form_data = cgi.FieldStorage()
-        db_conn = pymysql.connect(host='localhost',
-                                  db='mypassdb',
-                                  user='mypassuser',
-                                  passwd='tri1@#sroka')
-        self.db_cursor = db_conn.cursor()
 
     def _get_payload(self):
         try:

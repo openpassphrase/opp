@@ -7,12 +7,9 @@ class ResponseHandler(base_handler.BaseResponseHandler):
     def _handle_getall(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
-        sql = ("SELECT e.id, e.entry_blob, e.category_id, "
-               "c.category_blob FROM entries AS e LEFT JOIN "
-               "(categories AS c) ON (e.category_id=c.id) "
-               " ORDER BY e.id")
-        self.db_cursor.execute(sql)
-        entries = self.db_cursor.fetchall()
+        # with api.get_session() as session:
+        #     entries = api.entry_getall()
+        entries = []
         for item in entries:
             resp = {'id': item[0],
                     'entry': cipher.decrypt(item[1]),

@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import (Column, DateTime, ForeignKey,
                         Index, Integer, Sequence, String)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+# from sqlalchemy.orm import relationship
 
 
 Base = declarative_base()
@@ -17,13 +17,13 @@ class Entry(Base):
     id = Column(Integer, Sequence('entry_id_seq'), primary_key=True)
     category_id = Column(Integer, Sequence('category_id_seq'),
                          ForeignKey('categories.id'), default=None)
-    entry_blob = Column(String(4096), nullable=False)
+    blob = Column(String(4096), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False, onupdate=lambda: datetime.now())
 
-    category = relationship('Category', back_populates='entries')
+    # category = relationship('Category', back_populates='entries')
 
 
 class Category(Base):
@@ -31,11 +31,8 @@ class Category(Base):
     __tablename__ = 'categories'
 
     id = Column(Integer, Sequence('category_id_seq'), primary_key=True)
-    category_blob = Column(String(256), nullable=False)
+    blob = Column(String(256), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False, onupdate=lambda: datetime.now())
-
-    entries = relationship('Entry', order_by=Entry.id,
-                           back_populates='categories')

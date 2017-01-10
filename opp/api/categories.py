@@ -1,5 +1,6 @@
 import base_handler
-from opp.common import aescipher, utils
+from opp.db import api, models
+from opp.common import aescipher
 
 
 class ResponseHandler(base_handler.BaseResponseHandler):
@@ -7,11 +8,11 @@ class ResponseHandler(base_handler.BaseResponseHandler):
     def _handle_getall(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
-        self.db_cursor.execute("SELECT * from categories ORDER by id")
-        categories = self.db_cursor.fetchall()
-        for cat_id, category_blob in categories:
-            cat = cipher.decrypt(category_blob)
-            response.append({'id': cat_id, 'category': cat})
+        with api.get_session() as session:
+            categories = api.category_getall(session=session)
+            for category in categories:
+                cat = cipher.decrypt(category.blob)
+                response.append({'id': category.id, 'category': cat})
 
         return {'result': 'success', 'categories': response}
 
@@ -22,24 +23,21 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         cipher = aescipher.AESCipher(phrase)
         payload = []
+        categories = []
         for cat in cat_list:
             if not cat:
                 resp = {'category': None,
                         'status': "empty category not allowed"}
             else:
-                # Encrypt category name blob
-                cat_blob = cipher.encrypt(cat)
-
-                # Store category name blob
-                sql = ("INSERT INTO categories (category_blob)"
-                       "VALUES (%s)" % utils.qq(cat_blob))
-                if self.db_cursor.execute(sql) == 1:
-                    resp = {'category': cat, 'status': "success: created"}
-                else:
-                    resp = {'category': cat,
-                            'status': "error: failed to create"}
+                # Encrypt category name blob and append to list
+                blob = cipher.encrypt(cat)
+                categories.append(models.Category(blob=blob))
+                resp = {'category': cat, 'status': "success: created"}
 
             payload.append(resp)
+
+        with api.get_session() as session:
+            api.category_create_update(categories, session=session)
 
         return {'result': 'success', 'payload': payload}
 
@@ -48,8 +46,9 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         if error:
             return error
 
-        payload = []
         cipher = aescipher.AESCipher(phrase)
+        payload = []
+        categories = []
         for cat in cat_list:
             if not cat:
                 # Silently ignore any empty dictionaries
@@ -72,15 +71,14 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                 if not category:
                     cat['status'] = "error: missing or empty category"
                 else:
-                    cat_blob = utils.qq(cipher.encrypt(category))
-                    sql = ("UPDATE categories SET category_blob = %s"
-                           "WHERE id=%s" % (cat_blob, cat_id))
-                if self.db_cursor.execute(sql) == 1:
+                    blob = cipher.encrypt(cat)
+                    categories.append(models.Category(blob=blob))
                     cat['status'] = "success: updated"
-                else:
-                    cat['status'] = "error: does not exist"
 
             payload.append(cat)
+
+        with api.get_session() as session:
+            api.category_create_update(categories, session=session)
 
         return {'result': 'success', 'payload': payload}
 
@@ -90,24 +88,24 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return error
 
         payload = []
+        categories = []
         for cat_id, cascade in cat_list:
             if not cat_id:
                 resp = {'id': None, 'status': "error: empty category id"}
             else:
-                sql = "DELETE FROM categories WHERE id=%s" % cat_id
-                if self.db_cursor.execute(sql) == 1:
-                    resp = {'id': cat_id, 'status': "success: deleted"}
-                else:
-                    resp = {'id': cat_id, 'status': "error: does not exist"}
+                categories.append(cat_id)
+                resp = {'id': cat_id, 'status': "success: deleted"}
 
-                # TODO(alex_bash): report # entries removed to user?
                 if cascade is True:
-                    sql = "DELETE FROM entries WHERE category_id=%s" % cat_id
+                    pass
+                    # TODO(alex_bash): delete associated entries
                 else:
-                    sql = ("UPDATE entries set category_id=NULL"
-                           "WHERE category_id=%s" % cat_id)
-                self.db_cursor.execute(sql)
+                    pass
+                    # TODO(alex_bash): clear category in associated entries
 
             payload.append(resp)
+
+        with api.get_session() as session:
+            api.category_delete(categories, session=session)
 
         return {'result': 'success', 'payload': payload}
