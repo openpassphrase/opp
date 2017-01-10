@@ -1,6 +1,3 @@
-
-"""Functional test cases for glance-manage"""
-
 import os
 import tempfile
 import testtools
@@ -12,7 +9,7 @@ class TestDbManager(testtools.TestCase):
 
     def setUp(self):
         super(TestDbManager, self).setUp()
-        self.test_dir = tempfile.mkdtemp(suffix='opp')
+        self.test_dir = tempfile.mkdtemp(prefix='opp_')
         self.conf_filepath = os.path.join(self.test_dir, 'opp.cfg')
         self.db_filepath = os.path.join(self.test_dir, 'test.sqlite')
         self.connection = ("sql_connect: 'sqlite:///%s'" % self.db_filepath)

@@ -1,6 +1,3 @@
-#!/usr/local/bin/python
-
-
 import base_handler
 from opp.common import aescipher, utils
 

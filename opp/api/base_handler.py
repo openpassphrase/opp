@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 import cgi
 import json
 import pymysql
