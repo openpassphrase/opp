@@ -25,6 +25,17 @@ class Entry(Base):
 
     category = relationship('Category')
 
+    def decrypt(self, cipher):
+        entry = {'id': self.id,
+                 'entry': cipher.decrypt(self.blob),
+                 'category_id': self.category_id}
+        if self.category:
+            entry['category'] = cipher.decrypt(self.category.blob)
+        else:
+            entry['category'] = None
+
+        return entry
+
 
 class Category(Base):
 
@@ -36,3 +47,8 @@ class Category(Base):
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False, onupdate=lambda: datetime.now())
+
+    def decrypt(self, cipher):
+        category = {'id': self.id,
+                    'category': cipher.decrypt(self.blob)}
+        return category

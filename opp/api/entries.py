@@ -1,6 +1,6 @@
 import base_handler
-from opp.common import aescipher, utils
-from opp.db import api
+from opp.common import aescipher
+from opp.db import api, models
 
 
 class ResponseHandler(base_handler.BaseResponseHandler):
@@ -10,16 +10,8 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         cipher = aescipher.AESCipher(phrase)
         with api.get_session() as session:
             entries = api.entry_getall(session=session)
-        for item in entries:
-            resp = {'id': item[0],
-                    'entry': cipher.decrypt(item[1]),
-                    'category_id': item[2]}
-            try:
-                resp['category'] = cipher.decrypt(item[3])
-            except TypeError:
-                resp['category'] = None
-
-            response.append(resp)
+        for entry in entries:
+            response.append(entry.decrypt(cipher))
         return {'result': 'success', 'entries': response}
 
     def _handle_create(self, phrase):
@@ -29,39 +21,33 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         cipher = aescipher.AESCipher(phrase)
         payload = []
+        entries = []
         for item in entry_list:
-            if not item:
-                # Silently ignore any empty dictionaries
-                continue
+            # Make sure entry is parsed from request
             try:
-                # Make sure category id is parsed from request
-                cat_id = item['category_id']
-                if not cat_id:
-                    cat_id = "NULL"
-            except KeyError:
-                cat_id = "NULL"
-
-            try:
-                # Make sure entry is parsed from request
                 entry = item['entry']
             except KeyError:
                 entry = None
             if not entry:
                 item['status'] = "error: missing or empty entry"
-            else:
-                # Encrypt entry blob
-                ent_blob = cipher.encrypt(entry)
+                payload.append(item)
+                continue
 
-                # Store entry
-                sql = ("INSERT INTO entries (category_id,"
-                       "entry_blob) VALUES (%s,%s)" %
-                       (cat_id, utils.qq(ent_blob)))
-                if self.db_cursor.execute(sql) == 1:
-                    item['status'] = "success: created"
-                else:
-                    item['status'] = "error: failed to create"
+            # Parse category id from request
+            try:
+                cat_id = item['category_id']
+                if not cat_id:
+                    cat_id = None
+            except KeyError:
+                cat_id = None
 
+            blob = cipher.encrypt(entry)
+            entries.append(models.Entry(blob=blob, category_id=cat_id))
+            item['status'] = "success: created"
             payload.append(item)
+
+        with api.get_session() as session:
+            api.entry_create_update(entries, session=session)
 
         return {'result': 'success', 'payload': payload}
 
@@ -70,48 +56,48 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         if error:
             return error
 
-        payload = []
         cipher = aescipher.AESCipher(phrase)
+        payload = []
+        entries = []
         for ent in entry_list:
-            if not ent:
-                # Silently ignore any empty dictionaries
-                continue
+            # Make sure entry id is parsed from request
             try:
-                # Make sure entry id is parsed from request
                 ent_id = ent['id']
             except KeyError:
                 ent_id = None
-
             if not ent_id:
                 ent['status'] = "error: missing or empty entry id"
-            else:
-                try:
-                    # Make sure entry is parsed from request
-                    entry = ent['entry']
-                except KeyError:
-                    entry = None
-                if not entry:
-                    ent['status'] = "error: missing or empty entry"
-                else:
-                    entry_blob = utils.qq(cipher.encrypt(entry))
-                    try:
-                        cat_id = ent['category_id']
-                        if not cat_id:
-                            cat_id = "NULL"
-                    except KeyError:
-                        cat_id = "NULL"
-                    sql = ("UPDATE entries SET "
-                           "entry_blob = %s, "
-                           "category_id = %s "
-                           "WHERE id=%s" % (entry_blob,
-                                            cat_id,
-                                            ent_id))
-                    if self.db_cursor.execute(sql) == 1:
-                        ent['status'] = "success: updated"
-                    else:
-                        ent['status'] = "error: does not exist"
+                payload.append(ent)
+                continue
 
+            # Make sure entry is parsed from request
+            try:
+                entry = ent['entry']
+            except KeyError:
+                entry = None
+            if not entry:
+                ent['status'] = "error: missing or empty entry"
+                payload.append(ent)
+                continue
+
+            # Make sure category id is parsed from request
+            try:
+                cat_id = ent['category_id']
+            except KeyError:
+                cat_id = None
+            if not cat_id:
+                ent['status'] = "error: missing or empty entry"
+                payload.append(ent)
+                continue
+
+            blob = cipher.encrypt(entry)
+            entries.append(models.Entry(id=ent_id, blob=blob,
+                                        category_id=cat_id))
+            ent['status'] = "success: updated"
             payload.append(ent)
+
+        with api.get_session() as session:
+            api.entry_create_update(entries, session=session)
 
         return {'result': 'success', 'payload': payload}
 
@@ -121,17 +107,19 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return error
 
         payload = []
+        entries = []
         for ent_id in entry_list:
+            # Make sure entry id is parsed from request
             if not ent_id:
                 resp = {'id': None,
                         'status': "error: empty entry id not allowed"}
             else:
-                sql = "DELETE FROM entries WHERE id=%s" % ent_id
-                if self.db_cursor.execute(sql) == 1:
-                    resp = {'id': ent_id, 'status': "success: deleted"}
-                else:
-                    resp = {'id': ent_id, 'status': "error: does not exist"}
+                entries.append(ent_id)
+                resp = {'id': ent_id, 'status': "success: deleted"}
 
             payload.append(resp)
+
+        with api.get_session() as session:
+            api.entry_delete_by_id(entries, session=session)
 
         return {'result': 'success', 'payload': payload}

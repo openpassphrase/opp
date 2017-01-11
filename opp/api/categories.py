@@ -11,8 +11,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         with api.get_session() as session:
             categories = api.category_getall(session=session)
             for category in categories:
-                cat = cipher.decrypt(category.blob)
-                response.append({'id': category.id, 'category': cat})
+                response.append(category.decrypt(cipher))
 
         return {'result': 'success', 'categories': response}
 
@@ -50,31 +49,29 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         payload = []
         categories = []
         for cat in cat_list:
-            if not cat:
-                # Silently ignore any empty dictionaries
-                continue
             try:
                 # Make sure category id is parsed from request
                 cat_id = cat['id']
             except KeyError:
                 cat_id = None
-
             if not cat_id:
                 cat['status'] = "error: missing or empty category id"
-            else:
-                try:
-                    # Make sure category is parsed from request
-                    category = cat['category']
-                except KeyError:
-                    category = None
+                payload.append(cat)
+                continue
 
-                if not category:
-                    cat['status'] = "error: missing or empty category"
-                else:
-                    blob = cipher.encrypt(cat)
-                    categories.append(models.Category(blob=blob))
-                    cat['status'] = "success: updated"
+            # Make sure category is parsed from request
+            try:
+                category = cat['category']
+            except KeyError:
+                category = None
+            if not category:
+                cat['status'] = "error: missing or empty category"
+                payload.append(cat)
+                continue
 
+            blob = cipher.encrypt(cat)
+            categories.append(models.Category(id=cat_id, blob=blob))
+            cat['status'] = "success: updated"
             payload.append(cat)
 
         with api.get_session() as session:
@@ -90,6 +87,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         payload = []
         categories = []
         for cat_id, cascade in cat_list:
+            # Make sure category id is parsed from request
             if not cat_id:
                 resp = {'id': None, 'status': "error: empty category id"}
             else:
@@ -106,6 +104,6 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             payload.append(resp)
 
         with api.get_session() as session:
-            api.category_delete(categories, session=session)
+            api.category_delete_by_id(categories, session=session)
 
         return {'result': 'success', 'payload': payload}
