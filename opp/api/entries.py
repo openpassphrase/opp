@@ -1,5 +1,6 @@
 import base_handler
 from opp.common import aescipher, utils
+from opp.db import api
 
 
 class ResponseHandler(base_handler.BaseResponseHandler):
@@ -7,9 +8,8 @@ class ResponseHandler(base_handler.BaseResponseHandler):
     def _handle_getall(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
-        # with api.get_session() as session:
-        #     entries = api.entry_getall()
-        entries = []
+        with api.get_session() as session:
+            entries = api.entry_getall(session=session)
         for item in entries:
             resp = {'id': item[0],
                     'entry': cipher.decrypt(item[1]),

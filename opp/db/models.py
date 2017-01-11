@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import (Column, DateTime, ForeignKey,
                         Index, Integer, Sequence, String)
 from sqlalchemy.ext.declarative import declarative_base
-# from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship
 
 
 Base = declarative_base()
@@ -23,7 +23,7 @@ class Entry(Base):
     updated_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False, onupdate=lambda: datetime.now())
 
-    # category = relationship('Category', back_populates='entries')
+    category = relationship('Category')
 
 
 class Category(Base):

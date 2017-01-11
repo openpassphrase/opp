@@ -57,12 +57,17 @@ def entry_create_update(entries, session=None, conf=None):
 def entry_getall(filter_ids=None, session=None, conf=None):
     session = session or get_session(conf)
     if filter_ids:
-        query = session.query(models.entry).order_by(
-            models.entry.id).filter(
-            models.entry.id.in_(filter_ids))
+        query = session.query(
+            models.Entry).order_by(
+            models.Entry.id).filter(
+            models.Entry.id.in_(filter_ids)).outerjoin(
+            models.Category)
 
     else:
-        query = session.query(models.entry).order_by(models.entry.id)
+        query = session.query(
+            models.Entry).order_by(
+            models.Entry.id).outerjoin(
+            models.Category)
     return query.all()
 
 
