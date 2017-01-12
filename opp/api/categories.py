@@ -49,8 +49,8 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         payload = []
         categories = []
         for cat in cat_list:
+            # Make sure category id is parsed from request
             try:
-                # Make sure category id is parsed from request
                 cat_id = cat['id']
             except KeyError:
                 cat_id = None

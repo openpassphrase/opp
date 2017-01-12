@@ -1,9 +1,12 @@
-import setuptools
+from setuptools import setup, find_packages
 
-setuptools.setup(
+setup(
+    name='OpenPassPhrase',
+    version='1.0.0',
+    packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'opp-db = opp.tools.dbmgr:main',
+            'opp-db=opp.tools.dbmgr:main',
         ],
-    }
+    },
 )

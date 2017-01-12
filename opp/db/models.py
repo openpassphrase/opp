@@ -48,6 +48,8 @@ class Category(Base):
     updated_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False, onupdate=lambda: datetime.now())
 
+    entries = relationship('Entry', order_by=Entry.id)
+
     def decrypt(self, cipher):
         category = {'id': self.id,
                     'category': cipher.decrypt(self.blob)}

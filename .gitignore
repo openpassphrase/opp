@@ -1,5 +1,5 @@
 .venv
 .tox
 .cache
-opp.egg-info
+OpenPassPhrase.egg-info
 *.pyc
