@@ -1,5 +1,7 @@
 import json
 
+from opp.db import api
+
 
 def error(msg=None):
     return {'result': 'error', 'message': msg}
@@ -51,6 +53,9 @@ class BaseResponseHandler(object):
         except KeyError:
             return error("Action missing!")
 
+        # Obtain DB session for making transactions
+        self.session = api.get_session()
+
         if action == 'getall':
             response = self._handle_getall(phrase)
         elif action == 'create':
@@ -62,6 +67,7 @@ class BaseResponseHandler(object):
         else:
             response = error("Action unrecognized!")
 
+        self.session.close()
         return response
 
 

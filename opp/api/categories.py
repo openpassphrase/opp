@@ -8,10 +8,9 @@ class ResponseHandler(base_handler.BaseResponseHandler):
     def _handle_getall(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
-        with api.get_session() as session:
-            categories = api.category_getall(session=session)
-            for category in categories:
-                response.append(category.decrypt(cipher))
+        categories = api.category_getall(session=self.session)
+        for category in categories:
+            response.append(category.decrypt(cipher))
 
         return {'result': 'success', 'categories': response}
 
@@ -35,8 +34,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
             payload.append(resp)
 
-        with api.get_session() as session:
-            api.category_create_update(categories, session=session)
+        api.category_create_update(categories, session=self.session)
 
         return {'result': 'success', 'payload': payload}
 
@@ -74,8 +72,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             cat['status'] = "success: updated"
             payload.append(cat)
 
-        with api.get_session() as session:
-            api.category_create_update(categories, session=session)
+        api.category_create_update(categories, session=self.session)
 
         return {'result': 'success', 'payload': payload}
 
@@ -103,7 +100,6 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
             payload.append(resp)
 
-        with api.get_session() as session:
-            api.category_delete_by_id(categories, session=session)
+        api.category_delete_by_id(categories, session=self.session)
 
         return {'result': 'success', 'payload': payload}
