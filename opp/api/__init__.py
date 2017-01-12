@@ -1,7 +1,7 @@
 import json
 import logging
 
-from flask import Flask
+from flask import Flask, request
 
 import base_handler
 import categories
@@ -30,15 +30,15 @@ def health_check():
     return _to_json({'status': "OpenPassPhrase service is running"})
 
 
-@app.route("/categories")
+@app.route("/categories", methods=['POST'])
 def handle_categories():
-    handler = categories.ResponseHandler(method, path, query)
+    handler = categories.ResponseHandler(request)
     response = handler.respond()
     return _to_json(response)
 
 
-@app.route("/entries")
+@app.route("/entries", methods=['POST'])
 def handle_entries():
-    handler = entries.ResponseHandler(method, path, query)
+    handler = entries.ResponseHandler(request)
     response = handler.respond()
     return _to_json(response)

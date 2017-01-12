@@ -1,4 +1,3 @@
-import cgi
 import json
 
 
@@ -8,15 +7,12 @@ def error(msg=None):
 
 class BaseResponseHandler(object):
 
-    def __init__(self, method, path, query):
-        self.method = method
-        self.path = path
-        self.query = query
-        self.form_data = cgi.FieldStorage()
+    def __init__(self, request):
+        self.request = request
 
     def _get_payload(self):
         try:
-            payload = self.form_data['payload'].value
+            payload = self.request.form['payload']
         except KeyError:
             return [], error("Payload missing!")
         try:
@@ -43,15 +39,15 @@ class BaseResponseHandler(object):
 
     def respond(self):
         # Only POST is supported at this point
-        if self.method != 'POST':
-            return error(("Method %s is not implemented!" % self.method))
+        if self.request.method != 'POST':
+            return error("Method %s is not implemented!" % self.request.method)
         # Retrieve required 'phrase' and 'action' fields
         try:
-            phrase = self.form_data['phrase'].value
+            phrase = self.request.form['phrase']
         except KeyError:
             return error("Passphrase missing!")
         try:
-            action = self.form_data['action'].value
+            action = self.request.form['action']
         except KeyError:
             return error("Action missing!")
 
