@@ -3,9 +3,7 @@ import logging
 
 from flask import Flask, request
 
-import base_handler
 import categories
-from opp.common import utils
 import entries
 
 

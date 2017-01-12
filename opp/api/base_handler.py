@@ -40,9 +40,6 @@ class BaseResponseHandler(object):
         return error("Action not implemented")
 
     def respond(self):
-        # Only POST is supported at this point
-        if self.request.method != 'POST':
-            return error("Method %s is not implemented!" % self.request.method)
         # Retrieve required 'phrase' and 'action' fields
         try:
             phrase = self.request.form['phrase']

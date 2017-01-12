@@ -2,16 +2,7 @@ import mock
 import unittest
 
 from opp.api import entries as eh
-
-
-class MockConnection(object):
-    def cursor(self):
-        return None
-
-
-class MockValue(object):
-    def __init__(self, value):
-        self.value = value
+from test_base_handler import MockRequest
 
 
 class TestResponseHandler(unittest.TestCase):
@@ -20,49 +11,29 @@ class TestResponseHandler(unittest.TestCase):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
 
     @mock.patch.object(eh.ResponseHandler, '_handle_getall')
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_getall(self, mock_connect, mock_cgi, f):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123'),
-                                 'action': MockValue('getall')}
-        handler = eh.ResponseHandler('POST', '', '')
+    def test_respond_getall(self, func):
+        request = MockRequest({'phrase': '123', 'action': 'getall'})
+        handler = eh.ResponseHandler(request)
         handler.respond()
-        self._check_called(eh.ResponseHandler._handle_getall,
-                           '123')
+        self._check_called(func, '123')
 
     @mock.patch.object(eh.ResponseHandler, '_handle_create')
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_create(self, mock_connect, mock_cgi, f):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123'),
-                                 'action': MockValue('create')}
-        handler = eh.ResponseHandler('POST', '', '')
+    def test_respond_create(self, func):
+        request = MockRequest({'phrase': '123', 'action': 'create'})
+        handler = eh.ResponseHandler(request)
         handler.respond()
-        self._check_called(eh.ResponseHandler._handle_create,
-                           '123')
+        self._check_called(func, '123')
 
     @mock.patch.object(eh.ResponseHandler, '_handle_update')
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_update(self, mock_connect, mock_cgi, f):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123'),
-                                 'action': MockValue('update')}
-        handler = eh.ResponseHandler('POST', '', '')
+    def test_respond_update(self, func):
+        request = MockRequest({'phrase': '123', 'action': 'update'})
+        handler = eh.ResponseHandler(request)
         handler.respond()
-        self._check_called(eh.ResponseHandler._handle_update,
-                           '123')
+        self._check_called(func, '123')
 
     @mock.patch.object(eh.ResponseHandler, '_handle_delete')
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_delete(self, mock_connect, mock_cgi, f):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123'),
-                                 'action': MockValue('delete')}
-        handler = eh.ResponseHandler('POST', '', '')
+    def test_respond_delete(self, func):
+        request = MockRequest({'phrase': '123', 'action': 'delete'})
+        handler = eh.ResponseHandler(request)
         handler.respond()
-        self._check_called(eh.ResponseHandler._handle_delete,
-                           '123')
+        self._check_called(func, '123')

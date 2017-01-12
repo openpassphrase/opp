@@ -4,82 +4,54 @@ import unittest
 from opp.api import base_handler as bh
 
 
-class MockConnection(object):
-    def cursor(self):
-        return None
-
-
-class MockValue(object):
-    def __init__(self, value):
-        self.value = value
+class MockRequest(object):
+    def __init__(self, form):
+        self.form = form
 
 
 class TestBaseResponseHandler(unittest.TestCase):
 
-    @mock.patch('pymysql.connect')
-    def test_get_payload_missing(self, mock_connect):
-        mock_connect.return_value = MockConnection()
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_get_payload_missing(self):
+        request = MockRequest({})
+        handler = bh.BaseResponseHandler(request)
         payload, error = handler._get_payload()
         self.assertEqual(payload, [])
         self.assertEqual(error, {'result': 'error',
                                  'message': 'Payload missing!'})
 
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_get_payload_invalid(self, mock_connect, mock_cgi):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'payload': MockValue('blah')}
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_get_payload_invalid(self):
+        request = MockRequest({'payload': 'blah'})
+        handler = bh.BaseResponseHandler(request)
         payload, error = handler._get_payload()
         self.assertEqual(payload, [])
         self.assertEqual(error, {'result': 'error',
                                  'message': 'Invalid payload!'})
 
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_get_payload_empty(self, mock_connect, mock_cgi):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'payload': MockValue('[]')}
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_get_payload_empty(self):
+        request = MockRequest({'payload': '[]'})
+        handler = bh.BaseResponseHandler(request)
         payload, error = handler._get_payload()
         self.assertEqual(payload, [])
         self.assertEqual(error, {'result': 'error',
                                  'message': 'Empty payload!'})
 
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_get_payload(self, mock_connect, mock_cgi):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'payload': MockValue('["blah"]')}
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_get_payload(self):
+        request = MockRequest({'payload': '["blah"]'})
+        handler = bh.BaseResponseHandler(request)
         payload, error = handler._get_payload()
         self.assertNotEqual(payload, [])
         self.assertIsNone(error)
 
-    @mock.patch('pymysql.connect')
-    def test_respond_bad_method(self, mock_connect):
-        mock_connect.return_value = MockConnection()
-        for method in ['GET', 'PUT', 'DELETE', 'PATCH']:
-            handler = bh.BaseResponseHandler(method, '', '')
-            message = "Method %s is not implemented!" % method
-            self.assertEqual(handler.respond(),
-                             {'result': 'error', 'message': message})
-
-    @mock.patch('pymysql.connect')
-    def test_respond_missing_phrase(self, mock_connect):
-        mock_connect.return_value = MockConnection()
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_respond_missing_phrase(self):
+        request = MockRequest({})
+        handler = bh.BaseResponseHandler(request)
         message = "Passphrase missing!"
         self.assertEqual(handler.respond(),
                          {'result': 'error', 'message': message})
 
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_missing_action(self, mock_connect, mock_cgi):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123')}
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_respond_missing_action(self):
+        request = MockRequest({'phrase': '123'})
+        handler = bh.BaseResponseHandler(request)
         message = "Action missing!"
         self.assertEqual(handler.respond(),
                          {'result': 'error', 'message': message})
@@ -88,56 +60,36 @@ class TestBaseResponseHandler(unittest.TestCase):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
 
     @mock.patch.object(bh.BaseResponseHandler, '_handle_getall')
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_getall(self, mock_connect, mock_cgi, f):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123'),
-                                 'action': MockValue('getall')}
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_respond_getall(self, func):
+        request = MockRequest({'phrase': '123', 'action': 'getall'})
+        handler = bh.BaseResponseHandler(request)
         handler.respond()
-        self._check_called(bh.BaseResponseHandler._handle_getall, '123')
+        self._check_called(func, '123')
 
     @mock.patch.object(bh.BaseResponseHandler, '_handle_create')
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_create(self, mock_connect, mock_cgi, f):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123'),
-                                 'action': MockValue('create')}
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_respond_create(self, func):
+        request = MockRequest({'phrase': '123', 'action': 'create'})
+        handler = bh.BaseResponseHandler(request)
         handler.respond()
         self._check_called(bh.BaseResponseHandler._handle_create, '123')
 
     @mock.patch.object(bh.BaseResponseHandler, '_handle_update')
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_update(self, mock_connect, mock_cgi, f):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123'),
-                                 'action': MockValue('update')}
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_respond_update(self, func):
+        request = MockRequest({'phrase': '123', 'action': 'update'})
+        handler = bh.BaseResponseHandler(request)
         handler.respond()
-        self._check_called(bh.BaseResponseHandler._handle_update, '123')
+        self._check_called(func, '123')
 
     @mock.patch.object(bh.BaseResponseHandler, '_handle_delete')
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_delete(self, mock_connect, mock_cgi, f):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123'),
-                                 'action': MockValue('delete')}
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_respond_delete(self, func):
+        request = MockRequest({'phrase': '123', 'action': 'delete'})
+        handler = bh.BaseResponseHandler(request)
         handler.respond()
-        self._check_called(bh.BaseResponseHandler._handle_delete, '123')
+        self._check_called(func, '123')
 
-    @mock.patch('cgi.FieldStorage')
-    @mock.patch('pymysql.connect')
-    def test_respond_bad_action(self, mock_connect, mock_cgi):
-        mock_connect.return_value = MockConnection()
-        mock_cgi.return_value = {'phrase': MockValue('123'),
-                                 'action': MockValue('bad')}
-        handler = bh.BaseResponseHandler('POST', '', '')
+    def test_respond_bad_action(self):
+        request = MockRequest({'phrase': '123', 'action': 'bad'})
+        handler = bh.BaseResponseHandler(request)
         response = handler.respond()
         expected = {'result': 'error', 'message': 'Action unrecognized!'}
         self.assertEqual(response, expected)
