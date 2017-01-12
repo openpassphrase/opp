@@ -1,5 +1,6 @@
 click>=6.7 # BSD
 config>=0.3.7 # Public Domain
+Flask>=0.12 # BSD
 MySQL-python>=1.2.5 # GPL
 pycrypto>=2.6 # Public Domain
 PyMySQL>=0.7.5 # MIT

@@ -1,5 +1,8 @@
 .venv
 .tox
 .cache
+build
+dist
 OpenPassPhrase.egg-info
+venv
 *.pyc
