@@ -34,7 +34,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
             payload.append(resp)
 
-        api.category_create_update(categories, session=self.session)
+        api.category_create(categories, session=self.session)
 
         return {'result': 'success', 'payload': payload}
 
@@ -67,12 +67,12 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                 payload.append(cat)
                 continue
 
-            blob = cipher.encrypt(cat)
+            blob = cipher.encrypt(category)
             categories.append(models.Category(id=cat_id, blob=blob))
             cat['status'] = "success: updated"
             payload.append(cat)
 
-        api.category_create_update(categories, session=self.session)
+        api.category_update(categories, session=self.session)
 
         return {'result': 'success', 'payload': payload}
 

@@ -13,11 +13,18 @@ def get_session(conf=None):
     return Session()
 
 
-def category_create_update(categories, session=None, conf=None):
+def category_create(categories, session=None, conf=None):
     session = session or get_session(conf)
     if categories:
         session.add_all(categories)
         session.commit()
+
+
+def category_update(categories, session=None, conf=None):
+    session = session or get_session(conf)
+    for category in categories:
+        session.merge(category)
+    session.commit()
 
 
 def category_getall(filter_ids=None, session=None, conf=None):
@@ -47,11 +54,18 @@ def category_delete_by_id(filter_ids, session=None, conf=None):
     category_delete(categories, session, conf)
 
 
-def entry_create_update(entries, session=None, conf=None):
+def entry_create(entries, session=None, conf=None):
     session = session or get_session(conf)
     if entries:
         session.add_all(entries)
         session.commit()
+
+
+def entry_update(entries, session=None, conf=None):
+    session = session or get_session(conf)
+    for entry in entries:
+        session.merge(entry)
+    session.commit()
 
 
 def entry_getall(filter_ids=None, session=None, conf=None):
