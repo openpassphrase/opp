@@ -35,13 +35,13 @@ class TestDbApi(testtools.TestCase):
 
         # Insert and retrieve a category
         category = models.Category(blob='blob')
-        api.category_create_update([category], session=session)
+        api.category_create([category], session=session)
         categories = api.category_getall(session=session)
         self.assertEqual(len(categories), 1)
 
         # Update and check the category
         category.blob = 'new blob'
-        api.category_create_update([category], session=session)
+        api.category_update([category], session=session)
         categories = api.category_getall(session=session)
         self.assertEqual(len(categories), 1)
         self.assertEqual(categories[0].blob, 'new blob')
@@ -61,7 +61,7 @@ class TestDbApi(testtools.TestCase):
         categories = [models.Category(blob='blob0'),
                       models.Category(blob='blob1'),
                       models.Category(blob='blob2')]
-        api.category_create_update(categories, session=session)
+        api.category_create(categories, session=session)
 
         # Retrieve first and last categories only
         ids = [1, 3]
@@ -80,7 +80,7 @@ class TestDbApi(testtools.TestCase):
         categories = [models.Category(blob='blob3'),
                       models.Category(blob='blob4'),
                       models.Category(blob='blob5')]
-        api.category_create_update(categories, session=session)
+        api.category_create(categories, session=session)
 
         # Delete first and last categories only
         ids = [1, 3]
@@ -102,14 +102,14 @@ class TestDbApi(testtools.TestCase):
 
         # Insert and retrieve an entry
         entry = models.Entry(blob='blob', category_id=None)
-        api.entry_create_update([entry], session=session)
+        api.entry_create([entry], session=session)
         entries = api.entry_getall(session=session)
         self.assertEqual(len(entries), 1)
 
         # Update and check the entry
         entry.blob = 'new blob'
         entry.category_id = 999
-        api.entry_create_update([entry], session=session)
+        api.entry_update([entry], session=session)
         entries = api.entry_getall(session=session)
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0].blob, 'new blob')
@@ -117,9 +117,9 @@ class TestDbApi(testtools.TestCase):
 
         # Update entry with valid category
         category = models.Category(blob='blah')
-        api.category_create_update([category], session=session)
+        api.category_create([category], session=session)
         entry.category_id = 1
-        api.entry_create_update([entry], session=session)
+        api.entry_update([entry], session=session)
         entries = api.entry_getall(session=session)
         self.assertEqual(len(entries), 1)
         self.assertEqual(entries[0].blob, 'new blob')
@@ -141,7 +141,7 @@ class TestDbApi(testtools.TestCase):
         entries = [models.Entry(blob='blob0'),
                    models.Entry(blob='blob1'),
                    models.Entry(blob='blob2')]
-        api.entry_create_update(entries, session=session)
+        api.entry_create(entries, session=session)
 
         # Retrieve first and last entries only
         ids = [1, 3]
@@ -160,7 +160,7 @@ class TestDbApi(testtools.TestCase):
         entries = [models.Entry(blob='blob3'),
                    models.Entry(blob='blob4'),
                    models.Entry(blob='blob5')]
-        api.entry_create_update(entries, session=session)
+        api.entry_create(entries, session=session)
 
         # Delete first and last entries only
         ids = [1, 3]
