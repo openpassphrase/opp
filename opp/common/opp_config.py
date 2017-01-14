@@ -1,5 +1,5 @@
 from config import Config, ConfigList, ConfigError
-from os import path
+from os import environ, path
 
 
 class OppConfig(object):
@@ -9,6 +9,14 @@ class OppConfig(object):
         sys_config = '/etc/opp/opp.cfg'
 
         self.cfglist = ConfigList()
+
+        if not top_config:
+            # User config not provided, attempt to read from env
+            # This is mostly intended to be used for testing
+            try:
+                top_config = environ['OPP_TOP_CONFIG']
+            except KeyError:
+                pass
 
         # Load configs in order of decreasing priority
         if top_config and path.isfile(top_config):
