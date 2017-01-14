@@ -9,6 +9,11 @@ class MockRequest(object):
         self.form = form
 
 
+class MockSession(object):
+    def close(self):
+        pass
+
+
 class TestBaseResponseHandler(unittest.TestCase):
 
     def test_get_payload_missing(self):
@@ -59,35 +64,45 @@ class TestBaseResponseHandler(unittest.TestCase):
     def _check_called(self, func_name, *exp_args, **exp_kwargs):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
 
+    @mock.patch('opp.db.api.get_session')
     @mock.patch.object(bh.BaseResponseHandler, '_handle_getall')
-    def test_respond_getall(self, func):
+    def test_respond_getall(self, func, mock_get_session):
+        mock_get_session.return_value = MockSession()
         request = MockRequest({'phrase': '123', 'action': 'getall'})
         handler = bh.BaseResponseHandler(request)
         handler.respond()
         self._check_called(func, '123')
 
+    @mock.patch('opp.db.api.get_session')
     @mock.patch.object(bh.BaseResponseHandler, '_handle_create')
-    def test_respond_create(self, func):
+    def test_respond_create(self, func, mock_get_session):
+        mock_get_session.return_value = MockSession()
         request = MockRequest({'phrase': '123', 'action': 'create'})
         handler = bh.BaseResponseHandler(request)
         handler.respond()
         self._check_called(bh.BaseResponseHandler._handle_create, '123')
 
+    @mock.patch('opp.db.api.get_session')
     @mock.patch.object(bh.BaseResponseHandler, '_handle_update')
-    def test_respond_update(self, func):
+    def test_respond_update(self, func, mock_get_session):
+        mock_get_session.return_value = MockSession()
         request = MockRequest({'phrase': '123', 'action': 'update'})
         handler = bh.BaseResponseHandler(request)
         handler.respond()
         self._check_called(func, '123')
 
+    @mock.patch('opp.db.api.get_session')
     @mock.patch.object(bh.BaseResponseHandler, '_handle_delete')
-    def test_respond_delete(self, func):
+    def test_respond_delete(self, func, mock_get_session):
+        mock_get_session.return_value = MockSession()
         request = MockRequest({'phrase': '123', 'action': 'delete'})
         handler = bh.BaseResponseHandler(request)
         handler.respond()
         self._check_called(func, '123')
 
-    def test_respond_bad_action(self):
+    @mock.patch('opp.db.api.get_session')
+    def test_respond_bad_action(self, mock_get_session):
+        mock_get_session.return_value = MockSession()
         request = MockRequest({'phrase': '123', 'action': 'bad'})
         handler = bh.BaseResponseHandler(request)
         response = handler.respond()
