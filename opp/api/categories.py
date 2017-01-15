@@ -83,20 +83,34 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         payload = []
         categories = []
-        for cat_id, cascade in cat_list:
+        for category in cat_list:
             # Make sure category id is parsed from request
+            try:
+                cat_id = category['id']
+            except KeyError:
+                cat_id = None
             if not cat_id:
-                resp = {'id': None, 'status': "error: empty category id"}
-            else:
-                categories.append(cat_id)
-                resp = {'id': cat_id, 'status': "success: deleted"}
+                resp = {'id': None, 'status': "error: missing category id"}
+                payload.append(resp)
+                continue
 
-                if cascade is True:
-                    pass
-                    # TODO(alex_bash): delete associated entries
-                else:
-                    pass
-                    # TODO(alex_bash): clear category in associated entries
+            # Make sure cascade value is parsed from request
+            try:
+                cascade = category['cascade']
+            except KeyError:
+                resp = {'id': None, 'status': "error: missing cascade value"}
+                payload.append(resp)
+                continue
+
+            categories.append(cat_id)
+            resp = {'id': cat_id, 'status': "success: deleted"}
+
+            if cascade is True:
+                pass
+                # TODO(alex_bash): delete associated entries
+            else:
+                pass
+                # TODO(alex_bash): clear category in associated entries
 
             payload.append(resp)
 

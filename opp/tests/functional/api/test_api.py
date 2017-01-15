@@ -76,18 +76,16 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(rpat.status_code, 405)
 
     def test_categories_basic(self):
-        # Request getall categories
-        data = {'phrase': '123', 'action': 'getall'}
+        # Request getall categories, expect empty list initially
+        data = {'phrase': "123", 'action': "getall"}
         response = self.client.post('/categories', data=data)
-
-        # Expect empty list initially
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
         self.assertEqual(data['categories'], [])
 
         # Add 3 categories, check for successful response
-        data = {'phrase': '123', 'action': 'create',
+        data = {'phrase': "123", 'action': "create",
                 'payload': '["cat1", "cat2", "cat3"]'}
         response = self.client.post('/categories', data=data)
         data = json.loads(response.data)
@@ -102,9 +100,9 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(cat3['status'], "success: created")
 
         # Update categories 1 & 3
-        payload = [{"id": 1, "category": "new_cat1"},
-                   {"id": 3, "category": "new_cat3"}]
-        data = {'phrase': '123', 'action': 'update',
+        payload = [{'id': 1, 'category': "new_cat1"},
+                   {'id': 3, 'category': "new_cat3"}]
+        data = {'phrase': "123", 'action': "update",
                 'payload': json.dumps(payload)}
         response = self.client.post('/categories', data=data)
         data = json.loads(response.data)
@@ -115,3 +113,39 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(cat3['category'], "new_cat3")
         self.assertEqual(cat1['status'], "success: updated")
         self.assertEqual(cat3['status'], "success: updated")
+
+        # Check all 3 categories
+        data = {'phrase': '123', 'action': 'getall'}
+        response = self.client.post('/categories', data=data)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data['result'], "success")
+        self.assertEqual(len(data['categories']), 3)
+        cat1, cat2, cat3 = data['categories']
+        self.assertEqual(cat1['category'], "new_cat1")
+        self.assertEqual(cat2['category'], "cat2")
+        self.assertEqual(cat3['category'], "new_cat3")
+
+        # Delete categories 1 & 3
+        payload = [{'id': 1, 'cascade': False},
+                   {'id': 3, 'cascade': False}]
+        data = {'phrase': '123', 'action': 'delete',
+                'payload': json.dumps(payload)}
+        response = self.client.post('/categories', data=data)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data['result'], "success")
+        cat1, cat3 = data['payload']
+        self.assertEqual(cat1['id'], 1)
+        self.assertEqual(cat3['id'], 3)
+        self.assertEqual(cat1['status'], "success: deleted")
+        self.assertEqual(cat3['status'], "success: deleted")
+
+        # Get all categories, only 1 sould remain
+        data = {'phrase': '123', 'action': 'getall'}
+        response = self.client.post('/categories', data=data)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data['result'], "success")
+        self.assertEqual(len(data['categories']), 1)
+        self.assertEqual(data['categories'][0]['category'], "cat2")
