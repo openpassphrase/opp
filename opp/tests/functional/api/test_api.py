@@ -82,8 +82,9 @@ class BackendApiTests(unittest.TestCase):
 
         # Expect empty list initially
         self.assertEqual(response.status_code, 200)
-        data = '{"result": "success", "categories": []}'
-        self.assertEqual(response.data, data)
+        data = json.loads(response.data)
+        self.assertEqual(data['result'], "success")
+        self.assertEqual(data['categories'], [])
 
         # Add 3 categories, check for successful response
         data = {'phrase': '123', 'action': 'create',
@@ -99,3 +100,18 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(cat1['status'], "success: created")
         self.assertEqual(cat2['status'], "success: created")
         self.assertEqual(cat3['status'], "success: created")
+
+        # Update categories 1 & 3
+        payload = [{"id": 1, "category": "new_cat1"},
+                   {"id": 3, "category": "new_cat3"}]
+        data = {'phrase': '123', 'action': 'update',
+                'payload': json.dumps(payload)}
+        response = self.client.post('/categories', data=data)
+        data = json.loads(response.data)
+        self.assertEqual(data['result'], "success")
+        self.assertEqual(len(data['payload']), 2)
+        cat1, cat3 = data['payload']
+        self.assertEqual(cat1['category'], "new_cat1")
+        self.assertEqual(cat3['category'], "new_cat3")
+        self.assertEqual(cat1['status'], "success: updated")
+        self.assertEqual(cat3['status'], "success: updated")
