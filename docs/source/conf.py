@@ -151,3 +151,6 @@ texinfo_documents = [
      author, 'OpenPassPhrase', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+
+html_favicon = '_static/favicon.ico'
