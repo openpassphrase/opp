@@ -153,4 +153,4 @@ texinfo_documents = [
 ]
 
 
-
+html_favicon = '_static/favicon.ico'
