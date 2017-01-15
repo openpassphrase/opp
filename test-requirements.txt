@@ -1,4 +1,4 @@
 flake8>=2.2.4 # MIT
 mock>=2.0 # BSD
-testtools>=1.4.0 # MIT
 pytest>=3.0.5 # MIT
+testtools>=1.4.0 # MIT
