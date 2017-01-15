@@ -19,7 +19,7 @@ Welcome to OpenPassPhrase!
 
 OpenPassPhrase is an open source password manager project. It is primarily
 targeted at knowledgeable users with access to their own private server
-mvirtual or dedicated). Future support for PaaS implementation is also planned.
+(virtual or dedicated). Future support for PaaS implementation is also planned.
 
 The main objective of this project is to provide a secure backend API for
 aggregating arbitrary secret data entries (e.g. account numbers, usernames
