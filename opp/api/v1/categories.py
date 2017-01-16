@@ -15,105 +15,88 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         return {'result': 'success', 'categories': response}
 
     def _do_put(self, phrase):
-        cat_list, error = self._get_payload()
+        cat_list, error = self._check_payload(expect_list=True)
         if error:
             return error
 
         cipher = aescipher.AESCipher(phrase)
-        payload = []
         categories = []
         for cat in cat_list:
+            # Check for empty category value
             if not cat:
-                resp = {'category': None,
-                        'status': "empty category not allowed"}
-            else:
-                # Encrypt category name blob and append to list
+                return self.error("Empty category data in list!")
+            try:
                 blob = cipher.encrypt(cat)
                 categories.append(models.Category(blob=blob))
-                resp = {'category': cat, 'status': "success: created"}
+            except TypeError:
+                return self.error("Invalid category data in list!")
 
-            payload.append(resp)
-
-        api.category_create(categories, session=self.session)
-
-        return {'result': 'success', 'payload': payload}
+        try:
+            api.category_create(categories, session=self.session)
+            return {'result': "success"}
+        except Exception:
+            return self.error("Unable to add new categories to the database!")
 
     def _do_post(self, phrase):
-        cat_list, error = self._get_payload()
+        cat_list, error = self._check_payload(expect_list=True)
         if error:
             return error
 
         cipher = aescipher.AESCipher(phrase)
-        payload = []
         categories = []
         for cat in cat_list:
             # Make sure category id is parsed from request
             try:
                 cat_id = cat['id']
             except KeyError:
-                cat_id = None
+                return self.error("Missing category id in list!")
             if not cat_id:
-                cat['status'] = "error: missing or empty category id"
-                payload.append(cat)
-                continue
+                return self.error("Empty category id in list!")
 
             # Make sure category is parsed from request
             try:
                 category = cat['category']
             except KeyError:
-                category = None
+                return self.error("Missing category in list!")
             if not category:
-                cat['status'] = "error: missing or empty category"
-                payload.append(cat)
-                continue
+                return self.error("Empty category in list!")
 
-            blob = cipher.encrypt(category)
-            categories.append(models.Category(id=cat_id, blob=blob))
-            cat['status'] = "success: updated"
-            payload.append(cat)
+            try:
+                blob = cipher.encrypt(category)
+                categories.append(models.Category(id=cat_id, blob=blob))
+            except TypeError:
+                return self.error("Invalid category data in list!")
 
-        api.category_update(categories, session=self.session)
-
-        return {'result': 'success', 'payload': payload}
+        try:
+            api.category_update(categories, session=self.session)
+            return {'result': 'success'}
+        except Exception:
+            return self.error("Unable to update categories in the database!")
 
     def _do_delete(self, phrase):
-        cat_list, error = self._get_payload()
+        payload, error = self._check_payload(expect_list=False)
         if error:
             return error
 
-        payload = []
-        categories = []
-        for category in cat_list:
-            # Make sure category id is parsed from request
-            try:
-                cat_id = category['id']
-            except KeyError:
-                cat_id = None
-            if not cat_id:
-                resp = {'id': None, 'status': "error: missing category id"}
-                payload.append(resp)
-                continue
+        try:
+            cascade = payload['cascade']
+        except KeyError:
+            return self.error("Missing cascade value!")
+        if cascade is not True and cascade is not False:
+            return self.error("Invalid cascade value!")
 
-            # Make sure cascade value is parsed from request
-            try:
-                cascade = category['cascade']
-            except KeyError:
-                resp = {'id': None, 'status': "error: missing cascade value"}
-                payload.append(resp)
-                continue
+        try:
+            categories = payload['ids']
+        except KeyError:
+            return self.error("Missing category id list!")
+        if not categories:
+            return self.error("Empty category id list!")
+        if not isinstance(categories, list):
+            return self.error("Invalid category id list!")
 
-            categories.append(cat_id)
-            resp = {'id': cat_id, 'status': "success: deleted"}
-
-            if cascade is True:
-                pass
-                # TODO(alex_bash): delete associated entries
-            else:
-                pass
-                # TODO(alex_bash): clear category in associated entries
-
-            payload.append(resp)
-
-        api.category_delete_by_id(categories, session=self.session)
-
-        return {'result': 'success', 'payload': payload}
+        try:
+            api.category_delete_by_id(categories,
+                                      cascade, session=self.session)
+            return {'result': "success"}
+        except Exception:
+            return self.error("Unable to delete categories from the database!")

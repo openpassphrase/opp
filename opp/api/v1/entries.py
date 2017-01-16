@@ -11,28 +11,26 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         entries = api.entry_getall(session=self.session)
         for entry in entries:
             response.append(entry.decrypt(cipher))
+
         return {'result': 'success', 'entries': response}
 
     def _do_put(self, phrase):
-        entry_list, error = self._get_payload()
+        entry_list, error = self._check_payload(expect_list=True)
         if error:
             return error
 
         cipher = aescipher.AESCipher(phrase)
-        payload = []
         entries = []
         for item in entry_list:
             # Make sure entry is parsed from request
             try:
                 entry = item['entry']
             except KeyError:
-                entry = None
+                return self.error("Missing entry data in list!")
             if not entry:
-                item['status'] = "error: missing or empty entry"
-                payload.append(item)
-                continue
+                return self.error("Empty entry data in list!")
 
-            # Parse category id from request
+            # Parse category id from request or set to None
             try:
                 cat_id = item['category_id']
                 if not cat_id:
@@ -40,82 +38,68 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             except KeyError:
                 cat_id = None
 
-            blob = cipher.encrypt(entry)
-            entries.append(models.Entry(blob=blob, category_id=cat_id))
-            item['status'] = "success: created"
-            payload.append(item)
+            try:
+                blob = cipher.encrypt(entry)
+                entries.append(models.Entry(blob=blob, category_id=cat_id))
+            except TypeError:
+                return self.error("Invalid entry data in list!")
 
-        api.entry_create_update(entries, session=self.session)
-
-        return {'result': 'success', 'payload': payload}
+        try:
+            api.entry_create(entries, session=self.session)
+            return {'result': "success"}
+        except Exception:
+            return self.error("Unable to add new entries to the database!")
 
     def _do_post(self, phrase):
-        entry_list, error = self._get_payload()
+        entry_list, error = self._check_payload(expect_list=True)
         if error:
             return error
 
         cipher = aescipher.AESCipher(phrase)
-        payload = []
         entries = []
         for ent in entry_list:
             # Make sure entry id is parsed from request
             try:
                 ent_id = ent['id']
             except KeyError:
-                ent_id = None
+                return self.error("Missing entry id in list!")
             if not ent_id:
-                ent['status'] = "error: missing or empty entry id"
-                payload.append(ent)
-                continue
+                return self.error("Empty entry id in list!")
 
             # Make sure entry is parsed from request
             try:
                 entry = ent['entry']
             except KeyError:
-                entry = None
+                return self.error("Missing entry in list!")
             if not entry:
-                ent['status'] = "error: missing or empty entry"
-                payload.append(ent)
-                continue
+                return self.error("Empty entry in list!")
 
-            # Make sure category id is parsed from request
+            # Make sure category id is parsed from request or set to None
             try:
                 cat_id = ent['category_id']
             except KeyError:
                 cat_id = None
-            if not cat_id:
-                ent['status'] = "error: missing or empty entry"
-                payload.append(ent)
-                continue
 
-            blob = cipher.encrypt(entry)
-            entries.append(models.Entry(id=ent_id, blob=blob,
-                                        category_id=cat_id))
-            ent['status'] = "success: updated"
-            payload.append(ent)
+            try:
+                blob = cipher.encrypt(entry)
+                entries.append(models.Entry(id=ent_id, blob=blob,
+                                            category_id=cat_id))
+            except TypeError:
+                return self.error("Invalid entry data in list!")
 
-        api.entry_create_update(entries, session=self.session)
-
-        return {'result': 'success', 'payload': payload}
+        try:
+            api.entry_update(entries, session=self.session)
+            return {'result': "success"}
+        except Exception:
+            return self.error("Unable to update entries in the database!")
 
     def _do_delete(self, phrase):
-        entry_list, error = self._get_payload()
+        payload, error = self._check_payload(expect_list=True)
         if error:
             return error
 
-        payload = []
-        entries = []
-        for ent_id in entry_list:
-            # Make sure entry id is parsed from request
-            if not ent_id:
-                resp = {'id': None,
-                        'status': "error: empty entry id not allowed"}
-            else:
-                entries.append(ent_id)
-                resp = {'id': ent_id, 'status': "success: deleted"}
-
-            payload.append(resp)
-
-        api.entry_delete_by_id(entries, session=self.session)
-
-        return {'result': 'success', 'payload': payload}
+        try:
+            api.entry_delete_by_id(payload, session=self.session)
+            return {'result': "success"}
+        except Exception:
+            return self.error("Unable to delete entries from the database!")
