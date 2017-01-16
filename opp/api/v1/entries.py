@@ -5,7 +5,7 @@ from opp.db import api, models
 
 class ResponseHandler(base_handler.BaseResponseHandler):
 
-    def _handle_getall(self, phrase):
+    def _do_get(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
         entries = api.entry_getall(session=self.session)
@@ -13,7 +13,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             response.append(entry.decrypt(cipher))
         return {'result': 'success', 'entries': response}
 
-    def _handle_create(self, phrase):
+    def _do_put(self, phrase):
         entry_list, error = self._get_payload()
         if error:
             return error
@@ -49,7 +49,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         return {'result': 'success', 'payload': payload}
 
-    def _handle_update(self, phrase):
+    def _do_post(self, phrase):
         entry_list, error = self._get_payload()
         if error:
             return error
@@ -98,7 +98,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         return {'result': 'success', 'payload': payload}
 
-    def _handle_delete(self, phrase):
+    def _do_delete(self, phrase):
         entry_list, error = self._get_payload()
         if error:
             return error

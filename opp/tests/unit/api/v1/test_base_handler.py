@@ -5,8 +5,20 @@ from opp.api.v1 import base_handler as bh
 
 
 class MockRequest(object):
-    def __init__(self, form):
-        self.form = form
+    def __init__(self, method=None, payload=None, phrase=None):
+        self.headers = {}
+        self.form = {}
+
+        self.method = method
+
+        if phrase:
+            self.headers['x-opp-phrase'] = phrase
+
+        if payload:
+            if payload == 'None':
+                self.form['payload'] = None
+            else:
+                self.form['payload'] = payload
 
 
 class MockSession(object):
@@ -17,96 +29,97 @@ class MockSession(object):
 class TestBaseResponseHandler(unittest.TestCase):
 
     def test_get_payload_missing(self):
-        request = MockRequest({})
+        request = MockRequest()
         handler = bh.BaseResponseHandler(request)
         payload, error = handler._get_payload()
         self.assertEqual(payload, [])
-        self.assertEqual(error, {'result': 'error',
-                                 'message': 'Payload missing!'})
+        self.assertEqual(error, {'result': "error",
+                                 'message': "Payload missing!"})
 
-    def test_get_payload_invalid(self):
-        request = MockRequest({'payload': 'blah'})
+    def test_get_payload_invalid1(self):
+        request = MockRequest(payload='None')
         handler = bh.BaseResponseHandler(request)
         payload, error = handler._get_payload()
         self.assertEqual(payload, [])
-        self.assertEqual(error, {'result': 'error',
-                                 'message': 'Invalid payload!'})
+        self.assertEqual(error, {'result': "error",
+                                 'message': "Invalid payload!"})
+
+    def test_get_payload_invalid2(self):
+        request = MockRequest(payload="blah")
+        handler = bh.BaseResponseHandler(request)
+        payload, error = handler._get_payload()
+        self.assertEqual(payload, [])
+        self.assertEqual(error, {'result': "error",
+                                 'message': "Invalid payload!"})
 
     def test_get_payload_empty(self):
-        request = MockRequest({'payload': '[]'})
+        request = MockRequest(payload='[]')
         handler = bh.BaseResponseHandler(request)
         payload, error = handler._get_payload()
         self.assertEqual(payload, [])
-        self.assertEqual(error, {'result': 'error',
-                                 'message': 'Empty payload!'})
+        self.assertEqual(error, {'result': "error",
+                                 'message': "Empty payload!"})
 
     def test_get_payload(self):
-        request = MockRequest({'payload': '["blah"]'})
+        request = MockRequest(payload='["blah"]')
         handler = bh.BaseResponseHandler(request)
         payload, error = handler._get_payload()
         self.assertNotEqual(payload, [])
         self.assertIsNone(error)
 
     def test_respond_missing_phrase(self):
-        request = MockRequest({})
+        request = MockRequest()
         handler = bh.BaseResponseHandler(request)
-        message = "Passphrase missing!"
         self.assertEqual(handler.respond(),
-                         {'result': 'error', 'message': message})
-
-    def test_respond_missing_action(self):
-        request = MockRequest({'phrase': '123'})
-        handler = bh.BaseResponseHandler(request)
-        message = "Action missing!"
-        self.assertEqual(handler.respond(),
-                         {'result': 'error', 'message': message})
+                         {'result': "error",
+                         'message': "Passphrase header missing!"})
 
     def _check_called(self, func_name, *exp_args, **exp_kwargs):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
 
     @mock.patch('opp.db.api.get_session')
-    @mock.patch.object(bh.BaseResponseHandler, '_handle_getall')
-    def test_respond_getall(self, func, mock_get_session):
+    @mock.patch.object(bh.BaseResponseHandler, '_do_get')
+    def test_respond_get(self, func, mock_get_session):
         mock_get_session.return_value = MockSession()
-        request = MockRequest({'phrase': '123', 'action': 'getall'})
+        request = MockRequest(phrase="123", method="GET")
         handler = bh.BaseResponseHandler(request)
         handler.respond()
-        self._check_called(func, '123')
+        self._check_called(func, "123")
 
     @mock.patch('opp.db.api.get_session')
-    @mock.patch.object(bh.BaseResponseHandler, '_handle_create')
-    def test_respond_create(self, func, mock_get_session):
+    @mock.patch.object(bh.BaseResponseHandler, '_do_put')
+    def test_respond_put(self, func, mock_get_session):
         mock_get_session.return_value = MockSession()
-        request = MockRequest({'phrase': '123', 'action': 'create'})
+        request = MockRequest(phrase="123", method="PUT")
         handler = bh.BaseResponseHandler(request)
         handler.respond()
-        self._check_called(bh.BaseResponseHandler._handle_create, '123')
+        self._check_called(func, "123")
 
     @mock.patch('opp.db.api.get_session')
-    @mock.patch.object(bh.BaseResponseHandler, '_handle_update')
+    @mock.patch.object(bh.BaseResponseHandler, '_do_post')
     def test_respond_update(self, func, mock_get_session):
         mock_get_session.return_value = MockSession()
-        request = MockRequest({'phrase': '123', 'action': 'update'})
+        request = MockRequest(phrase="123", method="POST")
         handler = bh.BaseResponseHandler(request)
         handler.respond()
-        self._check_called(func, '123')
+        self._check_called(func, "123")
 
     @mock.patch('opp.db.api.get_session')
-    @mock.patch.object(bh.BaseResponseHandler, '_handle_delete')
+    @mock.patch.object(bh.BaseResponseHandler, '_do_delete')
     def test_respond_delete(self, func, mock_get_session):
         mock_get_session.return_value = MockSession()
-        request = MockRequest({'phrase': '123', 'action': 'delete'})
+        request = MockRequest(phrase="123", method="DELETE")
         handler = bh.BaseResponseHandler(request)
         handler.respond()
-        self._check_called(func, '123')
+        self._check_called(func, "123")
 
     @mock.patch('opp.db.api.get_session')
-    def test_respond_bad_action(self, mock_get_session):
+    def test_respond_bad_verb(self, mock_get_session):
         mock_get_session.return_value = MockSession()
-        request = MockRequest({'phrase': '123', 'action': 'bad'})
+        request = MockRequest(phrase="123", method="PATCH")
         handler = bh.BaseResponseHandler(request)
         response = handler.respond()
-        expected = {'result': 'error', 'message': 'Action unrecognized!'}
+        expected = {'result': "error", 'message': "Method not supported!"}
         self.assertEqual(response, expected)
 
 

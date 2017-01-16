@@ -5,7 +5,7 @@ from opp.common import aescipher
 
 class ResponseHandler(base_handler.BaseResponseHandler):
 
-    def _handle_getall(self, phrase):
+    def _do_get(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
         categories = api.category_getall(session=self.session)
@@ -14,7 +14,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         return {'result': 'success', 'categories': response}
 
-    def _handle_create(self, phrase):
+    def _do_put(self, phrase):
         cat_list, error = self._get_payload()
         if error:
             return error
@@ -38,7 +38,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         return {'result': 'success', 'payload': payload}
 
-    def _handle_update(self, phrase):
+    def _do_post(self, phrase):
         cat_list, error = self._get_payload()
         if error:
             return error
@@ -76,7 +76,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         return {'result': 'success', 'payload': payload}
 
-    def _handle_delete(self, phrase):
+    def _do_delete(self, phrase):
         cat_list, error = self._get_payload()
         if error:
             return error
