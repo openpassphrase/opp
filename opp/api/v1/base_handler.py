@@ -19,7 +19,7 @@ class BaseResponseHandler(object):
             return [], error("Payload missing!")
         try:
             decoded = json.loads(payload)
-        except ValueError:
+        except (ValueError, TypeError):
             return [], error("Invalid payload!")
 
         if not decoded:
@@ -27,16 +27,16 @@ class BaseResponseHandler(object):
 
         return decoded, None
 
-    def _handle_getall(self, phrase):
+    def _do_get(self, phrase):
         return error("Action not implemented")
 
-    def _handle_create(self, phrase):
+    def _do_put(self, phrase):
         return error("Action not implemented")
 
-    def _handle_update(self, phrase):
+    def _do_post(self, phrase):
         return error("Action not implemented")
 
-    def _handle_delete(self, phrase):
+    def _do_delete(self, phrase):
         return error("Action not implemented")
 
     def respond(self):
@@ -50,13 +50,13 @@ class BaseResponseHandler(object):
         self.session = api.get_session()
 
         if self.request.method == 'GET':
-            response = self._handle_getall(phrase)
+            response = self._do_get(phrase)
         elif self.request.method == 'PUT':
-            response = self._handle_create(phrase)
+            response = self._do_put(phrase)
         elif self.request.method == 'POST':
-            response = self._handle_update(phrase)
+            response = self._do_post(phrase)
         elif self.request.method == 'DELETE':
-            response = self._handle_delete(phrase)
+            response = self._do_delete(phrase)
         else:
             response = error("Method not supported!")
 
