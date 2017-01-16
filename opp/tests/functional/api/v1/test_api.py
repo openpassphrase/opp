@@ -3,7 +3,7 @@ import os
 import tempfile
 import unittest
 
-from opp import api
+from opp.api import v1 as api
 from opp.common import utils
 
 
@@ -50,26 +50,26 @@ class BackendApiTests(unittest.TestCase):
         pass
 
     def test_health_check(self):
-        response = self.client.get('/')
+        response = self.client.get('/api/v1/health')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data,
                          '{"status": "OpenPassPhrase service is running"}')
 
     def test_disallowed_methods_categories(self):
-        rget = self.client.get('/categories')
-        rput = self.client.put('/categories')
-        rdel = self.client.delete('/categories')
-        rpat = self.client.patch('/categories')
+        rget = self.client.get('/api/v1/categories')
+        rput = self.client.put('/api/v1/categories')
+        rdel = self.client.delete('/api/v1/categories')
+        rpat = self.client.patch('/api/v1/categories')
         self.assertEqual(rget.status_code, 405)
         self.assertEqual(rput.status_code, 405)
         self.assertEqual(rdel.status_code, 405)
         self.assertEqual(rpat.status_code, 405)
 
     def test_disallowed_methods_entries(self):
-        rget = self.client.get('/entries')
-        rput = self.client.put('/entries')
-        rdel = self.client.delete('/entries')
-        rpat = self.client.patch('/entries')
+        rget = self.client.get('/api/v1/entries')
+        rput = self.client.put('/api/v1/entries')
+        rdel = self.client.delete('/api/v1/entries')
+        rpat = self.client.patch('/api/v1/entries')
         self.assertEqual(rget.status_code, 405)
         self.assertEqual(rput.status_code, 405)
         self.assertEqual(rdel.status_code, 405)
@@ -78,7 +78,7 @@ class BackendApiTests(unittest.TestCase):
     def test_categories_basic(self):
         # Request getall categories, expect empty list initially
         data = {'phrase': "123", 'action': "getall"}
-        response = self.client.post('/categories', data=data)
+        response = self.client.post('/api/v1/categories', data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
@@ -87,7 +87,7 @@ class BackendApiTests(unittest.TestCase):
         # Add 3 categories, check for successful response
         data = {'phrase': "123", 'action': "create",
                 'payload': '["cat1", "cat2", "cat3"]'}
-        response = self.client.post('/categories', data=data)
+        response = self.client.post('/api/v1/categories', data=data)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['payload']), 3)
@@ -104,7 +104,7 @@ class BackendApiTests(unittest.TestCase):
                    {'id': 3, 'category': "new_cat3"}]
         data = {'phrase': "123", 'action': "update",
                 'payload': json.dumps(payload)}
-        response = self.client.post('/categories', data=data)
+        response = self.client.post('/api/v1/categories', data=data)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['payload']), 2)
@@ -116,7 +116,7 @@ class BackendApiTests(unittest.TestCase):
 
         # Check all 3 categories
         data = {'phrase': '123', 'action': 'getall'}
-        response = self.client.post('/categories', data=data)
+        response = self.client.post('/api/v1/categories', data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
@@ -131,7 +131,7 @@ class BackendApiTests(unittest.TestCase):
                    {'id': 3, 'cascade': False}]
         data = {'phrase': '123', 'action': 'delete',
                 'payload': json.dumps(payload)}
-        response = self.client.post('/categories', data=data)
+        response = self.client.post('/api/v1/categories', data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
@@ -143,7 +143,7 @@ class BackendApiTests(unittest.TestCase):
 
         # Get all categories, only 1 sould remain
         data = {'phrase': '123', 'action': 'getall'}
-        response = self.client.post('/categories', data=data)
+        response = self.client.post('/api/v1/categories', data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")

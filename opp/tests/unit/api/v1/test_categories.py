@@ -1,7 +1,7 @@
 import mock
 import unittest
 
-from opp.api import entries as api
+from opp.api.v1 import categories as api
 from test_base_handler import MockRequest, MockSession
 
 
