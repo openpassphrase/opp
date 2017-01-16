@@ -1,7 +1,7 @@
 import mock
 import unittest
 
-from opp.api import base_handler as bh
+from opp.api.v1 import base_handler as bh
 
 
 class MockRequest(object):
