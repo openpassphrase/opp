@@ -40,20 +40,20 @@ def category_getall(filter_ids=None, session=None, conf=None):
 
 
 def category_delete(categories, cascade, session=None, conf=None):
-    session = session or get_session(conf)
-    if cascade:
-        for category in categories:
-            for entry in category.entries:
-                session.delete(entry)
-            session.delete(category)
-    else:
-        for category in categories:
-            for entry in category.entries:
-                entry.category_id = None
-                session.add(entry)
-            session.delete(category)
-
-    session.commit()
+    if categories:
+        session = session or get_session(conf)
+        if cascade:
+            for category in categories:
+                for entry in category.entries:
+                    session.delete(entry)
+                session.delete(category)
+        else:
+            for category in categories:
+                for entry in category.entries:
+                    entry.category_id = None
+                    session.add(entry)
+                session.delete(category)
+        session.commit()
 
 
 def category_delete_by_id(filter_ids, cascade, session=None, conf=None):
