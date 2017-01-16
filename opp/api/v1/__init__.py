@@ -28,14 +28,16 @@ def health_check():
     return _to_json({'status': "OpenPassPhrase service is running"})
 
 
-@app.route("/api/v1/categories", methods=['POST'])
+@app.route("/api/v1/categories",
+           methods=['GET', 'PUT', 'POST', 'DELETE'])
 def handle_categories():
     handler = categories.ResponseHandler(request)
     response = handler.respond()
     return _to_json(response)
 
 
-@app.route("/api/v1/entries", methods=['POST'])
+@app.route("/api/v1/entries",
+           methods=['GET', 'PUT', 'POST', 'DELETE'])
 def handle_entries():
     handler = entries.ResponseHandler(request)
     response = handler.respond()

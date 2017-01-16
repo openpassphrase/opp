@@ -42,27 +42,23 @@ class BaseResponseHandler(object):
     def respond(self):
         # Retrieve required 'phrase' and 'action' fields
         try:
-            phrase = self.request.form['phrase']
+            phrase = self.request.headers['x-opp-phrase']
         except KeyError:
-            return error("Passphrase missing!")
-        try:
-            action = self.request.form['action']
-        except KeyError:
-            return error("Action missing!")
+            return error("Passphrase header missing!")
 
         # Obtain DB session for making transactions
         self.session = api.get_session()
 
-        if action == 'getall':
+        if self.request.method == 'GET':
             response = self._handle_getall(phrase)
-        elif action == 'create':
+        elif self.request.method == 'PUT':
             response = self._handle_create(phrase)
-        elif action == 'update':
+        elif self.request.method == 'POST':
             response = self._handle_update(phrase)
-        elif action == 'delete':
+        elif self.request.method == 'DELETE':
             response = self._handle_delete(phrase)
         else:
-            response = error("Action unrecognized!")
+            response = error("Method not supported!")
 
         self.session.close()
         return response
