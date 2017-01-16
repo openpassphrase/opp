@@ -1,13 +1,13 @@
 import mock
 import unittest
 
+from werkzeug.datastructures import ImmutableMultiDict
 from opp.api.v1 import base_handler as bh
 
 
 class MockRequest(object):
     def __init__(self, method=None, payload=None, phrase=None):
         self.headers = {}
-        self.form = {}
 
         self.method = method
 
@@ -16,9 +16,11 @@ class MockRequest(object):
 
         if payload:
             if payload == 'None':
-                self.form['payload'] = None
+                self.form = ImmutableMultiDict({'payload': None})
             else:
-                self.form['payload'] = payload
+                self.form = ImmutableMultiDict({'payload': payload})
+        else:
+            self.form = ImmutableMultiDict()
 
 
 class MockSession(object):
@@ -28,44 +30,61 @@ class MockSession(object):
 
 class TestBaseResponseHandler(unittest.TestCase):
 
-    def test_get_payload_missing(self):
+    def test_check_payload_missing(self):
         request = MockRequest()
         handler = bh.BaseResponseHandler(request)
-        payload, error = handler._get_payload()
-        self.assertEqual(payload, [])
+        payload, error = handler._check_payload(expect_list=True)
+        self.assertEqual(payload, None)
         self.assertEqual(error, {'result': "error",
                                  'message': "Payload missing!"})
 
-    def test_get_payload_invalid1(self):
+    def test_check_payload_empty(self):
         request = MockRequest(payload='None')
         handler = bh.BaseResponseHandler(request)
-        payload, error = handler._get_payload()
-        self.assertEqual(payload, [])
-        self.assertEqual(error, {'result': "error",
-                                 'message': "Invalid payload!"})
-
-    def test_get_payload_invalid2(self):
-        request = MockRequest(payload="blah")
-        handler = bh.BaseResponseHandler(request)
-        payload, error = handler._get_payload()
-        self.assertEqual(payload, [])
-        self.assertEqual(error, {'result': "error",
-                                 'message': "Invalid payload!"})
-
-    def test_get_payload_empty(self):
-        request = MockRequest(payload='[]')
-        handler = bh.BaseResponseHandler(request)
-        payload, error = handler._get_payload()
-        self.assertEqual(payload, [])
+        payload, error = handler._check_payload(expect_list=True)
+        self.assertEqual(payload, None)
         self.assertEqual(error, {'result': "error",
                                  'message': "Empty payload!"})
 
-    def test_get_payload(self):
-        request = MockRequest(payload='["blah"]')
+    def test_check_payload_invalid(self):
+        request = MockRequest(payload="blah")
         handler = bh.BaseResponseHandler(request)
-        payload, error = handler._get_payload()
-        self.assertNotEqual(payload, [])
+        payload, error = handler._check_payload(expect_list=True)
+        self.assertEqual(payload, None)
+        self.assertEqual(error, {'result': "error",
+                                 'message': "Invalid payload!"})
+
+    def test_check_payload_list(self):
+        request = MockRequest(payload='["blah", "blah"]')
+        handler = bh.BaseResponseHandler(request)
+        payload, error = handler._check_payload(expect_list=True)
+        self.assertNotEqual(payload, None)
         self.assertIsNone(error)
+
+    def test_check_payload_not_list(self):
+        request = MockRequest(payload='{"blah": "blah"}')
+        handler = bh.BaseResponseHandler(request)
+        payload, error = handler._check_payload(expect_list=True)
+        self.assertEqual(payload, None)
+        self.assertEqual(error,
+                         {'result': "error",
+                          'message': "Payload should be in list form!"})
+
+    def test_check_payload_obj(self):
+        request = MockRequest(payload='{"blah": "blah"}')
+        handler = bh.BaseResponseHandler(request)
+        payload, error = handler._check_payload(expect_list=False)
+        self.assertNotEqual(payload, None)
+        self.assertIsNone(error)
+
+    def test_check_payload_not_obj(self):
+        request = MockRequest(payload='["blah", "blah"]')
+        handler = bh.BaseResponseHandler(request)
+        payload, error = handler._check_payload(expect_list=False)
+        self.assertEqual(payload, None)
+        self.assertEqual(error,
+                         {'result': "error",
+                          'message': "Payload should not be in list form!"})
 
     def test_respond_missing_phrase(self):
         request = MockRequest()

@@ -39,18 +39,28 @@ def category_getall(filter_ids=None, session=None, conf=None):
     return query.all()
 
 
-def category_delete(categories, session=None, conf=None):
+def category_delete(categories, cascade, session=None, conf=None):
     session = session or get_session(conf)
-    for category in categories:
-        session.delete(category)
+    if cascade:
+        for category in categories:
+            for entry in category.entries:
+                session.delete(entry)
+            session.delete(category)
+    else:
+        for category in categories:
+            for entry in category.entries:
+                entry.category_id = None
+                session.add(entry)
+            session.delete(category)
+
     session.commit()
 
 
-def category_delete_by_id(filter_ids, session=None, conf=None):
+def category_delete_by_id(filter_ids, cascade, session=None, conf=None):
     if filter_ids:
         session = session or get_session(conf)
         categories = category_getall(filter_ids, session, conf)
-        category_delete(categories, session, conf)
+        category_delete(categories, cascade, session, conf)
 
 
 def entry_create(entries, session=None, conf=None):
@@ -92,8 +102,7 @@ def entry_delete(entries, session=None, conf=None):
 
 
 def entry_delete_by_id(filter_ids, session=None, conf=None):
-    session = session or get_session(conf)
-    if not filter_ids:
-        raise ValueError("Empty entry id list")
-    entries = entry_getall(filter_ids, session, conf)
-    entry_delete(entries, session, conf)
+    if filter_ids:
+        session = session or get_session(conf)
+        entries = entry_getall(filter_ids, session, conf)
+        entry_delete(entries, session, conf)
