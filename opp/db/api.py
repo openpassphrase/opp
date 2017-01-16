@@ -47,11 +47,10 @@ def category_delete(categories, session=None, conf=None):
 
 
 def category_delete_by_id(filter_ids, session=None, conf=None):
-    session = session or get_session(conf)
-    if not filter_ids:
-        raise ValueError("Empty category id list")
-    categories = category_getall(filter_ids, session, conf)
-    category_delete(categories, session, conf)
+    if filter_ids:
+        session = session or get_session(conf)
+        categories = category_getall(filter_ids, session, conf)
+        category_delete(categories, session, conf)
 
 
 def entry_create(entries, session=None, conf=None):
