@@ -27,7 +27,8 @@ and passwords) in a tabular format. The backend service can then be deployed
 on a user's private server instance and accessed from anywhere.
 
 The API is RESTful in nature and supports standard CRUD operations as well
-as additional capabilities such as secure passphrase generation.
+as additional capabilities such as authentication and secure passphrase
+generation.
 
 Deployment
 ==========
