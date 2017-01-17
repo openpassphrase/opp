@@ -7,4 +7,4 @@ activate_this = '/var/www/openpassphrase/venv/bin/activate_this.py'
 execfile(activate_this, dict(__file__=activate_this))
 
 
-from opp.api import app as application
+from opp.api.v1 import app as application
