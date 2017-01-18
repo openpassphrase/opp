@@ -17,4 +17,24 @@
 Development Environment
 =======================
 
-Content missing!!!
+**Welcome Contributors!**
+
+This project is in the very early stages of development. Thus, the development
+environment (not to mention the API and the documentation) is very fluid and
+may change radically as more contributors join. Please bear that in mind when
+starting out.
+
+System setup
+------------
+
+The recommended development platform is Ubuntu Xenial. At the minimum, you
+will need several packages in order to start development. There is a handy
+`setup <dev/opp_setup.sh>`_ script that you may use to initialize your dev
+system. Refer to the script for a full list of required and useful packages.
+
+Repository
+----------
+
+The code is managed by Git and lives in the GitHub repository:
+
+    ``git@github.com:openpassphrase/opp.git``

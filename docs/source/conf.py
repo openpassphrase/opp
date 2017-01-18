@@ -152,6 +152,5 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
-
 html_favicon = '_static/favicon.ico'
 html_use_index = False
