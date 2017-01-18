@@ -17,4 +17,29 @@
 Development Environment
 =======================
 
-Content missing!!!
+**Welcome Contributors!**
+
+This project is in the very early stages of development. Thus, the development
+environment (not to mention the API and the documentation) is very fluid and
+may change radically as more contributors join. Please bear that in mind when
+starting out.
+
+Repo
+----
+
+The OpenPassPhrase code is managed by Git and currently lives in two
+repositories:
+
+- **Bitbucket**: ``ssh://git@bashmak.com:7999/bg/openpassphrase.git``
+- **GitHub**: ``git@github.com:openpassphrase/opp.git``
+
+Mirroring is currently accomplished manually, by pushing to both remotes.
+Therefore, when setting up your repo, follow this recommended procedure:
+
+- First clone from bitbucket::
+
+    git clone ssh://git@bashmak.com:7999/bg/openpassphrase.git
+    cd openpassphrase
+- Then add the github remote and configure it as a push mirror::
+
+    git remote add --mirror=push github_origin git@github.com:openpassphrase/opp.git
