@@ -31,14 +31,29 @@ Since the backend is intended to run as a web service, a Web Server Gateway
 Interface (WSGI) server is typically required to route requests to the
 application from the web server. Among the most popular WSGI servers are:
 
-.. |mod_wsgi| image:: _static/weblink.ico
-   :target: http://www.modwsgi.org
-.. |gunicorn| image:: _static/weblink.ico
-   :target: http://gunicorn.org/
-.. |cherrypy| image:: _static/weblink.ico
-   :target: http://cherrypy.org
-.. |uwsgi| image:: _static/weblink.ico
-   :target: http://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html
+.. |mod_wsgi| raw:: html
+
+   <a target="_blank"
+   href="http://www.modwsgi.org">
+   <img src="_static/weblink.ico"></a>
+
+.. |gunicorn| raw:: html
+
+   <a target="_blank"
+   href="http://gunicorn.org/">
+   <img src="_static/weblink.ico"></a>
+
+.. |cherrypy| raw:: html
+
+   <a target="_blank"
+   href="http://cherrypy.org">
+   <img src="_static/weblink.ico"></a>
+
+.. |uwsgi| raw:: html
+
+   <a target="_blank"
+   href="http://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html">
+   <img src="_static/weblink.ico"></a>
 
 * **mod_wsgi** |mod_wsgi| - an Apache module that implements a WSGI compliant
     interface for hosting Python based web applications on top of the Apache
@@ -89,6 +104,22 @@ it is advisable to use a virtual environment::
     source venv/bin/activate
     pip install -r requirements.txt
 
+.. Note:: The ``venv/bin/activate`` is a bash script, if using csh or tcsh, source
+   ``venv/bin/activate.csh``
+
+Setup the database:
+-------------------
+OpenPassPhrase use an RDBMS for storing data. It is currently only tested with
+SQLite and MySQL databases, but others such as Postgresql, Oracle, MS-SQL,
+Firebird, and Sybase may be used at user's discretion.
+
+To setup the database run the provided utility::
+    ``opp-db init``
+
+This script will use ``sql_connect`` config option to connect to the database
+and create the schema. For more information refer to the :ref:`configuration`
+section.
+
 Configure mod_wsgi:
 -------------------
 Make sure the ``mod_wsgi`` Apache module is installed (e.g. ``yum install
@@ -100,8 +131,8 @@ to the OpenPassPhrase API::
     <VirtualHost *:443>
         ServerName bashmak.com
         SSLEngine on
-        SSLCipherSuite RC4-SHA:AES128-SHA:HIGH:!aNULL:!MD5
         SSLHonorCipherOrder on
+        SSLCipherSuite <colon-separated list of allowed and disallowed ciphers>
         SSLCertificateKeyFile "<path to your private key file>"
         SSLCertificateFile "<path to your certificate file>"
         SSLCertificateChainFile "<path to your certificate chain file>"
@@ -115,7 +146,10 @@ to the OpenPassPhrase API::
     </VirtualHost>
 
 .. Note:: The values inside <> brackets must be set specifically for your
-   environment.
+   environment. Also note the WSGIScriptAlias setting which points to
+   ``setup.wsgi`` file, which resides in the top level of the repository.
+   The contents of this file may need to be altered based on your
+   particular directory structure setup.
 
 Place the above conf file in the Apache config directory (e.g.
 ``/etc/httpd/conf.d``) and restart your Apache server.
