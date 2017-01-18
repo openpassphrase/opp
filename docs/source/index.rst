@@ -38,7 +38,7 @@ Deployment
 
    installation
    configuration
-   using
+   api_ref
 
 Contributing to the project
 ===========================
