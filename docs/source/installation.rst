@@ -87,7 +87,7 @@ Get the source code:
 --------------------
 ::
 
-    git clone ssh://git@bashmak.com:7999/bg/openpassphrase.git
+    git clone https://github.com/openpassphrase/opp.git
 
 A typical place to put the repository is in: ``/var/www/``, so that after
 running above command, you will have the following path:

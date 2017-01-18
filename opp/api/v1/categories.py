@@ -12,7 +12,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         for category in categories:
             response.append(category.decrypt(cipher))
 
-        return {'result': 'success', 'categories': response}
+        return {'result': "success", 'categories': response}
 
     def _do_put(self, phrase):
         cat_list, error = self._check_payload(expect_list=True)
@@ -69,7 +69,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         try:
             api.category_update(categories, session=self.session)
-            return {'result': 'success'}
+            return {'result': "success"}
         except Exception:
             return self.error("Unable to update categories in the database!")
 
