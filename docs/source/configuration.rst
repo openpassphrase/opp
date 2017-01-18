@@ -40,9 +40,6 @@ one per line in the following format:
 The only option currently used by OpenPassPhrase is the ``sql_connect``
 database connection string, which can be specified as follows:
 
-    ``sql_connect: 'mysql://<user>:<password>@<host>/<db>'``
-
-    or
-
-    ``sql_connect: 'sqlite:////<full_path_to_db_file>'``
-
+| ``sql_connect: 'mysql://<user>:<password>@<host>/<db>'``
+|   or
+| ``sql_connect: 'sqlite:////<full_path_to_db_file>'``
