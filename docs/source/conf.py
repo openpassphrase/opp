@@ -154,3 +154,4 @@ texinfo_documents = [
 
 
 html_favicon = '_static/favicon.ico'
+html_use_index = False
