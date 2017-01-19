@@ -19,16 +19,16 @@
 Configuration
 =============
 
-OpenPassPhrase is configurable via configuration files supplied from several
+OpenPassPhrase is configurable via configuration files aggregated from several
 sources:
 
-    1. User supplied file: this is passed into various tools such as ``opp-db``
-       on the command line.
+    1. User supplied file: this can be passed into various tools such as
+       ``opp-db`` on the command line.
     2. User's home directory: ``~/.opp/opp.cfg``.
     3. System directory: ``/etc/opp/opp.cfg``.
 
-Config files (if exist) from all three sources are cascaded together inside
-OpenPassPhrase where duplicate values which occur later are simply ignored.
+Config files (if exist) from all three sources are cascaded together in such
+a manner where duplicate values which occur later are simply ignored.
 Thus, highest override priority is afforded to the user supplied config and
 lowest to the system config.
 

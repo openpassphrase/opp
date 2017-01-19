@@ -18,14 +18,14 @@
 Installation
 ============
 
-OpenPassPhrase API backend is written entirely in Python 2.7. Thus, it can in
-theory be deployed on any platform with a modern Python interpreter. However,
-at the moment it is only officially tested on Ubuntu and CentOS Linux
+OpenPassPhrase API backend is written entirely in Python (v2.7). Thus, it can
+theoretically be deployed on any platform with a modern Python interpreter.
+However, at the moment it is only officially tested on Ubuntu and CentOS Linux
 distributions. This guide presupposes the use of one of these platforms. More
 platforms will probably be added in the future. In addition, the possibility
-of deploying OpenPassPhrase on a Platform as a Service (PaaS) hosted system
-such as `Heroku <https://www.heroku.com/>`_ and `Google App Engine
-<https://cloud.google.com/appengine/docs>`_
+of deploying OpenPassPhrase on a PaaS hosted system such as
+`Heroku <https://www.heroku.com/>`_ and `Google App Engine
+<https://cloud.google.com/appengine/docs>`_ will be explored in the future.
 
 Since the backend is intended to run as a web service, a Web Server Gateway
 Interface (WSGI) server is typically required to route requests to the
@@ -33,27 +33,27 @@ application from the web server. Among the most popular WSGI servers are:
 
 .. |mod_wsgi| raw:: html
 
-   <a target="_blank"
-   href="http://www.modwsgi.org">
-   <img src="_static/weblink.ico"></a>
+    <a target="_blank"
+    href="http://www.modwsgi.org">
+    <img src="_static/weblink.ico"></a>
 
 .. |gunicorn| raw:: html
 
-   <a target="_blank"
-   href="http://gunicorn.org/">
-   <img src="_static/weblink.ico"></a>
+    <a target="_blank"
+    href="http://gunicorn.org/">
+    <img src="_static/weblink.ico"></a>
 
 .. |cherrypy| raw:: html
 
-   <a target="_blank"
-   href="http://cherrypy.org">
-   <img src="_static/weblink.ico"></a>
+    <a target="_blank"
+    href="http://cherrypy.org">
+    <img src="_static/weblink.ico"></a>
 
 .. |uwsgi| raw:: html
 
-   <a target="_blank"
-   href="http://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html">
-   <img src="_static/weblink.ico"></a>
+    <a target="_blank"
+    href="http://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html">
+    <img src="_static/weblink.ico"></a>
 
 * **mod_wsgi** |mod_wsgi| - an Apache module that implements a WSGI compliant
     interface for hosting Python based web applications on top of the Apache
@@ -68,14 +68,14 @@ application from the web server. Among the most popular WSGI servers are:
 * **uWSGI** |uwsgi| - a full stack for building hosting services, wchich
     includes a plugin for Python support.
 
-Current guide only covers deployment using mod_wsgi. Stay tuned for additional
+This guide only covers deployment using **mod_wsgi**. Stay tuned for additional
 deployment options in the future.
 
 Deploying with mod_wsgi
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The following steps assume an aptly configured Linux with the following minimal
-set of packages installed:
+The following steps assume an aptly configured Linux system with the following
+minimal set of packages installed:
 
 * *python (2.7)*
 * *git*
@@ -104,19 +104,20 @@ it is advisable to use a virtual environment::
     source venv/bin/activate
     pip install -r requirements.txt
 
-.. Note:: The ``venv/bin/activate`` is a bash script, if using csh or tcsh, source
-   ``venv/bin/activate.csh``
+.. Note:: The ``venv/bin/activate`` is a bash shell script, if using csh or
+   tcsh, use the ``venv/bin/activate.csh`` script.
 
 Setup the database:
 -------------------
-OpenPassPhrase use an RDBMS for storing data. It is currently only tested with
+OpenPassPhrase uses an RDBMS for storing data. It is currently only tested with
 SQLite and MySQL databases, but others such as Postgresql, Oracle, MS-SQL,
 Firebird, and Sybase may be used at user's discretion.
 
 To setup the database run the provided utility::
-    ``opp-db init``
 
-This script will use ``sql_connect`` config option to connect to the database
+    opp-db init
+
+This tool will use the ``sql_connect`` config option to connect to the database
 and create the schema. For more information refer to the :ref:`configuration`
 section.
 
@@ -126,7 +127,7 @@ Make sure the ``mod_wsgi`` Apache module is installed (e.g. ``yum install
 mod_wsgi`` on CentOS or ``sudo apt-get install mod_wsgi`` on Ubuntu.
 
 The following is a sample Apache config file to enable routing of requests to
-to the OpenPassPhrase API::
+the OpenPassPhrase API::
 
     <VirtualHost *:443>
         ServerName bashmak.com

@@ -27,7 +27,7 @@ starting out.
 System setup
 ------------
 
-The recommended development platform is Ubuntu Xenial. At the minimum, you
+The recommended development platform is Ubuntu Xenial. At a minimum, you
 will need several packages in order to start development. There is a handy
 `setup <dev/opp_setup.sh>`_ script that you may use to initialize your dev
 system. Refer to the script for a full list of required and useful packages.
@@ -35,12 +35,18 @@ system. Refer to the script for a full list of required and useful packages.
 Repository
 ----------
 
-The code is managed by Git and lives in the GitHub repository:
+.. |openpassphrase| raw:: html
+
+       <a target="_blank" href="https://github.com/openpassphrase">
+       OpenPassPhrase</a>
+
+The code is managed with Git and lives in a GitHub repository under the
+|OpenPassPhrase| ogranization:
 
     ``git@github.com:openpassphrase/opp.git``
 
-All the code resides in the ``opp`` folder inside the repository. The
-following PyPI packages are used to implement and accomplish various
+All the code modules reside in the ``opp`` folder inside the repository. The
+following PyPI packages are used inside the code to implement various
 capabilities:
 
     - **config** - read and parse configuration files
@@ -48,6 +54,7 @@ capabilities:
     - **click** - command line option parsing
     - **SQLAlchemy** - ORM interface to RDBMS
     - **Flask** - web server request/response routing
+    - **testtools** - unit testing framework
     - **mock** - mocking framework for unit tests
 
 Additionally, the following packages are used to accomplish various tasks:
@@ -55,7 +62,7 @@ Additionally, the following packages are used to accomplish various tasks:
     - **tox** - virtual environment automation and task aggregation
     - **pytest** - run unit and functional tests
     - **flake** - PEP8 source code checker
-    - **Spinx** - docs builder
+    - **Spinx** - python documentation generator from reStructuredText
 
 Testing, etc...
 ---------------

@@ -33,7 +33,7 @@ future. Current latest version is *v1*.
 
 **Response format:** JSON
 
-All 200 responses are returned in the following format:
+All 200 responses are returned in the following form:
 
 | ``{"result": "success", <optional payload object or array>}``
 |   or
