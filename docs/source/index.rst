@@ -47,4 +47,5 @@ Contributing to the project
    :maxdepth: 1
 
    devenv
-   governance
+   guidelines
+   wishlist
