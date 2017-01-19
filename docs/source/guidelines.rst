@@ -19,4 +19,48 @@
 Contribution Guidelines
 =======================
 
-Content missing!!!
+Workflow
+--------
+
+Currently the workflow consists of a protected *master* branch which allows
+merging only via pull requests from other branches. Pull requests must be
+reviewed and approved by at least one other contributor.
+
+As the project matures, we expect to add details here about gating checkins
+via continuous integration (CI) runs.
+
+Coding
+------
+
+Please keep your code pythonic as much as possible. Your contributions will
+have a better chance of getting approved if your code follows the conventions
+of the Python community and uses the language in the way it is intended to be
+used. Any help making existing code more pythonic will be appreciated.
+
+Any code implementing a new feature or functionality is expected to be
+accompanied by unit and functional tests. Pull requests without tests will most
+likely be denied!
+
+API changes
+-----------
+
+Once released, OpenPassPhrase will strive to keep the API consistent and fully
+backwards compatible. Major breaking API changes will either be disallowed or
+require a new API version to be introduced. Appropriate exceptions may be
+given on a case by case basis, but the spirit of this guideline shall be
+followed as much as possible.
+
+Reviewing
+---------
+
+When performing code reviews, reviewers are encouraged to keep the comments
+constructive and to the point. Concentrate on the functionality and potential
+impact of the changes on the ecosystem, rather than style and trivial matters.
+This is not meant to discourage feedback of the latter type. Simply state the
+intent of your suggestion as stylistic or *nitpick* if that is the case. On the
+other hand, don't hesitate to express strong opinions if you feel that a change
+is not appropriate or incompatible with the project.
+
+In order to perform due dilligence, reviewers should pull down the change
+and try to test it out in their environment. Don't approve a change without
+testing it first!
