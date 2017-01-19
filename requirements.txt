@@ -1,9 +1,11 @@
 click>=6.7 # BSD
 config>=0.3.7 # Public Domain
 Flask>=0.12 # BSD
-MySQL-python>=1.2.5 # GPL
 pycrypto>=2.6 # Public Domain
-PyMySQL>=0.7.5 # MIT
 Sphinx>=1.5.1 # BSD
 SQLAlchemy>=1.0.16 # MIT
 SQLAlchemy-Utils>=0.32.12 # BSD
+
+# These are needed if wishing to run with MySQL instead of SQLite
+# MySQL-python>=1.2.5 # GPL
+# PyMySQL>=0.7.5 # MIT

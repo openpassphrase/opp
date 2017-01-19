@@ -17,4 +17,70 @@
 Development Environment
 =======================
 
-Content missing!!!
+**Welcome Contributors!**
+
+This project is in the very early stages of development. Thus, the development
+environment (not to mention the API and the documentation) is very fluid and
+may change radically as more contributors join. Please bear that in mind when
+starting out.
+
+System setup
+------------
+
+The recommended development platform is Ubuntu Xenial. At the minimum, you
+will need several packages in order to start development. There is a handy
+`setup <dev/opp_setup.sh>`_ script that you may use to initialize your dev
+system. Refer to the script for a full list of required and useful packages.
+
+Repository
+----------
+
+The code is managed by Git and lives in the GitHub repository:
+
+    ``git@github.com:openpassphrase/opp.git``
+
+All the code resides in the ``opp`` folder inside the repository. The
+following PyPI packages are used to implement and accomplish various
+capabilities:
+
+    - **config** - read and parse configuration files
+    - **pycrypto** - encryption/decryption using AES cipher
+    - **click** - command line option parsing
+    - **SQLAlchemy** - ORM interface to RDBMS
+    - **Flask** - web server request/response routing
+    - **mock** - mocking framework for unit tests
+
+Additionally, the following packages are used to accomplish various tasks:
+
+    - **tox** - virtual environment automation and task aggregation
+    - **pytest** - run unit and functional tests
+    - **flake** - PEP8 source code checker
+    - **Spinx** - docs builder
+
+Testing, etc...
+---------------
+
+The *tox* tool reads a *tox.ini* file which resides at the top level of the
+repository and instructs tox on how to setup the various jobs.
+
+To run syntax checker::
+
+    tox -e pep8
+
+To run tests::
+
+    tox -e py27
+
+To generate docs::
+
+    tox -e docs
+
+To have tox recreate the virtual environment from scratch, either ``rm -rf
+.tox`` folder or use the -r flag in the tox command, e.g.: ``tox -r -e py27``.
+
+
+Please refer to the :ref:`guidelines` section for information on how to get
+your contributions merged, and to the :ref:`wishlist` section for ideas on
+where to contribute.
+
+**Happy Hacking!**
