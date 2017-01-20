@@ -48,7 +48,6 @@ User Guide
 .. toctree::
    :maxdepth: 1
 
-   schema
    api_ref
 
 Contributing to the project

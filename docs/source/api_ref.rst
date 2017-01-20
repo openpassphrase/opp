@@ -58,8 +58,8 @@ Get Categories
 | ``{``
 |   ``"result": "success",``
 |   ``"categories": [``
-|     ``{"id": 1, "category": "category_name1"}``
-|     ``{"id": 2, "category": "category_name2"}``
+|     ``{"id": 1, "name": "category1"}``
+|     ``{"id": 2, "name": "category2"}``
 |   ``]``
 | ``}``
 
@@ -86,8 +86,8 @@ updated name values.
 
 *Example:*
 
-``{"payload": [{"id": 1, "category", "<new_name>"},
-{"id": 2, "category", "<new_name>"}]}``
+``{"payload": [{"id": 1, "name", "new_name"},
+{"id": 2, "name", "new_name"}]}``
 
 **Response:** ``{"result": "success"}``
 
@@ -119,23 +119,32 @@ Get Items
 |   ``"items": [ {item1_data}, {item2_data} ]``
 | ``}``
 
-Refer to the :ref:`schema` for details about *item_data*.
+Where ``item_data`` objects contain:
+
+| ``{``
+|   ``"id": 1,``
+|   ``"name": "Wells Fargo",``
+|   ``"url": "https://wellsfargo.com",``
+|   ``"account": "01457XA8900",``
+|   ``"username": "mylogin",``
+|   ``"password": "mypassword",``
+|   ``"blob": "any custom data, may be delimited",``
+|   ``"category": {"id": 1, "name": "Credit Cards"}``
+| ``}``
 
 Create Item
 ~~~~~~~~~~~~
 
 **Request:** ``PUT <base_url>/items``
 
-**Body:** ``payload`` object containing a list of item/category_id pairs.
+**Body:** ``payload`` object containing a list of items.
 
 *Example:*
 
-| ``{``
-|   ``"payload": [``
-|     ``{ "category_id": 1, "item": {item_data} },``
-|     ``{ "category_id": 2, "item": {item_data} }``
-|   ``]``
-| ``}``
+``{ "payload": [ {item1_data}, {item2_data} ] }``
+
+.. Note:: For item creation, the ``id`` and ``category.name`` fileds are
+   ignored. All of the other fields are optional and may be omitted.
 
 **Response:** ``{"result": "success"}``
 
@@ -144,17 +153,15 @@ Update Item
 
 **Request:** ``POST <base_url>/items``
 
-**Body:** ``payload`` object containing a list of updated item data and
-category IDs referenced by item ID.
+**Body:** ``payload`` object containing a list of items.
 
 *Example:*
 
-| ``{``
-|   ``"payload": [``
-|     ``{ "category_id": <new_id>, "item": {new_data} },``
-|     ``{ "category_id": <new_id>, "item": {new_data} },``
-|   ``]``
-| ``}``
+``{ "payload": [ {new_item1_data}, {new_item2_data} ] }``
+
+.. Note:: For item update, the ``category.name`` filed is ignored, while the
+   ``id`` field is mandatory. All of the other files are optional and may be
+   omitted.
 
 **Response:** ``{"result": "success"}``
 
