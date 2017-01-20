@@ -25,16 +25,16 @@ implementation is also planned.
 The main objective of this project is to provide a secure backend API for
 aggregation, storage, retrieval and management of arbitrary secret data, e.g.
 account numbers, usernames and passwords. This backend service can then be
-deployed on a user's private server instance and accessed from anywhere.
-Once authenticated, the data can be retrieved and decrypted using a single
-passphrase.
+deployed on a user's private server instance and accessed over TLS from
+anywhere. Once authenticated, the data can be retrieved and decrypted using a
+single passphrase.
 
 The API is RESTful in nature and supports standard CRUD operations as well
 as additional capabilities such as authentication and random pass-word/phrase
 generation.
 
-Deployment
-==========
+Deploying
+=========
 
 .. toctree::
    :maxdepth: 1
@@ -42,16 +42,16 @@ Deployment
    installation
    configuration
 
-User Guide
-==========
+Using
+=====
 
 .. toctree::
    :maxdepth: 1
 
    api_ref
 
-Contributing to the project
-===========================
+Contributing
+============
 
 .. toctree::
    :maxdepth: 1
@@ -59,3 +59,10 @@ Contributing to the project
    devenv
    guidelines
    wishlist
+
+Getting Support
+===============
+
+If you need help or have a question about OpenPassPhrase, send email to:
+dev@openpassphrase.com and we will try to accomodate your inquiry to the best
+of our ability.

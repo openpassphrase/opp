@@ -23,11 +23,11 @@ targeted at knowledgeable users with access to their own private server
 implementation is also planned.
 
 The main objective of this project is to provide a secure backend API for
-aggregation, storage and retrieval of arbitrary secret data entries, e.g.
+aggregation, storage, retrieval and management of arbitrary secret data, e.g.
 account numbers, usernames and passwords. This backend service can then be
-deployed on a user's private server instance and accessed from anywhere.
-Once authenticated, the data can be retrieved and decrypted using a single
-passphrase.
+deployed on a user's private server instance and accessed over TLS from
+anywhere. Once authenticated, the data can be retrieved and decrypted using a
+single passphrase.
 
 The API is RESTful in nature and supports standard CRUD operations as well
 as additional capabilities such as authentication and random pass-word/phrase
