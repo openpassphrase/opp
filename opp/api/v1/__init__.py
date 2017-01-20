@@ -4,7 +4,7 @@ import logging
 from flask import Flask, request
 
 import categories
-import entries
+import items
 
 
 # Logging config
@@ -36,9 +36,9 @@ def handle_categories():
     return _to_json(response)
 
 
-@app.route("/api/v1/entries",
+@app.route("/api/v1/items",
            methods=['GET', 'PUT', 'POST', 'DELETE'])
-def handle_entries():
-    handler = entries.ResponseHandler(request)
+def handle_items():
+    handler = items.ResponseHandler(request)
     response = handler.respond()
     return _to_json(response)

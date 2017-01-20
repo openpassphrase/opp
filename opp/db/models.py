@@ -9,12 +9,12 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 
-class Entry(Base):
+class Item(Base):
 
-    __tablename__ = 'entries'
+    __tablename__ = 'items'
     __table_args__ = (Index('category_id_idx', 'category_id'),)
 
-    id = Column(Integer, Sequence('entry_id_seq'), primary_key=True)
+    id = Column(Integer, Sequence('item_id_seq'), primary_key=True)
     category_id = Column(Integer, Sequence('category_id_seq'),
                          ForeignKey('categories.id'), default=None)
     blob = Column(String(4096), nullable=False)
@@ -26,15 +26,15 @@ class Entry(Base):
     category = relationship('Category')
 
     def decrypt(self, cipher):
-        entry = {'id': self.id,
-                 'entry': cipher.decrypt(self.blob),
-                 'category_id': self.category_id}
+        item = {'id': self.id,
+                'item': cipher.decrypt(self.blob),
+                'category_id': self.category_id}
         if self.category:
-            entry['category'] = cipher.decrypt(self.category.blob)
+            item['category'] = cipher.decrypt(self.category.blob)
         else:
-            entry['category'] = None
+            item['category'] = None
 
-        return entry
+        return item
 
 
 class Category(Base):
@@ -48,7 +48,7 @@ class Category(Base):
     updated_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False, onupdate=lambda: datetime.now())
 
-    entries = relationship('Entry', order_by=Entry.id)
+    items = relationship('Item', order_by=Item.id)
 
     def decrypt(self, cipher):
         category = {'id': self.id,

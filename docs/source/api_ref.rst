@@ -58,8 +58,8 @@ Get Categories
 | ``{``
 |   ``"result": "success",``
 |   ``"categories": [``
-|     ``{"id": 1, "category": "category1"}``
-|     ``{"id": 2, "category": "category2"}``
+|     ``{"id": 1, "category": "category_name1"}``
+|     ``{"id": 2, "category": "category_name2"}``
 |   ``]``
 | ``}``
 
@@ -72,7 +72,7 @@ Create Category
 
 *Example:*
 
-``{"payload": ["category1", "category2"]}``
+``{"payload": ["category_name1", "category_name2"]}``
 
 **Response:** ``{"result": "success"}``
 
@@ -86,8 +86,8 @@ updated name values.
 
 *Example:*
 
-``{"payload": [{"id": 1, "category", "category1"},
-{"id": 2, "category", "category2"}]}``
+``{"payload": [{"id": 1, "category", "<new_name>"},
+{"id": 2, "category", "<new_name>"}]}``
 
 **Response:** ``{"result": "success"}``
 
@@ -98,7 +98,7 @@ Delete Category
 
 **Body:** ``payload`` object containing a list of category IDs and a boolean
 ``cascade`` value indicating whether to delete the corresponding rows from the
-``entries`` table for each deleted category or simply zero out their category
+``items`` table for each deleted category or simply zero out their category
 ID values.
 
 *Example:*
@@ -107,62 +107,66 @@ ID values.
 
 **Response:** ``{"result": "success"}``
 
-Get Entries
-~~~~~~~~~~~
+Get Items
+~~~~~~~~~
 
-**Request:** ``GET <base_url>/entries``
+**Request:** ``GET <base_url>/items``
 
 **Response:**
 
 | ``{``
 |   ``"result": "success",``
-|   ``"entries": [``
-|     ``{"id": 1, "entry": "entry1", "category_id": 1, "category": "category1"}``
-|     ``{"id": 2, "entry": "entry2", "category_id": 2, "category": "category2"}``
-|   ``]``
+|   ``"items": [ {item1_data}, {item2_data} ]``
 | ``}``
 
-Create Entry
+Refer to the :ref:`schema` for details about *item_data*.
+
+Create Item
 ~~~~~~~~~~~~
 
-**Request:** ``PUT <base_url>/entries``
+**Request:** ``PUT <base_url>/items``
 
-**Body:** ``payload`` object containing a list of entry/category_id pairs.
-
-*Example:*
-
-``{"payload": [{"entry", "entry1", "category_id": 1}, {"entry": "entry2", "category_id": 2}]}``
-
-**Response:** ``{"result": "success"}``
-
-Update Entry
-~~~~~~~~~~~~
-
-**Request:** ``POST <base_url>/entries``
-
-**Body:** ``payload`` object containing a list of updated entry values.
+**Body:** ``payload`` object containing a list of item/category_id pairs.
 
 *Example:*
 
 | ``{``
 |   ``"payload": [``
-|     ``{"id": 1, "entry": "entry1", "category_id": 1, "category": "category1"}``
-|     ``{"id": 2, "entry": "entry2", "category_id": 2, "category": "category2"}``
+|     ``{ "category_id": 1, "item": {item_data} },``
+|     ``{ "category_id": 2, "item": {item_data} }``
 |   ``]``
 | ``}``
 
 **Response:** ``{"result": "success"}``
 
-Delete Entry
+Update Item
+~~~~~~~~~~~~
+
+**Request:** ``POST <base_url>/items``
+
+**Body:** ``payload`` object containing a list of updated item data and
+category IDs referenced by item ID.
+
+*Example:*
+
+| ``{``
+|   ``"payload": [``
+|     ``{ "category_id": <new_id>, "item": {new_data} },``
+|     ``{ "category_id": <new_id>, "item": {new_data} },``
+|   ``]``
+| ``}``
+
+**Response:** ``{"result": "success"}``
+
+Delete Item
 ~~~~~~~~~~~~~~
 
-**Request:** ``DELETE <base_url>/entries``
+**Request:** ``DELETE <base_url>/items``
 
-**Body:** ``payload`` object containing a list of entry IDs to be deleted.
+**Body:** ``payload`` object containing a list of item IDs to be deleted.
 
 *Example:*
 
 ``{"payload": [1, 2]}``
 
 **Response:** ``{"result": "success"}``
-

@@ -59,8 +59,8 @@ class BackendApiTests(unittest.TestCase):
         rpat = self.client.patch('/api/v1/categories')
         self.assertEqual(rpat.status_code, 405)
 
-    def test_disallowed_methods_entries(self):
-        rpat = self.client.patch('/api/v1/entries')
+    def test_disallowed_methods_items(self):
+        rpat = self.client.patch('/api/v1/items')
         self.assertEqual(rpat.status_code, 405)
 
     def test_categories_crud(self):
@@ -282,182 +282,182 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(data['result'], "success")
         self.assertEqual(data['categories'], [])
 
-    def test_entries_crud(self):
-        path = '/api/v1/entries'
+    def test_items_crud(self):
+        path = '/api/v1/items'
         headers = {'x-opp-phrase': "123"}
 
-        # Request getall entries, expect empty list initially
+        # Request getall items, expect empty list initially
         response = self.client.get(path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(data['entries'], [])
+        self.assertEqual(data['items'], [])
 
-        # Add 3 entries, check for successful response
+        # Add 3 items, check for successful response
         data = {'payload':
-                '[{"entry": "e1"}, {"entry": "e2"}, {"entry": "e3"}]'}
+                '[{"item": "i1"}, {"item": "i2"}, {"item": "i3"}]'}
         response = self.client.put(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
-        # Update entries 1 & 3
-        payload = [{'id': 1, 'entry': "new_e1"},
-                   {'id': 3, 'entry': "new_e3"}]
+        # Update items 1 & 3
+        payload = [{'id': 1, 'item': "new_i1"},
+                   {'id': 3, 'item': "new_i3"}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
-        # Check all 3 entries
+        # Check all 3 items
         response = self.client.get(path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(len(data['entries']), 3)
-        ent1, ent2, ent3 = data['entries']
-        self.assertEqual(ent1['entry'], "new_e1")
-        self.assertEqual(ent2['entry'], "e2")
-        self.assertEqual(ent3['entry'], "new_e3")
+        self.assertEqual(len(data['items']), 3)
+        item1, item2, item3 = data['items']
+        self.assertEqual(item1['item'], "new_i1")
+        self.assertEqual(item2['item'], "i2")
+        self.assertEqual(item3['item'], "new_i3")
 
-        # Delete entries 1 & 3
-        payload = [ent1['id'], ent3['id']]
+        # Delete items 1 & 3
+        payload = [item1['id'], item3['id']]
         data = {'payload': json.dumps(payload)}
         response = self.client.delete(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
-        # Get all entries, only 1 sould remain
+        # Get all items, only 1 sould remain
         response = self.client.get(path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(len(data['entries']), 1)
-        self.assertEqual(data['entries'][0]['entry'], "e2")
+        self.assertEqual(len(data['items']), 1)
+        self.assertEqual(data['items'][0]['item'], "i2")
 
-        # Clean up by deleting entry 2
-        payload = [ent2['id']]
+        # Clean up by deleting item 2
+        payload = [item2['id']]
         data = {'payload': json.dumps(payload)}
         response = self.client.delete(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
-        # Request getall entries, expect empty list
+        # Request getall items, expect empty list
         response = self.client.get(path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(data['entries'], [])
+        self.assertEqual(data['items'], [])
 
-    def test_entries_error_conditions(self):
-        path = '/api/v1/entries'
+    def test_items_error_conditions(self):
+        path = '/api/v1/items'
         headers = {'x-opp-phrase': "123"}
 
-        # Try to PUT with missing entry in list
+        # Try to PUT with missing item in list
         data = {'payload': '[{}]'}
         response = self.client.put(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Missing entry data in list!")
+        self.assertEqual(data['message'], "Missing item data in list!")
 
-        # Try to PUT with empty entry in list
-        data = {'payload': '[{"entry": ""}]'}
+        # Try to PUT with empty item in list
+        data = {'payload': '[{"item": ""}]'}
         response = self.client.put(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Empty entry data in list!")
+        self.assertEqual(data['message'], "Empty item data in list!")
 
-        # Try to PUT with invalid entry in list (int instead of string)
-        data = {'payload': '[{"entry": 2}]'}
+        # Try to PUT with invalid item in list (int instead of string)
+        data = {'payload': '[{"item": 2}]'}
         response = self.client.put(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Invalid entry data in list!")
+        self.assertEqual(data['message'], "Invalid item data in list!")
 
-        # Add an entry
-        data = {'payload': '[{"entry": "e4"}]'}
+        # Add an item
+        data = {'payload': '[{"item": "i4"}]'}
         response = self.client.put(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
-        # Retrieve all entries, expect only the one that was just added
+        # Retrieve all items, expect only the one that was just added
         response = self.client.get(path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(len(data['entries']), 1)
-        self.assertEqual(data['entries'][0]['entry'], "e4")
-        ent_id = data['entries'][0]['id']
+        self.assertEqual(len(data['items']), 1)
+        self.assertEqual(data['items'][0]['item'], "i4")
+        item_id = data['items'][0]['id']
 
-        # Try to POST with missing entry id
-        payload = [{'noid': ent_id}]
+        # Try to POST with missing item id
+        payload = [{'noid': item_id}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Missing entry id in list!")
+        self.assertEqual(data['message'], "Missing item id in list!")
 
-        # Try to POST with empty entry id
+        # Try to POST with empty item id
         payload = [{'id': ""}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Empty entry id in list!")
+        self.assertEqual(data['message'], "Empty item id in list!")
 
-        # Try to POST with missing entry
-        payload = [{'id': ent_id, 'noentry': "new_e4"}]
+        # Try to POST with missing item
+        payload = [{'id': item_id, 'noitem': "new_i4"}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Missing entry in list!")
+        self.assertEqual(data['message'], "Missing item in list!")
 
-        # Try to POST with empty entry
-        payload = [{'id': ent_id, 'entry': ""}]
+        # Try to POST with empty item
+        payload = [{'id': item_id, 'item': ""}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Empty entry in list!")
+        self.assertEqual(data['message'], "Empty item in list!")
 
-        # Try to POST with invalid entry in list
-        payload = [{'id': ent_id, 'entry': 1}]
+        # Try to POST with invalid item in list
+        payload = [{'id': item_id, 'item': 1}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Invalid entry data in list!")
+        self.assertEqual(data['message'], "Invalid item data in list!")
 
-        # Clean up by deleting the entry
-        data = {'payload': json.dumps([ent_id])}
+        # Clean up by deleting the item
+        data = {'payload': json.dumps([item_id])}
         response = self.client.delete(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
-        # Request getall entries, expect empty list
+        # Request getall items, expect empty list
         response = self.client.get(path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(data['entries'], [])
+        self.assertEqual(data['items'], [])
 
     def test_categories_delete_cascade(self):
         cat_path = '/api/v1/categories'
-        ent_path = '/api/v1/entries'
+        item_path = '/api/v1/items'
         headers = {'x-opp-phrase': "123"}
 
         # Request getall categories, expect empty list initially
@@ -482,41 +482,41 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(len(data['categories']), 2)
         c1, c2 = data['categories']
 
-        # Add four entries (two per category)
-        entries = [{'entry': "e1", 'category_id': c1['id']},
-                   {'entry': "e2", 'category_id': c1['id']},
-                   {'entry': "e3", 'category_id': c2['id']},
-                   {'entry': "e4", 'category_id': c2['id']}]
-        data = {'payload': json.dumps(entries)}
-        response = self.client.put(ent_path, headers=headers, data=data)
+        # Add four items (two per category)
+        items = [{'item': "i1", 'category_id': c1['id']},
+                 {'item': "i2", 'category_id': c1['id']},
+                 {'item': "i3", 'category_id': c2['id']},
+                 {'item': "i4", 'category_id': c2['id']}]
+        data = {'payload': json.dumps(items)}
+        response = self.client.put(item_path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
-        # Verify new entries
-        response = self.client.get(ent_path, headers=headers)
+        # Verify new items
+        response = self.client.get(item_path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(len(data['entries']), 4)
+        self.assertEqual(len(data['items']), 4)
 
-        e1, e2, e3, e4 = data['entries']
+        i1, i2, i3, i4 = data['items']
 
-        self.assertEqual(e1['entry'], "e1")
-        self.assertEqual(e1['category'], c1['category'])
-        self.assertEqual(e1['category_id'], c1['id'])
+        self.assertEqual(i1['item'], "i1")
+        self.assertEqual(i1['category'], c1['category'])
+        self.assertEqual(i1['category_id'], c1['id'])
 
-        self.assertEqual(e2['entry'], "e2")
-        self.assertEqual(e2['category'], c1['category'])
-        self.assertEqual(e2['category_id'], c1['id'])
+        self.assertEqual(i2['item'], "i2")
+        self.assertEqual(i2['category'], c1['category'])
+        self.assertEqual(i2['category_id'], c1['id'])
 
-        self.assertEqual(e3['entry'], "e3")
-        self.assertEqual(e3['category'], c2['category'])
-        self.assertEqual(e3['category_id'], c2['id'])
+        self.assertEqual(i3['item'], "i3")
+        self.assertEqual(i3['category'], c2['category'])
+        self.assertEqual(i3['category_id'], c2['id'])
 
-        self.assertEqual(e4['entry'], "e4")
-        self.assertEqual(e4['category'], c2['category'])
-        self.assertEqual(e4['category_id'], c2['id'])
+        self.assertEqual(i4['item'], "i4")
+        self.assertEqual(i4['category'], c2['category'])
+        self.assertEqual(i4['category_id'], c2['id'])
 
         # Delete category 1 with cascade
         payload = {'cascade': True, 'ids': [c1['id']]}
@@ -534,19 +534,19 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(len(data['categories']), 1)
         self.assertEqual(data['categories'][0]['id'], c2['id'])
 
-        # Verify updated entries list (expect 2)
-        response = self.client.get(ent_path, headers=headers)
+        # Verify updated items list (expect 2)
+        response = self.client.get(item_path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(len(data['entries']), 2)
-        e3, e4 = data['entries']
-        self.assertEqual(e3['entry'], "e3")
-        self.assertEqual(e3['category'], c2['category'])
-        self.assertEqual(e3['category_id'], c2['id'])
-        self.assertEqual(e4['entry'], "e4")
-        self.assertEqual(e4['category'], c2['category'])
-        self.assertEqual(e4['category_id'], c2['id'])
+        self.assertEqual(len(data['items']), 2)
+        i3, i4 = data['items']
+        self.assertEqual(i3['item'], "i3")
+        self.assertEqual(i3['category'], c2['category'])
+        self.assertEqual(i3['category_id'], c2['id'])
+        self.assertEqual(i4['item'], "i4")
+        self.assertEqual(i4['category'], c2['category'])
+        self.assertEqual(i4['category_id'], c2['id'])
 
         # Delete category 2 without cascade
         payload = {'cascade': False, 'ids': [c2['id']]}
@@ -563,29 +563,29 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['categories']), 0)
 
-        # Verify updated entries list (expect 2 with no categories)
-        response = self.client.get(ent_path, headers=headers)
+        # Verify updated items list (expect 2 with no categories)
+        response = self.client.get(item_path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(len(data['entries']), 2)
-        e3, e4 = data['entries']
-        self.assertEqual(e3['entry'], "e3")
-        self.assertEqual(e3['category'], None)
-        self.assertEqual(e3['category_id'], None)
-        self.assertEqual(e4['entry'], "e4")
-        self.assertEqual(e4['category'], None)
-        self.assertEqual(e4['category_id'], None)
+        self.assertEqual(len(data['items']), 2)
+        i3, i4 = data['items']
+        self.assertEqual(i3['item'], "i3")
+        self.assertEqual(i3['category'], None)
+        self.assertEqual(i3['category_id'], None)
+        self.assertEqual(i4['item'], "i4")
+        self.assertEqual(i4['category'], None)
+        self.assertEqual(i4['category_id'], None)
 
-        # Delete remaining two entries to clean up
-        data = {'payload': json.dumps([e3['id'], e4['id']])}
-        response = self.client.delete(ent_path, headers=headers, data=data)
+        # Delete remaining two items to clean up
+        data = {'payload': json.dumps([i3['id'], i4['id']])}
+        response = self.client.delete(item_path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
-        response = self.client.get(ent_path, headers=headers)
+        response = self.client.get(item_path, headers=headers)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(len(data['entries']), 0)
+        self.assertEqual(len(data['items']), 0)

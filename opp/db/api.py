@@ -44,14 +44,14 @@ def category_delete(categories, cascade, session=None, conf=None):
         session = session or get_session(conf)
         if cascade:
             for category in categories:
-                for entry in category.entries:
-                    session.delete(entry)
+                for item in category.items:
+                    session.delete(item)
                 session.delete(category)
         else:
             for category in categories:
-                for entry in category.entries:
-                    entry.category_id = None
-                    session.add(entry)
+                for item in category.items:
+                    item.category_id = None
+                    session.add(item)
                 session.delete(category)
         session.commit()
 
@@ -63,46 +63,46 @@ def category_delete_by_id(filter_ids, cascade, session=None, conf=None):
         category_delete(categories, cascade, session, conf)
 
 
-def entry_create(entries, session=None, conf=None):
+def item_create(items, session=None, conf=None):
     session = session or get_session(conf)
-    if entries:
-        session.add_all(entries)
+    if items:
+        session.add_all(items)
         session.commit()
 
 
-def entry_update(entries, session=None, conf=None):
+def item_update(items, session=None, conf=None):
     session = session or get_session(conf)
-    for entry in entries:
-        session.merge(entry)
+    for item in items:
+        session.merge(item)
     session.commit()
 
 
-def entry_getall(filter_ids=None, session=None, conf=None):
+def item_getall(filter_ids=None, session=None, conf=None):
     session = session or get_session(conf)
     if filter_ids:
         query = session.query(
-            models.Entry).order_by(
-            models.Entry.id).filter(
-            models.Entry.id.in_(filter_ids)).outerjoin(
+            models.Item).order_by(
+            models.Item.id).filter(
+            models.Item.id.in_(filter_ids)).outerjoin(
             models.Category)
 
     else:
         query = session.query(
-            models.Entry).order_by(
-            models.Entry.id).outerjoin(
+            models.Item).order_by(
+            models.Item.id).outerjoin(
             models.Category)
     return query.all()
 
 
-def entry_delete(entries, session=None, conf=None):
+def item_delete(items, session=None, conf=None):
     session = session or get_session(conf)
-    for entry in entries:
-        session.delete(entry)
+    for item in items:
+        session.delete(item)
     session.commit()
 
 
-def entry_delete_by_id(filter_ids, session=None, conf=None):
+def item_delete_by_id(filter_ids, session=None, conf=None):
     if filter_ids:
         session = session or get_session(conf)
-        entries = entry_getall(filter_ids, session, conf)
-        entry_delete(entries, session, conf)
+        items = item_getall(filter_ids, session, conf)
+        item_delete(items, session, conf)
