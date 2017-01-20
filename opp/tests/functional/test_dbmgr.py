@@ -39,5 +39,5 @@ class TestDbManager(testtools.TestCase):
     def test_schema_creation(self):
         self._init_db()
 
-        for table in ['categories', 'entries']:
+        for table in ['categories', 'items']:
             self._assert_table_exists(table)

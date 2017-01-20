@@ -80,70 +80,70 @@ class TestDbApi(testtools.TestCase):
         self.assertEqual(len(categories), 1)
         self.assertEqual(categories[0].blob, "blob4")
 
-    def test_entries_basic(self):
-        # Expect empty entry list initially
-        entries = api.entry_getall(session=self.session)
-        self.assertEqual(entries, [])
+    def test_items_basic(self):
+        # Expect empty item list initially
+        items = api.item_getall(session=self.session)
+        self.assertEqual(items, [])
 
-        # Insert and retrieve an entry
-        entry = models.Entry(blob="blob", category_id=None)
-        api.entry_create([entry], session=self.session)
-        entries = api.entry_getall(session=self.session)
-        self.assertEqual(len(entries), 1)
+        # Insert and retrieve an item
+        item = models.Item(blob="blob", category_id=None)
+        api.item_create([item], session=self.session)
+        items = api.item_getall(session=self.session)
+        self.assertEqual(len(items), 1)
 
-        # Update and check the entry
-        entry.blob = "new blob"
-        entry.category_id = 999
-        api.entry_update([entry], session=self.session)
-        entries = api.entry_getall(session=self.session)
-        self.assertEqual(len(entries), 1)
-        self.assertEqual(entries[0].blob, "new blob")
-        self.assertEqual(entries[0].category_id, 999)
+        # Update and check the item
+        item.blob = "new blob"
+        item.category_id = 999
+        api.item_update([item], session=self.session)
+        items = api.item_getall(session=self.session)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].blob, "new blob")
+        self.assertEqual(items[0].category_id, 999)
 
-        # Update entry with valid category
+        # Update item with valid category
         category = models.Category(blob="blah")
         api.category_create([category], session=self.session)
-        entry.category_id = 1
-        api.entry_update([entry], session=self.session)
-        entries = api.entry_getall(session=self.session)
-        self.assertEqual(len(entries), 1)
-        self.assertEqual(entries[0].blob, "new blob")
-        self.assertEqual(entries[0].category_id, 1)
-        self.assertIsNotNone(entries[0].category)
+        item.category_id = 1
+        api.item_update([item], session=self.session)
+        items = api.item_getall(session=self.session)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].blob, "new blob")
+        self.assertEqual(items[0].category_id, 1)
+        self.assertIsNotNone(items[0].category)
 
-        # Delete the entry
-        api.entry_delete(entries, session=self.session)
-        entries = api.entry_getall(session=self.session)
-        self.assertEqual(len(entries), 0)
+        # Delete the item
+        api.item_delete(items, session=self.session)
+        items = api.item_getall(session=self.session)
+        self.assertEqual(len(items), 0)
 
-    def test_entries_get_filter(self):
-        # Insert several entries
-        entries = [models.Entry(blob="blob0"),
-                   models.Entry(blob="blob1"),
-                   models.Entry(blob="blob2")]
-        api.entry_create(entries, session=self.session)
+    def test_items_get_filter(self):
+        # Insert several items
+        items = [models.Item(blob="blob0"),
+                 models.Item(blob="blob1"),
+                 models.Item(blob="blob2")]
+        api.item_create(items, session=self.session)
 
-        # Retrieve first and last entries only
+        # Retrieve first and last items only
         ids = [1, 3]
-        entries = api.entry_getall(filter_ids=ids, session=self.session)
-        self.assertEqual(len(entries), 2)
-        self.assertEqual(entries[0].blob, "blob0")
-        self.assertEqual(entries[1].blob, "blob2")
+        items = api.item_getall(filter_ids=ids, session=self.session)
+        self.assertEqual(len(items), 2)
+        self.assertEqual(items[0].blob, "blob0")
+        self.assertEqual(items[1].blob, "blob2")
 
-    def test_entries_delete_by_id(self):
-        # Insert several entries
-        entries = [models.Entry(blob="blob3"),
-                   models.Entry(blob="blob4"),
-                   models.Entry(blob="blob5")]
-        api.entry_create(entries, session=self.session)
+    def test_items_delete_by_id(self):
+        # Insert several items
+        items = [models.Item(blob="blob3"),
+                 models.Item(blob="blob4"),
+                 models.Item(blob="blob5")]
+        api.item_create(items, session=self.session)
 
-        # Delete first and last entries only
+        # Delete first and last items only
         ids = [1, 3]
-        api.entry_delete_by_id(filter_ids=ids, session=self.session)
+        api.item_delete_by_id(filter_ids=ids, session=self.session)
 
-        entries = api.entry_getall(session=self.session)
-        self.assertEqual(len(entries), 1)
-        self.assertEqual(entries[0].blob, "blob4")
+        items = api.item_getall(session=self.session)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].blob, "blob4")
 
     def test_categories_delete_cascade(self):
         # Insert categories
@@ -157,38 +157,38 @@ class TestDbApi(testtools.TestCase):
         self.assertEqual(categories[0].blob, "cat1")
         self.assertEqual(categories[1].blob, "cat2")
 
-        # Insert entries
-        entries = [models.Entry(blob="ent1", category_id=1),
-                   models.Entry(blob="ent2", category_id=1),
-                   models.Entry(blob="ent3", category_id=2),
-                   models.Entry(blob="ent4", category_id=2)]
-        api.entry_create(entries, session=self.session)
+        # Insert items
+        items = [models.Item(blob="item1", category_id=1),
+                 models.Item(blob="item2", category_id=1),
+                 models.Item(blob="item3", category_id=2),
+                 models.Item(blob="item4", category_id=2)]
+        api.item_create(items, session=self.session)
 
-        # Verify entries
-        entries = api.entry_getall(session=self.session)
-        self.assertEqual(len(entries), 4)
+        # Verify items
+        items = api.item_getall(session=self.session)
+        self.assertEqual(len(items), 4)
 
-        e1, e2, e3, e4 = entries
+        i1, i2, i3, i4 = items
 
-        self.assertEqual(e1.blob, "ent1")
-        self.assertEqual(e1.category_id, 1)
-        self.assertIsNotNone(e1.category)
-        self.assertEqual(e1.category.id, 1)
+        self.assertEqual(i1.blob, "item1")
+        self.assertEqual(i1.category_id, 1)
+        self.assertIsNotNone(i1.category)
+        self.assertEqual(i1.category.id, 1)
 
-        self.assertEqual(e2.blob, "ent2")
-        self.assertEqual(e2.category_id, 1)
-        self.assertIsNotNone(e2.category)
-        self.assertEqual(e1.category.id, 1)
+        self.assertEqual(i2.blob, "item2")
+        self.assertEqual(i2.category_id, 1)
+        self.assertIsNotNone(i2.category)
+        self.assertEqual(i1.category.id, 1)
 
-        self.assertEqual(e3.blob, "ent3")
-        self.assertEqual(e3.category_id, 2)
-        self.assertIsNotNone(e3.category)
-        self.assertEqual(e3.category.id, 2)
+        self.assertEqual(i3.blob, "item3")
+        self.assertEqual(i3.category_id, 2)
+        self.assertIsNotNone(i3.category)
+        self.assertEqual(i3.category.id, 2)
 
-        self.assertEqual(e4.blob, "ent4")
-        self.assertEqual(e4.category_id, 2)
-        self.assertIsNotNone(e4.category)
-        self.assertEqual(e4.category.id, 2)
+        self.assertEqual(i4.blob, "item4")
+        self.assertEqual(i4.category_id, 2)
+        self.assertIsNotNone(i4.category)
+        self.assertEqual(i4.category.id, 2)
 
         # Delete category 1 with cascade
         api.category_delete(categories[:1], cascade=True,
@@ -199,19 +199,19 @@ class TestDbApi(testtools.TestCase):
         self.assertEqual(len(categories), 1)
         self.assertEqual(categories[0].blob, "cat2")
 
-        # Verify entries 1 & 2 were deleted through cascade action
-        # and that entries 3 & 4 remain unchanged
-        entries = api.entry_getall(session=self.session)
-        self.assertEqual(len(entries), 2)
-        e3, e4 = entries
-        self.assertEqual(e3.blob, "ent3")
-        self.assertEqual(e3.category_id, 2)
-        self.assertIsNotNone(e3.category)
-        self.assertEqual(e3.category.id, 2)
-        self.assertEqual(e4.blob, "ent4")
-        self.assertEqual(e4.category_id, 2)
-        self.assertIsNotNone(e4.category)
-        self.assertEqual(e4.category.id, 2)
+        # Verify items 1 & 2 were deleted through cascade action
+        # and that items 3 & 4 remain unchanged
+        items = api.item_getall(session=self.session)
+        self.assertEqual(len(items), 2)
+        i3, i4 = items
+        self.assertEqual(i3.blob, "item3")
+        self.assertEqual(i3.category_id, 2)
+        self.assertIsNotNone(i3.category)
+        self.assertEqual(i3.category.id, 2)
+        self.assertEqual(i4.blob, "item4")
+        self.assertEqual(i4.category_id, 2)
+        self.assertIsNotNone(i4.category)
+        self.assertEqual(i4.category.id, 2)
 
         # Delete category 2 without cascade
         api.category_delete(categories, cascade=False,
@@ -221,13 +221,13 @@ class TestDbApi(testtools.TestCase):
         categories = api.category_getall(session=self.session)
         self.assertEqual(len(categories), 0)
 
-        # Verify that entries 3 & 4 have no category association
-        entries = api.entry_getall(session=self.session)
-        self.assertEqual(len(entries), 2)
-        e3, e4 = entries
-        self.assertEqual(e3.blob, "ent3")
-        self.assertEqual(e3.category_id, None)
-        self.assertIsNone(e3.category)
-        self.assertEqual(e4.blob, "ent4")
-        self.assertEqual(e4.category_id, None)
-        self.assertIsNone(e4.category)
+        # Verify that items 3 & 4 have no category association
+        items = api.item_getall(session=self.session)
+        self.assertEqual(len(items), 2)
+        i3, i4 = items
+        self.assertEqual(i3.blob, "item3")
+        self.assertEqual(i3.category_id, None)
+        self.assertIsNone(i3.category)
+        self.assertEqual(i4.blob, "item4")
+        self.assertEqual(i4.category_id, None)
+        self.assertIsNone(i4.category)
