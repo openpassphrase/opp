@@ -34,17 +34,17 @@ class TestDbApi(testtools.TestCase):
         self.assertEqual(categories, [])
 
         # Insert and retrieve a category
-        category = models.Category(blob="blob")
+        category = models.Category(name="name")
         api.category_create([category], session=self.session)
         categories = api.category_getall(session=self.session)
         self.assertEqual(len(categories), 1)
 
         # Update and check the category
-        category.blob = 'new blob'
+        category.name = 'new name'
         api.category_update([category], session=self.session)
         categories = api.category_getall(session=self.session)
         self.assertEqual(len(categories), 1)
-        self.assertEqual(categories[0].blob, "new blob")
+        self.assertEqual(categories[0].name, "new name")
 
         # Delete the category
         api.category_delete(categories, cascade=False, session=self.session)
@@ -53,23 +53,23 @@ class TestDbApi(testtools.TestCase):
 
     def test_categories_get_filter(self):
         # Insert several categories
-        categories = [models.Category(blob="blob0"),
-                      models.Category(blob="blob1"),
-                      models.Category(blob="blob2")]
+        categories = [models.Category(name="name0"),
+                      models.Category(name="name1"),
+                      models.Category(name="name2")]
         api.category_create(categories, session=self.session)
 
         # Retrieve first and last categories only
         ids = [1, 3]
         categories = api.category_getall(filter_ids=ids, session=self.session)
         self.assertEqual(len(categories), 2)
-        self.assertEqual(categories[0].blob, "blob0")
-        self.assertEqual(categories[1].blob, "blob2")
+        self.assertEqual(categories[0].name, "name0")
+        self.assertEqual(categories[1].name, "name2")
 
     def test_categories_delete_by_id(self):
         # Insert several categories
-        categories = [models.Category(blob="blob3"),
-                      models.Category(blob="blob4"),
-                      models.Category(blob="blob5")]
+        categories = [models.Category(name="name3"),
+                      models.Category(name="name4"),
+                      models.Category(name="name5")]
         api.category_create(categories, session=self.session)
 
         # Delete first and last categories only
@@ -78,7 +78,7 @@ class TestDbApi(testtools.TestCase):
 
         categories = api.category_getall(session=self.session)
         self.assertEqual(len(categories), 1)
-        self.assertEqual(categories[0].blob, "blob4")
+        self.assertEqual(categories[0].name, "name4")
 
     def test_items_basic(self):
         # Expect empty item list initially
@@ -101,7 +101,7 @@ class TestDbApi(testtools.TestCase):
         self.assertEqual(items[0].category_id, 999)
 
         # Update item with valid category
-        category = models.Category(blob="blah")
+        category = models.Category(name="blah")
         api.category_create([category], session=self.session)
         item.category_id = 1
         api.item_update([item], session=self.session)
@@ -147,15 +147,15 @@ class TestDbApi(testtools.TestCase):
 
     def test_categories_delete_cascade(self):
         # Insert categories
-        categories = [models.Category(blob="cat1"),
-                      models.Category(blob="cat2")]
+        categories = [models.Category(name="cat1"),
+                      models.Category(name="cat2")]
         api.category_create(categories, session=self.session)
 
         # Verify categories
         categories = api.category_getall(session=self.session)
         self.assertEqual(len(categories), 2)
-        self.assertEqual(categories[0].blob, "cat1")
-        self.assertEqual(categories[1].blob, "cat2")
+        self.assertEqual(categories[0].name, "cat1")
+        self.assertEqual(categories[1].name, "cat2")
 
         # Insert items
         items = [models.Item(blob="item1", category_id=1),
@@ -197,7 +197,7 @@ class TestDbApi(testtools.TestCase):
         # Verify only 1 category remains
         categories = api.category_getall(session=self.session)
         self.assertEqual(len(categories), 1)
-        self.assertEqual(categories[0].blob, "cat2")
+        self.assertEqual(categories[0].name, "cat2")
 
         # Verify items 1 & 2 were deleted through cascade action
         # and that items 3 & 4 remain unchanged

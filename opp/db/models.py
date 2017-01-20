@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime
 
 from sqlalchemy import (Column, DateTime, ForeignKey,
@@ -17,6 +18,11 @@ class Item(Base):
     id = Column(Integer, Sequence('item_id_seq'), primary_key=True)
     category_id = Column(Integer, Sequence('category_id_seq'),
                          ForeignKey('categories.id'), default=None)
+    name = Column(String(255), nullable=True, default=None)
+    url = Column(String(2000), nullable=True, default=None)
+    account = Column(String(255), nullable=True, default=None)
+    username = Column(String(255), nullable=True, default=None)
+    password = Column(String(255), nullable=True, default=None)
     blob = Column(String(4096), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
@@ -25,14 +31,29 @@ class Item(Base):
 
     category = relationship('Category')
 
-    def decrypt(self, cipher):
+    def extract(self, cipher):
+        # Create a list of all encrypted columns
+        row = [self.name, self.url, self.account, self.username,
+               self.password, self.blob]
+
+        # Concatenate all the columns into one big blob and decrypt
+        row = cipher.decrypt("".join(row))
+
+        # Split decrypted data by delimeter and perform base64 decode
+        extracted_values = [base64.b64decode(x) for x in row.split('~')]
+
+        # Create item object
         item = {'id': self.id,
-                'item': cipher.decrypt(self.blob),
-                'category_id': self.category_id}
+                'name': extracted_values[0],
+                'url': extracted_values[1],
+                'account': extracted_values[2],
+                'username': extracted_values[3],
+                'password': extracted_values[4],
+                'blob': extracted_values[5]}
         if self.category:
-            item['category'] = cipher.decrypt(self.category.blob)
+            item['category'] = self.category.extract(cipher)
         else:
-            item['category'] = None
+            item['category'] = {"id": self.category_id}
 
         return item
 
@@ -42,7 +63,7 @@ class Category(Base):
     __tablename__ = 'categories'
 
     id = Column(Integer, Sequence('category_id_seq'), primary_key=True)
-    blob = Column(String(256), nullable=False)
+    name = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
@@ -50,7 +71,7 @@ class Category(Base):
 
     items = relationship('Item', order_by=Item.id)
 
-    def decrypt(self, cipher):
+    def extract(self, cipher):
         category = {'id': self.id,
-                    'category': cipher.decrypt(self.blob)}
+                    'name': cipher.decrypt(self.name)}
         return category

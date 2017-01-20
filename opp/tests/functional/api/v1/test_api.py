@@ -81,9 +81,20 @@ class BackendApiTests(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
+        # Check all 3 categories
+        response = self.client.get(path, headers=headers)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data['result'], "success")
+        self.assertEqual(len(data['categories']), 3)
+        cat1, cat2, cat3 = data['categories']
+        self.assertEqual(cat1['name'], "cat1")
+        self.assertEqual(cat2['name'], "cat2")
+        self.assertEqual(cat3['name'], "cat3")
+
         # Update categories 1 & 3
-        payload = [{'id': 1, 'category': "new_cat1"},
-                   {'id': 3, 'category': "new_cat3"}]
+        payload = [{'id': 1, 'name': "new_cat1"},
+                   {'id': 3, 'name': "new_cat3"}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
@@ -97,9 +108,9 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['categories']), 3)
         cat1, cat2, cat3 = data['categories']
-        self.assertEqual(cat1['category'], "new_cat1")
-        self.assertEqual(cat2['category'], "cat2")
-        self.assertEqual(cat3['category'], "new_cat3")
+        self.assertEqual(cat1['name'], "new_cat1")
+        self.assertEqual(cat2['name'], "cat2")
+        self.assertEqual(cat3['name'], "new_cat3")
 
         # Delete categories 1 & 3
         payload = {'cascade': False, 'ids': [cat1['id'], cat3['id']]}
@@ -115,7 +126,7 @@ class BackendApiTests(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['categories']), 1)
-        self.assertEqual(data['categories'][0]['category'], "cat2")
+        self.assertEqual(data['categories'][0]['name'], "cat2")
 
         # Clean up by deleting category 2
         payload = {'cascade': False, 'ids': [cat2['id']]}
@@ -142,15 +153,15 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Empty category data in list!")
+        self.assertEqual(data['message'], "Empty category name in list!")
 
-        # Try to PUT with invalid category in list (int instead of string)
+        # Try to PUT with invalid category name in list (int instead of string)
         data = {'payload': '["cat1", 2]'}
         response = self.client.put(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Invalid category data in list!")
+        self.assertEqual(data['message'], "Invalid category name in list!")
 
         # Add a category
         data = {'payload': '["cat4"]'}
@@ -165,7 +176,7 @@ class BackendApiTests(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['categories']), 1)
-        self.assertEqual(data['categories'][0]['category'], "cat4")
+        self.assertEqual(data['categories'][0]['name'], "cat4")
         cat_id = data['categories'][0]['id']
 
         # Try to POST with missing category id
@@ -186,32 +197,32 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Empty category id in list!")
 
-        # Try to POST with missing category
+        # Try to POST with missing category name
         payload = [{'id': cat_id, 'nocategory': "new_cat4"}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Missing category in list!")
+        self.assertEqual(data['message'], "Missing category name in list!")
 
-        # Try to POST with empty category
-        payload = [{'id': cat_id, 'category': ""}]
+        # Try to POST with empty category name
+        payload = [{'id': cat_id, 'name': ""}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Empty category in list!")
+        self.assertEqual(data['message'], "Empty category name in list!")
 
-        # Try to POST with invalid category in list
-        payload = [{'id': cat_id, 'category': 1}]
+        # Try to POST with invalid category name in list
+        payload = [{'id': cat_id, 'name': 1}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Invalid category data in list!")
+        self.assertEqual(data['message'], "Invalid category name in list!")
 
         # Try to delete with invalid payload (list form)
         data = {'payload': '[1,2,3]'}
@@ -295,17 +306,8 @@ class BackendApiTests(unittest.TestCase):
 
         # Add 3 items, check for successful response
         data = {'payload':
-                '[{"item": "i1"}, {"item": "i2"}, {"item": "i3"}]'}
+                '[{"name": "i1"}, {"name": "i2"}, {"name": "i3"}]'}
         response = self.client.put(path, headers=headers, data=data)
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.data)
-        self.assertEqual(data['result'], "success")
-
-        # Update items 1 & 3
-        payload = [{'id': 1, 'item': "new_i1"},
-                   {'id': 3, 'item': "new_i3"}]
-        data = {'payload': json.dumps(payload)}
-        response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
@@ -317,9 +319,29 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['items']), 3)
         item1, item2, item3 = data['items']
-        self.assertEqual(item1['item'], "new_i1")
-        self.assertEqual(item2['item'], "i2")
-        self.assertEqual(item3['item'], "new_i3")
+        self.assertEqual(item1['name'], "i1")
+        self.assertEqual(item2['name'], "i2")
+        self.assertEqual(item3['name'], "i3")
+
+        # Update items 1 & 3
+        payload = [{'id': 1, 'name': "new_i1"},
+                   {'id': 3, 'name': "new_i3"}]
+        data = {'payload': json.dumps(payload)}
+        response = self.client.post(path, headers=headers, data=data)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data['result'], "success")
+
+        # Check all 3 items again
+        response = self.client.get(path, headers=headers)
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data['result'], "success")
+        self.assertEqual(len(data['items']), 3)
+        item1, item2, item3 = data['items']
+        self.assertEqual(item1['name'], "new_i1")
+        self.assertEqual(item2['name'], "i2")
+        self.assertEqual(item3['name'], "new_i3")
 
         # Delete items 1 & 3
         payload = [item1['id'], item3['id']]
@@ -335,7 +357,7 @@ class BackendApiTests(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['items']), 1)
-        self.assertEqual(data['items'][0]['item'], "i2")
+        self.assertEqual(data['items'][0]['name'], "i2")
 
         # Clean up by deleting item 2
         payload = [item2['id']]
@@ -357,23 +379,23 @@ class BackendApiTests(unittest.TestCase):
         headers = {'x-opp-phrase': "123"}
 
         # Try to PUT with missing item in list
-        data = {'payload': '[{}]'}
-        response = self.client.put(path, headers=headers, data=data)
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.data)
-        self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Missing item data in list!")
+        # data = {'payload': '[{}]'}
+        # response = self.client.put(path, headers=headers, data=data)
+        # self.assertEqual(response.status_code, 200)
+        # data = json.loads(response.data)
+        # self.assertEqual(data['result'], "error")
+        # self.assertEqual(data['message'], "Missing item data in list!")
 
         # Try to PUT with empty item in list
-        data = {'payload': '[{"item": ""}]'}
-        response = self.client.put(path, headers=headers, data=data)
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.data)
-        self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Empty item data in list!")
+        # data = {'payload': '[{"item": ""}]'}
+        # response = self.client.put(path, headers=headers, data=data)
+        # self.assertEqual(response.status_code, 200)
+        # data = json.loads(response.data)
+        # self.assertEqual(data['result'], "error")
+        # self.assertEqual(data['message'], "Empty item data in list!")
 
         # Try to PUT with invalid item in list (int instead of string)
-        data = {'payload': '[{"item": 2}]'}
+        data = {'payload': '[{"name": 2}]'}
         response = self.client.put(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
@@ -381,7 +403,7 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(data['message'], "Invalid item data in list!")
 
         # Add an item
-        data = {'payload': '[{"item": "i4"}]'}
+        data = {'payload': '[{"name": "i4"}]'}
         response = self.client.put(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
@@ -393,7 +415,7 @@ class BackendApiTests(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['items']), 1)
-        self.assertEqual(data['items'][0]['item'], "i4")
+        self.assertEqual(data['items'][0]['name'], "i4")
         item_id = data['items'][0]['id']
 
         # Try to POST with missing item id
@@ -415,25 +437,25 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(data['message'], "Empty item id in list!")
 
         # Try to POST with missing item
-        payload = [{'id': item_id, 'noitem': "new_i4"}]
-        data = {'payload': json.dumps(payload)}
-        response = self.client.post(path, headers=headers, data=data)
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.data)
-        self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Missing item in list!")
+        # payload = [{'id': item_id, 'noitem': "new_i4"}]
+        # data = {'payload': json.dumps(payload)}
+        # response = self.client.post(path, headers=headers, data=data)
+        # self.assertEqual(response.status_code, 200)
+        # data = json.loads(response.data)
+        # self.assertEqual(data['result'], "error")
+        # self.assertEqual(data['message'], "Missing item in list!")
 
         # Try to POST with empty item
-        payload = [{'id': item_id, 'item': ""}]
-        data = {'payload': json.dumps(payload)}
-        response = self.client.post(path, headers=headers, data=data)
-        self.assertEqual(response.status_code, 200)
-        data = json.loads(response.data)
-        self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Empty item in list!")
+        # payload = [{'id': item_id, 'item': ""}]
+        # data = {'payload': json.dumps(payload)}
+        # response = self.client.post(path, headers=headers, data=data)
+        # self.assertEqual(response.status_code, 200)
+        # data = json.loads(response.data)
+        # self.assertEqual(data['result'], "error")
+        # self.assertEqual(data['message'], "Empty item in list!")
 
         # Try to POST with invalid item in list
-        payload = [{'id': item_id, 'item': 1}]
+        payload = [{'id': item_id, 'name': 1}]
         data = {'payload': json.dumps(payload)}
         response = self.client.post(path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
@@ -483,10 +505,10 @@ class BackendApiTests(unittest.TestCase):
         c1, c2 = data['categories']
 
         # Add four items (two per category)
-        items = [{'item': "i1", 'category_id': c1['id']},
-                 {'item': "i2", 'category_id': c1['id']},
-                 {'item': "i3", 'category_id': c2['id']},
-                 {'item': "i4", 'category_id': c2['id']}]
+        items = [{'name': "i1", 'category_id': c1['id']},
+                 {'name': "i2", 'category_id': c1['id']},
+                 {'name': "i3", 'category_id': c2['id']},
+                 {'name': "i4", 'category_id': c2['id']}]
         data = {'payload': json.dumps(items)}
         response = self.client.put(item_path, headers=headers, data=data)
         self.assertEqual(response.status_code, 200)
@@ -502,21 +524,21 @@ class BackendApiTests(unittest.TestCase):
 
         i1, i2, i3, i4 = data['items']
 
-        self.assertEqual(i1['item'], "i1")
-        self.assertEqual(i1['category'], c1['category'])
-        self.assertEqual(i1['category_id'], c1['id'])
+        self.assertEqual(i1['name'], "i1")
+        self.assertEqual(i1['category']['name'], c1['name'])
+        self.assertEqual(i1['category']['id'], c1['id'])
 
-        self.assertEqual(i2['item'], "i2")
-        self.assertEqual(i2['category'], c1['category'])
-        self.assertEqual(i2['category_id'], c1['id'])
+        self.assertEqual(i2['name'], "i2")
+        self.assertEqual(i2['category']['name'], c1['name'])
+        self.assertEqual(i2['category']['id'], c1['id'])
 
-        self.assertEqual(i3['item'], "i3")
-        self.assertEqual(i3['category'], c2['category'])
-        self.assertEqual(i3['category_id'], c2['id'])
+        self.assertEqual(i3['name'], "i3")
+        self.assertEqual(i3['category']['name'], c2['name'])
+        self.assertEqual(i3['category']['id'], c2['id'])
 
-        self.assertEqual(i4['item'], "i4")
-        self.assertEqual(i4['category'], c2['category'])
-        self.assertEqual(i4['category_id'], c2['id'])
+        self.assertEqual(i4['name'], "i4")
+        self.assertEqual(i4['category']['name'], c2['name'])
+        self.assertEqual(i4['category']['id'], c2['id'])
 
         # Delete category 1 with cascade
         payload = {'cascade': True, 'ids': [c1['id']]}
@@ -541,12 +563,12 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['items']), 2)
         i3, i4 = data['items']
-        self.assertEqual(i3['item'], "i3")
-        self.assertEqual(i3['category'], c2['category'])
-        self.assertEqual(i3['category_id'], c2['id'])
-        self.assertEqual(i4['item'], "i4")
-        self.assertEqual(i4['category'], c2['category'])
-        self.assertEqual(i4['category_id'], c2['id'])
+        self.assertEqual(i3['name'], "i3")
+        self.assertEqual(i3['category']['name'], c2['name'])
+        self.assertEqual(i3['category']['id'], c2['id'])
+        self.assertEqual(i4['name'], "i4")
+        self.assertEqual(i4['category']['name'], c2['name'])
+        self.assertEqual(i4['category']['id'], c2['id'])
 
         # Delete category 2 without cascade
         payload = {'cascade': False, 'ids': [c2['id']]}
@@ -570,12 +592,10 @@ class BackendApiTests(unittest.TestCase):
         self.assertEqual(data['result'], "success")
         self.assertEqual(len(data['items']), 2)
         i3, i4 = data['items']
-        self.assertEqual(i3['item'], "i3")
-        self.assertEqual(i3['category'], None)
-        self.assertEqual(i3['category_id'], None)
-        self.assertEqual(i4['item'], "i4")
-        self.assertEqual(i4['category'], None)
-        self.assertEqual(i4['category_id'], None)
+        self.assertEqual(i3['name'], "i3")
+        self.assertEqual(i3['category']['id'], None)
+        self.assertEqual(i4['name'], "i4")
+        self.assertEqual(i4['category']['id'], None)
 
         # Delete remaining two items to clean up
         data = {'payload': json.dumps([i3['id'], i4['id']])}

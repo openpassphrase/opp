@@ -10,7 +10,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         cipher = aescipher.AESCipher(phrase)
         categories = api.category_getall(session=self.session)
         for category in categories:
-            response.append(category.decrypt(cipher))
+            response.append(category.extract(cipher))
 
         return {'result': "success", 'categories': response}
 
@@ -22,14 +22,14 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         cipher = aescipher.AESCipher(phrase)
         categories = []
         for cat in cat_list:
-            # Check for empty category value
+            # Check for empty category name
             if not cat:
-                return self.error("Empty category data in list!")
+                return self.error("Empty category name in list!")
             try:
                 blob = cipher.encrypt(cat)
-                categories.append(models.Category(blob=blob))
+                categories.append(models.Category(name=blob))
             except TypeError:
-                return self.error("Invalid category data in list!")
+                return self.error("Invalid category name in list!")
 
         try:
             api.category_create(categories, session=self.session)
@@ -55,17 +55,17 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
             # Make sure category is parsed from request
             try:
-                category = cat['category']
+                category = cat['name']
             except KeyError:
-                return self.error("Missing category in list!")
+                return self.error("Missing category name in list!")
             if not category:
-                return self.error("Empty category in list!")
+                return self.error("Empty category name in list!")
 
             try:
                 blob = cipher.encrypt(category)
-                categories.append(models.Category(id=cat_id, blob=blob))
+                categories.append(models.Category(id=cat_id, name=blob))
             except TypeError:
-                return self.error("Invalid category data in list!")
+                return self.error("Invalid category name in list!")
 
         try:
             api.category_update(categories, session=self.session)
