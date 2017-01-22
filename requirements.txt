@@ -2,8 +2,8 @@ bcrypt>=3.1.2 # Apache-2.0
 click>=6.7 # BSD
 config>=0.3.7 # Public Domain
 Flask>=0.12 # BSD
-Flask-JWT>=0.3.2 # MIT
 pycrypto>=2.6 # Public Domain
+PyJWT>=1.4.0,<1.5.0 # MIT
 SQLAlchemy>=1.0.16 # MIT
 SQLAlchemy-Utils>=0.32.12 # BSD
 

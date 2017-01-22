@@ -15,6 +15,7 @@ class TestBackendApiUsers(unittest.TestCase):
     unintended interaction when adding new tests"""
     @classmethod
     def setUpClass(cls):
+        # Create test directory, config file and database
         cls.test_dir = tempfile.mkdtemp(prefix='opp_')
         cls.conf_filepath = os.path.join(cls.test_dir, 'opp.cfg')
         cls.db_filepath = os.path.join(cls.test_dir, 'test.sqlite')
@@ -24,6 +25,10 @@ class TestBackendApiUsers(unittest.TestCase):
             conf_file.flush()
         os.environ['OPP_TOP_CONFIG'] = cls.conf_filepath
         utils.execute("opp-db --config_file %s init" % cls.conf_filepath)
+
+        # Create a test client and propgate exceptions to it
+        cls.client = api.app.test_client()
+        cls.client.testing = True
 
     @classmethod
     def tearDownClass(cls):
@@ -40,12 +45,6 @@ class TestBackendApiUsers(unittest.TestCase):
         except Exception:
             pass
 
-    def setUp(self):
-        # Create a test client
-        self.client = api.app.test_client()
-        # propagate exceptions to the test client
-        self.client.testing = True
-
     def tearDown(self):
         pass
 
@@ -56,11 +55,12 @@ class TestBackendApiUsers(unittest.TestCase):
         self.assertEqual(rpat.status_code, 405)
 
     def test_users_cud(self):
+        hdrs = {"Content-Type": "application/json"}
         path = '/users'
 
         # Add a user, check for successful response
         data = {'username': "user", 'password': "pass"}
-        response = self.client.put(path, data=data)
+        response = self.client.put(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
@@ -68,24 +68,26 @@ class TestBackendApiUsers(unittest.TestCase):
         # Update the user
         data = {'username': "user", 'current_password': "pass",
                 'new_password': "new_pass"}
-        response = self.client.post(path, data=data)
+        response = self.client.post(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
         # Delete the user
         data = {'username': "user", 'password': "new_pass"}
-        response = self.client.delete(path, data=data)
+        response = self.client.delete(path, data=json.dumps(data),
+                                      headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
     def test_users_error_conditions(self):
+        hdrs = {"Content-Type": "application/json"}
         path = '/users'
 
         # Try to create user with missing username
         data = {'nousername': "user", 'password': "pass"}
-        response = self.client.put(path, data=data)
+        response = self.client.put(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -93,7 +95,7 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to create user with empty username
         data = {'username': "", 'password': "pass"}
-        response = self.client.put(path, data=data)
+        response = self.client.put(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -101,7 +103,7 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to create user with missing password
         data = {'username': "user", 'nopassword': "pass"}
-        response = self.client.put(path, data=data)
+        response = self.client.put(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -109,7 +111,7 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to create user with empty password
         data = {'username': "user", 'password': ""}
-        response = self.client.put(path, data=data)
+        response = self.client.put(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -117,13 +119,13 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to add the same user twice
         data = {'username': "user", 'password': "pass"}
-        response = self.client.put(path, data=data)
+        response = self.client.put(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")
 
         data = {'username': "user", 'password': "pass"}
-        response = self.client.put(path, data=data)
+        response = self.client.put(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -131,7 +133,7 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to update user with missing username
         data = {'nousername': "user", 'password': "pass"}
-        response = self.client.post(path, data=data)
+        response = self.client.post(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -139,7 +141,7 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to update user with empty username
         data = {'username': "", 'password': "pass"}
-        response = self.client.post(path, data=data)
+        response = self.client.post(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -147,7 +149,7 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to update user with missing current password
         data = {'username': "user", 'password': "pass"}
-        response = self.client.post(path, data=data)
+        response = self.client.post(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -155,7 +157,7 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to update user with empty current password
         data = {'username': "user", 'current_password': ""}
-        response = self.client.post(path, data=data)
+        response = self.client.post(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -163,7 +165,7 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to update user with missing new password
         data = {'username': "user", 'current_password': "pass"}
-        response = self.client.post(path, data=data)
+        response = self.client.post(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -172,7 +174,7 @@ class TestBackendApiUsers(unittest.TestCase):
         # Try to update user with empty new password
         data = {'username': "user", 'current_password': "pass",
                 'new_password': ""}
-        response = self.client.post(path, data=data)
+        response = self.client.post(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -181,7 +183,7 @@ class TestBackendApiUsers(unittest.TestCase):
         # Try to update non-existing user
         data = {'username': "nouser", 'current_password': "pass",
                 'new_password': "new_pass"}
-        response = self.client.post(path, data=data)
+        response = self.client.post(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -190,7 +192,7 @@ class TestBackendApiUsers(unittest.TestCase):
         # Try to update user with invalid current password
         data = {'username': "user", 'current_password': "invalid",
                 'new_password': "new_pass"}
-        response = self.client.post(path, data=data)
+        response = self.client.post(path, data=json.dumps(data), headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -198,7 +200,8 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to delete user with missing username
         data = {'nousername': "user", 'password': "pass"}
-        response = self.client.delete(path, data=data)
+        response = self.client.delete(path, data=json.dumps(data),
+                                      headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -206,7 +209,8 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to delete user with empty username
         data = {'username': "", 'password': "pass"}
-        response = self.client.delete(path, data=data)
+        response = self.client.delete(path, data=json.dumps(data),
+                                      headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -214,7 +218,8 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to delete user with missing password
         data = {'username': "user", 'nopassword': "pass"}
-        response = self.client.delete(path, data=data)
+        response = self.client.delete(path, data=json.dumps(data),
+                                      headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -222,7 +227,8 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to delete user with empty password
         data = {'username': "user", 'password': ""}
-        response = self.client.delete(path, data=data)
+        response = self.client.delete(path, data=json.dumps(data),
+                                      headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -230,7 +236,8 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Try to delete non-existing user
         data = {'username': "nouser", 'password': "pass"}
-        response = self.client.delete(path, data=data)
+        response = self.client.delete(path, data=json.dumps(data),
+                                      headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "error")
@@ -238,7 +245,8 @@ class TestBackendApiUsers(unittest.TestCase):
 
         # Delete the user to clean up
         data = {'username': "user", 'password': "pass"}
-        response = self.client.delete(path, data=data)
+        response = self.client.delete(path, data=json.dumps(data),
+                                      headers=hdrs)
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data['result'], "success")

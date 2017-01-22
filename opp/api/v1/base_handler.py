@@ -1,5 +1,3 @@
-import json
-
 from opp.db import api
 
 
@@ -12,27 +10,24 @@ class BaseResponseHandler(object):
         return {'result': "error", 'message': msg}
 
     def _check_payload(self, expect_list):
+        request_body = self.request.get_json()
+
         try:
-            payload = self.request.form['payload']
+            payload = request_body['payload']
         except KeyError:
             return None, self.error("Payload missing!")
 
         if not payload:
             return None, self.error("Empty payload!")
 
-        try:
-            decoded = json.loads(payload)
-        except ValueError:
-            return None, self.error("Invalid payload!")
-
         if expect_list:
-            if not isinstance(decoded, list):
+            if not isinstance(payload, list):
                 return None, self.error("Payload should be in list form!")
         else:
-            if isinstance(decoded, list):
+            if isinstance(payload, list):
                 return None, self.error("Payload should not be in list form!")
 
-        return decoded, None
+        return payload, None
 
     def _do_get(self, phrase):
         return self.error("Action not implemented")
@@ -58,13 +53,13 @@ class BaseResponseHandler(object):
         # Obtain DB session for making transactions
         self.session = api.get_session()
 
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             response = self._do_get(phrase)
-        elif self.request.method == 'PUT':
+        elif self.request.method == "PUT":
             response = self._do_put(phrase)
-        elif self.request.method == 'POST':
+        elif self.request.method == "POST":
             response = self._do_post(phrase)
-        elif self.request.method == 'DELETE':
+        elif self.request.method == "DELETE":
             response = self._do_delete(phrase)
         else:
             response = self.error("Method not supported!")

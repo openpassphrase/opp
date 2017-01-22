@@ -9,9 +9,11 @@ from opp.db import api, models
 class ResponseHandler(base_handler.BaseResponseHandler):
 
     def _do_put(self, phrase):
-        # Extract required username field
+        request_body = self.request.get_json()
+
+        # Check required username field
         try:
-            username = self.request.form['username']
+            username = request_body['username']
         except KeyError:
             return self.error("Missing username!")
         if not username:
@@ -19,7 +21,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         # Extract required password field
         try:
-            password = self.request.form['password']
+            password = request_body['password']
         except KeyError:
             return self.error("Missing password!")
         if not password:
@@ -38,9 +40,11 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return self.error("Unable to add new user the database!")
 
     def _do_post(self, phrase):
+        request_body = self.request.get_json()
+
         # Extract required username field
         try:
-            username = self.request.form['username']
+            username = request_body['username']
         except KeyError:
             return self.error("Missing username!")
         if not username:
@@ -48,7 +52,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         # Extract required old password field
         try:
-            old_password = self.request.form['current_password']
+            old_password = request_body['current_password']
         except KeyError:
             return self.error("Missing current password!")
         if not old_password:
@@ -56,7 +60,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         # Extract required new password field
         try:
-            new_password = self.request.form['new_password']
+            new_password = request_body['new_password']
         except KeyError:
             return self.error("Missing new password!")
         if not new_password:
@@ -77,9 +81,11 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return self.error("Unable to update user in the database!")
 
     def _do_delete(self, phrase):
+        request_body = self.request.get_json()
+
         # Extract required username field
         try:
-            username = self.request.form['username']
+            username = request_body['username']
         except KeyError:
             return self.error("Missing username!")
         if not username:
@@ -87,7 +93,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         # Extract required password field
         try:
-            password = self.request.form['password']
+            password = request_body['password']
         except KeyError:
             return self.error("Missing password!")
         if not password:
