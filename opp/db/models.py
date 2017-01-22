@@ -10,6 +10,19 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 
+class User(Base):
+
+    __tablename__ = 'users'
+
+    id = Column(Integer, Sequence('item_id_seq'), primary_key=True)
+    username = Column(String(255), nullable=False, unique=True)
+    password = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(),
+                        nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(),
+                        nullable=False, onupdate=lambda: datetime.now())
+
+
 class Item(Base):
 
     __tablename__ = 'items'

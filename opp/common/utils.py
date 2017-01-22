@@ -1,6 +1,3 @@
-#!/usr/local/bin/python
-
-
 import shlex
 import subprocess
 from urlparse import parse_qs
