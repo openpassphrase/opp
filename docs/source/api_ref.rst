@@ -18,7 +18,7 @@ API Reference
 =============
 
 Overview
-~~~~~~~~
+--------
 
 **Base URL:** ``https://<your domain>/opp/api/<version>``
 
@@ -41,17 +41,92 @@ All 200 responses are returned in the following form:
 
 **Required headers:**
 
-``x-opp-phrase`` - authorization passphrase used for decoding secret data.
+``"Content-Type: application/json"`` - Required for all API requests.
 
-Authentication headers: TBD
+``"x-opp-jwt: "<token>"`` - JSON Web Token authentication header. Required for
+all Categories and Items endpoints.
 
-Authentication: TBD
-~~~~~~~~~~~~~~~~~~~
+``"x-opp-phrase: <phrase>"`` - Authorization passphrase used for decoding
+secret data. Required for all Categories and Items endpoints.
+
+|
+
+Authentication endpoint
+-----------------------
+``<base_url>/login``
+
+Authenticate
+~~~~~~~~~~~~
+
+**Request:** ``POST``
+
+**Body:** JSON object containing ``username`` and ``password`` fields.
+
+*Example:*
+
+``{"username": "user1", "password": "mypass"}``
+
+**Response:**
+
+``{"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}``
+
+|
+
+Users endpoint
+--------------
+``<base_url>/users``
+
+Create User
+~~~~~~~~~~~
+
+**Request:** ``PUT``
+
+**Body:** JSON object containing ``username`` and ``password`` fields.
+
+*Example:*
+
+``{"username": "user1", "password": "mypass"}``
+
+**Response:** ``{"result": "success"}``
+
+Update User
+~~~~~~~~~~~
+
+**Request:** ``POST``
+
+**Body:** JSON object containing ``username`` and current/new ``password``
+fields.
+
+*Example:*
+
+``{"username": "user1", "current_password": "mypass",
+"new_password": "newpass"}``
+
+**Response:** ``{"result": "success"}``
+
+Delete User
+~~~~~~~~~~~
+
+**Request:** ``DELETE``
+
+**Body:** JSON object containing ``username`` and ``password`` fields.
+
+*Example:*
+
+``{"username": "user1", "password": "mypass"}``
+
+**Response:** ``{"result": "success"}``
+
+|
+
+Categories endpoint
+-------------------
+``<base_url>/categories``
 
 Get Categories
 ~~~~~~~~~~~~~~
 
-**Request:** ``GET <base_url>/categories``
+**Request:** ``GET``
 
 **Response:**
 
@@ -66,7 +141,7 @@ Get Categories
 Create Category
 ~~~~~~~~~~~~~~~
 
-**Request:** ``PUT <base_url>/categories``
+**Request:** ``PUT``
 
 **Body:** ``payload`` object containing a list of category names.
 
@@ -79,7 +154,7 @@ Create Category
 Update Category
 ~~~~~~~~~~~~~~~
 
-**Request:** ``POST <base_url>/categories``
+**Request:** ``POST``
 
 **Body:** ``payload`` object containing a list of category IDs and
 updated name values.
@@ -94,7 +169,7 @@ updated name values.
 Delete Category
 ~~~~~~~~~~~~~~~
 
-**Request:** ``DELETE <base_url>/categories``
+**Request:** ``DELETE``
 
 **Body:** ``payload`` object containing a list of category IDs and a boolean
 ``cascade`` value indicating whether to delete the corresponding rows from the
@@ -107,10 +182,16 @@ ID values.
 
 **Response:** ``{"result": "success"}``
 
+|
+
+Items Endpoint
+--------------
+``<base_url>/items``
+
 Get Items
 ~~~~~~~~~
 
-**Request:** ``GET <base_url>/items``
+**Request:** ``GET``
 
 **Response:**
 
@@ -135,7 +216,7 @@ Where ``item_data`` objects contain:
 Create Item
 ~~~~~~~~~~~~
 
-**Request:** ``PUT <base_url>/items``
+**Request:** ``PUT``
 
 **Body:** ``payload`` object containing a list of items.
 
@@ -151,7 +232,7 @@ Create Item
 Update Item
 ~~~~~~~~~~~~
 
-**Request:** ``POST <base_url>/items``
+**Request:** ``POST``
 
 **Body:** ``payload`` object containing a list of items.
 
@@ -168,7 +249,7 @@ Update Item
 Delete Item
 ~~~~~~~~~~~~~~
 
-**Request:** ``DELETE <base_url>/items``
+**Request:** ``DELETE``
 
 **Body:** ``payload`` object containing a list of item IDs to be deleted.
 
