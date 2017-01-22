@@ -15,6 +15,8 @@ sudo sed -i "s/^# ..e.6~.: history-search-forward$/\"\\\e[6~\": history-search-f
 sudo locale-gen en_US.UTF-8
 
 # Required packages
+sudo apt-get install -y build-essential
+sudo apt-get install -y libffi-dev
 sudo apt-get install -y python2.7-dev
 sudo apt-get install -y sqlite
 sudo apt-get install -y python-pip

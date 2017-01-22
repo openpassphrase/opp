@@ -46,12 +46,14 @@ class BaseResponseHandler(object):
     def _do_delete(self, phrase):
         return self.error("Action not implemented")
 
-    def respond(self):
-        # Retrieve required 'phrase' and 'action' fields
-        try:
-            phrase = self.request.headers['x-opp-phrase']
-        except KeyError:
-            return self.error("Passphrase header missing!")
+    def respond(self, require_phrase=True):
+        if require_phrase:
+            try:
+                phrase = self.request.headers['x-opp-phrase']
+            except KeyError:
+                return self.error("Passphrase header missing!")
+        else:
+            phrase = None
 
         # Obtain DB session for making transactions
         self.session = api.get_session()

@@ -13,9 +13,55 @@ def get_session(conf=None):
     return Session()
 
 
+def user_create(user, session=None, conf=None):
+    if user:
+        session = session or get_session(conf)
+        session.add(user)
+        session.commit()
+
+
+def user_update(user, session=None, conf=None):
+    if user:
+        session = session or get_session(conf)
+        session.merge(user)
+        session.commit()
+
+
+def user_get_by_id(id, session=None, conf=None):
+    if id:
+        session = session or get_session(conf)
+        query = session.query(models.User).filter(
+            models.User.id == id)
+        return query.one_or_none()
+    return None
+
+
+def user_get_by_username(username, session=None, conf=None):
+    if username:
+        session = session or get_session(conf)
+        query = session.query(models.User).filter(
+            models.User.username == username)
+        return query.one_or_none()
+    return None
+
+
+def user_delete(user, session=None, conf=None):
+    if user:
+        session = session or get_session(conf)
+        session.delete(user)
+        session.commit()
+
+
+def user_delete_by_username(username, session=None, conf=None):
+    if username:
+        session = session or get_session(conf)
+        user = user_get_by_username(username, session, conf)
+        user_delete(user, session, conf)
+
+
 def category_create(categories, session=None, conf=None):
-    session = session or get_session(conf)
     if categories:
+        session = session or get_session(conf)
         session.add_all(categories)
         session.commit()
 
@@ -33,7 +79,6 @@ def category_getall(filter_ids=None, session=None, conf=None):
         query = session.query(models.Category).order_by(
             models.Category.id).filter(
             models.Category.id.in_(filter_ids))
-
     else:
         query = session.query(models.Category).order_by(models.Category.id)
     return query.all()
@@ -64,8 +109,8 @@ def category_delete_by_id(filter_ids, cascade, session=None, conf=None):
 
 
 def item_create(items, session=None, conf=None):
-    session = session or get_session(conf)
     if items:
+        session = session or get_session(conf)
         session.add_all(items)
         session.commit()
 

@@ -20,6 +20,11 @@ class Config:
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
 
+def printv(config, msg):
+    if config.verbose:
+        print(msg)
+
+
 @click.group()
 @click.option('--verbose', is_flag=True,
               help='Enable verbose output')
@@ -42,9 +47,11 @@ def init(config):
             sys.exit("Error: %s" % str(e))
         try:
             if not database_exists(engine.url):
+                printv(config, "Creating database: 'openpassphrase'")
                 create_database(engine.url)
         except exc.OperationalError as e:
             sys.exit("Error: %s" % str(e))
+        printv(config, "Creating tables based on models")
         models.Base.metadata.create_all(engine)
     else:
         sys.exit("Error: database connection string not "

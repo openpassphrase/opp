@@ -1,14 +1,13 @@
 import os
 import tempfile
-import testtools
+import unittest
 
 from opp.common import utils
 
 
-class TestDbManager(testtools.TestCase):
+class TestDbManager(unittest.TestCase):
 
     def setUp(self):
-        super(TestDbManager, self).setUp()
         self.test_dir = tempfile.mkdtemp(prefix='opp_')
         self.conf_filepath = os.path.join(self.test_dir, 'opp.cfg')
         self.db_filepath = os.path.join(self.test_dir, 'test.sqlite')
@@ -18,8 +17,6 @@ class TestDbManager(testtools.TestCase):
         os.remove(self.conf_filepath)
         os.remove(self.db_filepath)
         os.rmdir(self.test_dir)
-        super(TestDbManager, self).tearDown()
-        pass
 
     def _init_db(self):
         with open(self.conf_filepath, 'wb') as conf_file:
