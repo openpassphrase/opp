@@ -54,6 +54,7 @@ capabilities:
     - **click** - command line option parsing
     - **SQLAlchemy** - ORM interface to RDBMS
     - **Flask** - web server request/response routing
+    - **PyJWT** - JSON Web token implementation in Python
     - **testtools** - unit testing framework
     - **mock** - mocking framework for unit tests
 

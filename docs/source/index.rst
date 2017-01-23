@@ -48,6 +48,7 @@ Using
 .. toctree::
    :maxdepth: 1
 
+   architecture
    api_ref
 
 Contributing
