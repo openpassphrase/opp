@@ -22,6 +22,8 @@ Architecture
 Stay turned for fancy diagrams. In the meantime, here's a verbal description of
 the OpenPassPhrase architecture.
 
+.. _front-end:
+
 Front-end
 ---------
 The user-facing front-end planned for the future is expected to interact with

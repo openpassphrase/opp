@@ -37,9 +37,52 @@ one per line in the following format:
 
     ``<option_name>: '<option_value>'``
 
-The only option currently used by OpenPassPhrase is the ``sql_connect``
-database connection string, which can be specified as follows:
+The following options are currently configurable for OpenPassPhrase:
 
-| ``sql_connect: 'mysql://<user>:<password>@<host>/<db>'``
-|   or
-| ``sql_connect: 'sqlite:////<full_path_to_db_file>'``
+``sql_connect``
+
+    ============    ======
+    **Type:**       string
+
+    **Default:**    None
+    ============    ======
+
+    Used by SQLAlchemy to establish a connection to the database.
+
+    **Example:**
+
+    | ``sql_connect: 'mysql://<user>:<password>@<host>/<db>'``
+    |   or
+    | ``sql_connect: 'sqlite:////<full_path_to_db_file>'``
+
+``jwt_secret_key``
+
+    ============    =================================
+    **Type:**       string
+
+    **Default:**    'default-insecure'
+    ============    =================================
+
+    Used by the web server to encode and decode the signature component of the
+    JSON Web Token (JWT). Refer to :ref:`front-end` description for more
+    information about JWT.
+
+    **Example:**
+
+    | ``jwt_secret_key: 'large random value'``
+
+``jwt_exp_delta``
+
+    ============    =======
+    **Type:**       integer
+
+    **Default:**    300
+    ============    =======
+
+    This is the value in **seconds** that determines when the JWT will expire
+    starting from issue time. After expiration, the token will not be
+    accepted and users will have to login to generate a new token.
+
+    **Example:**
+
+    | ``jwt_exp_delta: 300``
