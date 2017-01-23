@@ -1,8 +1,5 @@
-import base64
-import bcrypt
-import hashlib
-
 import base_handler
+from opp.common import utils
 from opp.db import api, models
 
 
@@ -31,8 +28,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             user = api.user_get_by_username(username, session=self.session)
             if user:
                 return self.error("User already exists!")
-            digest = base64.b64encode(hashlib.sha256(password).digest())
-            hashed = bcrypt.hashpw(digest, bcrypt.gensalt())
+            hashed = utils.hashpw(password)
             user = models.User(username=username, password=hashed)
             api.user_create(user, session=self.session)
             return {'result': "success"}
@@ -70,11 +66,9 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             user = api.user_get_by_username(username, session=self.session)
             if not user:
                 return self.error("User doesn't exist!")
-            digest = base64.b64encode(hashlib.sha256(old_password).digest())
-            if not bcrypt.checkpw(digest, user.password.encode()):
+            if not utils.checkpw(old_password, user.password):
                 return self.error("Invalid password!")
-            digest = base64.b64encode(hashlib.sha256(new_password).digest())
-            user.password = bcrypt.hashpw(digest, bcrypt.gensalt())
+            user.password = utils.hashpw(new_password)
             api.user_update(user, session=self.session)
             return {'result': "success"}
         except Exception:
@@ -103,8 +97,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             user = api.user_get_by_username(username, session=self.session)
             if not user:
                 return self.error("User doesn't exist!")
-            digest = base64.b64encode(hashlib.sha256(password).digest())
-            if not bcrypt.checkpw(digest, user.password.encode()):
+            if not utils.checkpw(password, user.password):
                 return self.error("Invalid password!")
             api.user_delete_by_username(username, session=self.session)
             return {'result': "success"}

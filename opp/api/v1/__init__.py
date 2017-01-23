@@ -1,6 +1,3 @@
-import base64
-import bcrypt
-import hashlib
 import json
 import logging
 
@@ -10,7 +7,7 @@ import categories
 import items
 import users
 from opp.api.flask_jwt import JWT, jwt_required
-from opp.common import opp_config
+from opp.common import opp_config, utils
 from opp.db import api
 
 
@@ -40,10 +37,8 @@ if __name__ == "__main__":
 
 def authenticate(username, password):
     user = api.user_get_by_username(username)
-    if user:
-        digest = base64.b64encode(hashlib.sha256(password).digest())
-        if bcrypt.checkpw(digest, user.password.encode()):
-            return user
+    if user and utils.checkpw(password, user.password):
+        return user
     return None
 
 

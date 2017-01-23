@@ -1,3 +1,6 @@
+import base64
+import bcrypt
+import hashlib
 import shlex
 import subprocess
 from urlparse import parse_qs
@@ -49,3 +52,16 @@ def execute(cmd):
                                         'out': out, 'err': err})
         raise RuntimeError(msg)
     return exitcode, out, err
+
+
+def checkpw(password, hashed):
+    digest = hashlib.sha256(password).digest()
+    encoded = base64.b64encode(digest)
+    return bcrypt.checkpw(encoded, hashed.encode())
+
+
+def hashpw(password):
+    digest = hashlib.sha256(password).digest()
+    encoded = base64.b64encode(digest)
+    return bcrypt.hashpw(encoded, bcrypt.gensalt())
+
