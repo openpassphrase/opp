@@ -53,11 +53,11 @@ OpenPassPhrase desperately needs you. If, on top of that, you can donate or
 help procure an inexpensive platform for running CI, then you are a true godsend
 and the open source community will send all kinds of good karma your way!
 
-UX
+UI
 --
 
 If you've gotten this far in the docs, you are probably wondering why there's
-hardly been any mention of end-user experience. Rest assured, it's not
+hardly been any mention of UI or end-user experience. Rest assured, it's not
 forgotten. The front-end will require at least two more separate projects in
 the OpenPassPhrase ecosystem. Firstly, a responsive single-page html5-based web
 app needs to be written to consume the backend API. Second, a mobile app will
