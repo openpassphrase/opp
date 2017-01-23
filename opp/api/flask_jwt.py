@@ -4,6 +4,10 @@
     ~~~~~~~~~
 
     Flask-JWT module
+
+    Author: Matt Wright
+    Source: https://github.com/mattupstate/flask-jwt
+    License: MIT
 """
 
 import logging
@@ -29,7 +33,7 @@ _jwt = LocalProxy(lambda: current_app.extensions['jwt'])
 
 CONFIG_DEFAULTS = {
     'JWT_DEFAULT_REALM': 'Login Required',
-    'JWT_AUTH_URL_RULE': '/auth',
+    'JWT_AUTH_URL_RULE': '/login',
     'JWT_AUTH_ENDPOINT': 'jwt',
     'JWT_AUTH_USERNAME_KEY': 'username',
     'JWT_AUTH_PASSWORD_KEY': 'password',
@@ -110,6 +114,11 @@ def _default_request_handler():
 
 
 def _default_auth_request_handler():
+    if not request.headers['Content-Type']:
+        raise JWTError("Bad Request", "Missing Content-Type", 400)
+    if request.headers['Content-Type'] != "application/json":
+        raise JWTError("Bad Request", "Invalid Content-Type", 400)
+
     data = request.get_json()
     username = data.get(current_app.config.get('JWT_AUTH_USERNAME_KEY'), None)
     password = data.get(current_app.config.get('JWT_AUTH_PASSWORD_KEY'), None)

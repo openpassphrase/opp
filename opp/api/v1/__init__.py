@@ -10,18 +10,28 @@ import categories
 import items
 import users
 from opp.api.flask_jwt import JWT, jwt_required
+from opp.common import opp_config
 from opp.db import api
 
 
+CONF = opp_config.OppConfig()
+
 # Logging config
-logging.basicConfig(filename='/tmp/sinovox.log', level=logging.DEBUG)
+logname = CONF['log_filename'] or '/tmp/openpassphrase.log'
+logging.basicConfig(filename=logname, level=logging.DEBUG)
 
 
 # Flask app
+secretkey = CONF['jwt_secret_key']
+if not secretkey:
+    msg = ("Config option 'jwt_secret_key' not specified. "
+           "Using default insecure value!")
+    logging.warning(msg)
+    secretkey = 'default-insecure'
+
 app = Flask(__name__)
 app.debug = True
-app.config['SECRET_KEY'] = "super-secret"
-app.config['JWT_AUTH_URL_RULE'] = "/login"
+app.config['SECRET_KEY'] = secretkey
 
 
 if __name__ == "__main__":

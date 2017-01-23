@@ -19,9 +19,8 @@ class TestBackendApiUsers(unittest.TestCase):
         cls.test_dir = tempfile.mkdtemp(prefix='opp_')
         cls.conf_filepath = os.path.join(cls.test_dir, 'opp.cfg')
         cls.db_filepath = os.path.join(cls.test_dir, 'test.sqlite')
-        cls.connection = ("sql_connect: 'sqlite:///%s'" % cls.db_filepath)
         with open(cls.conf_filepath, 'wb') as conf_file:
-            conf_file.write(cls.connection)
+            conf_file.write("sql_connect: 'sqlite:///%s'" % cls.db_filepath)
             conf_file.flush()
         os.environ['OPP_TOP_CONFIG'] = cls.conf_filepath
         utils.execute("opp-db --config_file %s init" % cls.conf_filepath)
