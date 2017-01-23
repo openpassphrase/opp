@@ -64,4 +64,3 @@ def hashpw(password):
     digest = hashlib.sha256(password).digest()
     encoded = base64.b64encode(digest)
     return bcrypt.hashpw(encoded, bcrypt.gensalt())
-

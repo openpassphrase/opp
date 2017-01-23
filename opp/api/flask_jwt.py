@@ -34,14 +34,12 @@ _jwt = LocalProxy(lambda: current_app.extensions['jwt'])
 CONFIG_DEFAULTS = {
     'JWT_DEFAULT_REALM': 'Login Required',
     'JWT_AUTH_URL_RULE': '/login',
-    'JWT_AUTH_ENDPOINT': 'jwt',
     'JWT_AUTH_USERNAME_KEY': 'username',
     'JWT_AUTH_PASSWORD_KEY': 'password',
     'JWT_ALGORITHM': 'HS256',
     'JWT_LEEWAY': timedelta(seconds=10),
     'JWT_AUTH_HEADER': 'x-opp-jwt',
-    'JWT_EXPIRATION_DELTA': timedelta(seconds=300),
-    'JWT_NOT_BEFORE_DELTA': timedelta(seconds=0),
+    'JWT_NBF_DELTA': timedelta(seconds=0),
     'JWT_VERIFY_CLAIMS': ['signature', 'exp', 'nbf', 'iat'],
     'JWT_REQUIRED_CLAIMS': ['exp', 'iat', 'nbf']
 }
@@ -53,8 +51,8 @@ def _default_jwt_headers_handler(identity):
 
 def _default_jwt_payload_handler(identity):
     iat = datetime.utcnow()
-    exp = iat + current_app.config.get('JWT_EXPIRATION_DELTA')
-    nbf = iat + current_app.config.get('JWT_NOT_BEFORE_DELTA')
+    exp = iat + current_app.config.get('JWT_EXP_DELTA')
+    nbf = iat + current_app.config.get('JWT_NBF_DELTA')
     identity = getattr(identity, 'id') or identity['id']
     return {'exp': exp, 'iat': iat, 'nbf': nbf, 'identity': identity}
 
@@ -232,7 +230,6 @@ class JWT(object):
     def init_app(self, app):
         for k, v in CONFIG_DEFAULTS.items():
             app.config.setdefault(k, v)
-        app.config.setdefault('JWT_SECRET_KEY', app.config['SECRET_KEY'])
 
         auth_url_rule = app.config.get('JWT_AUTH_URL_RULE', None)
 
