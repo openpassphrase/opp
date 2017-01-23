@@ -44,11 +44,12 @@ likely be denied!
 API changes
 -----------
 
-Once released, OpenPassPhrase will strive to keep the API consistent and fully
-backwards compatible. Major breaking API changes will either be disallowed or
-require a new API version to be introduced. Appropriate exceptions may be
-given on a case by case basis, but the spirit of this guideline shall be
-followed as much as possible.
+The API is expected to be in flux during the initial major development and
+hardening effort. However, once out of beta, OpenPassPhrase will strive to
+keep the API consistent and fully backwards compatible. Major breaking APIi
+changes will either be disallowed or require a new API version to be
+introduced. Appropriate exceptions may be given on a case by case basis,
+but the spirit of this guideline shall be followed as much as possible.
 
 Reviewing
 ---------

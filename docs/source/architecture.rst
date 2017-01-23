@@ -29,10 +29,12 @@ Front-end
 The user-facing front-end planned for the future is expected to interact with
 the OpenPassPhrase backend through the API. A tpical flow consists of
 calling the ``users`` endpoint to register a new user, then calling the
-``login`` endpoint to obtain a JSON Web Token (JWT). The token is then added
-to every request's headers for requests to all the other endpoints.
-Additionally, a passphrase header must also supplied with every request.
-This value will be used to encrypt and decrypt the secrets.
+``login`` endpoint to authenticate and obtain a JSON Web Token (JWT).
+The token should be added to every request's headers for requests to all 
+other endpoints. For more information refer to the full `JWT specification
+<https://tools.ietf.org/html/rfc7519>`_. Additionally, a passphrase header
+must also supplied with every request. This value will be used to encrypt
+and decrypt the secrets.
 
 Backend
 -------

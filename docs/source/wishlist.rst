@@ -23,6 +23,13 @@ OpenPassPhrase is still in its infancy and we need help to make this a viable
 project. Following are some of the areas where we could use the expertise of
 skilled developers:
 
+Security
+--------
+
+We need a security expert to review the implementation for holes and
+suggest ways of plugging them. We also need to implement an API feature
+which allows for secure random passprhase generation.
+
 Authentication
 --------------
 
@@ -30,16 +37,12 @@ Authentication
 
     <a target="_blank" href="http://openid.net/connect/">OpenID Connect</a>
 
-This is one of the major components of the backend API that's currently
-missing. We need help creating a secure authentication solution. Current
-plan is to use |openidc|, but other solutions may be suggested.
-
-Security
---------
-
-We need a security expert to review the implementation for holes and
-suggest ways of plugging them. We also need to implement an API feature
-which allows for secure random passprhase generation.
+Currently only single JWT based authentication is implemented, which is
+really only suitable for programmatic consumption of the API (e.g. from
+a mobile app). It is not so friendly for a web app front-end. Integrating
+multiple authentication schemes, including social, oauth2 and single-sign-on,
+e.g. |openidc| would make this solution much more attractive and usable.
+If you have experience in this field, we welcome your input.
 
 Continuous Integration
 ----------------------
@@ -54,10 +57,10 @@ UX
 --
 
 If you've gotten this far in the docs, you are probably wondering why there's
-been no mention of end-user experience. Rest assured, it's not forgotten. The
-front-end will require at least two more separate projects in the
-OpenPassPhrase ecosystem. Firstly, a responsive single-page html5-based web app
-needs to be written to consume the backend API. Second, a mobile app will
+hardly been any mention of end-user experience. Rest assured, it's not
+forgotten. The front-end will require at least two more separate projects in
+the OpenPassPhrase ecosystem. Firstly, a responsive single-page html5-based web
+app needs to be written to consume the backend API. Second, a mobile app will
 definitely be required soon after. Discussions and ideas about native
 (Android, iOS) versus cross-platform (Xamarin, PhoneGap) implementations
 will be entertained. Experts in web and mobile developements are welcome.
