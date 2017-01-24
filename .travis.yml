@@ -5,4 +5,3 @@ python:
 install: "pip install tox"
 # command to run tests
 script: "tox -e py27"
-# testing
