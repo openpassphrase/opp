@@ -33,6 +33,32 @@ The API is RESTful in nature and supports standard CRUD operations as well
 as additional capabilities such as authentication and random pass-word/phrase
 generation.
 
+
+YAPM - yet another password manager?
+====================================
+
+The motivations for this project are several. With incidents of hacking
+prolifirating in modern times, it is more important than ever to keep
+sensitive data such as passwords and account information as secure as
+possible. OpenPassPhare is intended for users who want complete control
+over how that data is stored and managed. Most password managers store
+your data in a cloud that's generally not accessible to you except via
+their own interface. OpenPassPhrase lets you use your own cloud, hosted
+anywhere you wish, be that on your own private home server or an AWS
+instance. The bottom line is that you are the only one with access
+to that server. And you can customize the interface to your liking.
+Additionally, most password managers are client based solutions. While
+the good ones give you a seamless experience of syncing between clients,
+it is still somewhat of a nuisance to have to do that. Especially if you
+want short (transient) access to your password data on a new system
+(e.g. a library computer or a friend's PC). OpenPassPhrase shifts the
+paradigm to a server based solution. Now your password data is accessible
+from any internet-enabled device. Assuming of course you trust the
+device/browser that you are using and you trust TLS to secure the
+communication with your server. But the same trust issue exists with
+client-based solutions as well. If you like what you've heard so far, 
+read on!
+
 Deploying
 =========
 
