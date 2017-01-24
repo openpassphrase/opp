@@ -64,3 +64,8 @@ app needs to be written to consume the backend API. Second, a mobile app will
 definitely be required soon after. Discussions and ideas about native
 (Android, iOS) versus cross-platform (Xamarin, PhoneGap) implementations
 will be entertained. Experts in web and mobile developements are welcome.
+
+Miscellaneous Features
+----------------------
+
+- Add database backup to opp-db utility
