@@ -47,11 +47,10 @@ If you have experience in this field, we welcome your input.
 Continuous Integration
 ----------------------
 
-If you are knowledgeable in setting up CI, using GitHub webhooks and statuses,
-and integrating 3rd party tools such as Jenkins, Gerrit and others, then
-OpenPassPhrase desperately needs you. If, on top of that, you can donate or
-help procure an inexpensive platform for running CI, then you are a true godsend
-and the open source community will send all kinds of good karma your way!
+We are always looking to improve our flows: code reviews, CI, etc. If you
+are knowledgeable in setting up CI, using GitHub webhooks and statuses,
+and integrating 3rd party tools such as Jenkins, Gerrit and others, your
+contribution and expertise would be very valuable and appreciated.
 
 UI
 --
