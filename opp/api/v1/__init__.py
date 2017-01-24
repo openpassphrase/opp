@@ -43,7 +43,7 @@ except Exception:
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = jwt_secret_key
 app.config['JWT_EXP_DELTA'] = timedelta(seconds=jwt_exp_delta)
-
+app.config['PREFERRED_URL_SCHEME'] = "https"
 
 if __name__ == "__main__":
     app.run()
