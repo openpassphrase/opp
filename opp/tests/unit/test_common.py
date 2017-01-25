@@ -1,27 +1,17 @@
-import config
+from six.moves import configparser
 import os
 import unittest
 
-from opp.common import aescipher, opp_config, utils
+from opp.common import aescipher, opp_config
 
 
 class TestUtils(unittest.TestCase):
 
-    def test_extract_path(self):
-        env = {'PATH_INFO': "/api/v1/endpoint"}
-        path = utils.extract_path(env)
-        self.assertEquals(path[0], 'api')
-        self.assertEquals(path[1], 'v1')
-        self.assertEquals(path[2], 'endpoint')
+    def test_checkpw(self):
+        pass
 
-    def test_extract_query(self):
-        env = {'QUERY_STRING': "arg1=123&arg2=456"}
-        qs = utils.extract_query(env)
-        self.assertEqual(qs['arg1'], ['123'])
-        self.assertEqual(qs['arg2'], ['456'])
-
-    def test_qq(self):
-        self.assertEqual(utils.qq("123"), "'123'")
+    def test_hashpw(self):
+        pass
 
 
 class TestAESCipher(unittest.TestCase):
@@ -53,17 +43,20 @@ class TestConfig(unittest.TestCase):
         except Exception:
             self.fail("Unexpected exception while loading configuration!")
 
+    def test_missing_section(self):
+        with open(self.file_path, 'w') as f:
+            f.write("sql_connect = blah")
+        with self.assertRaises(configparser.MissingSectionHeaderError):
+            opp_config.OppConfig(self.file_path)
+
     def test_valid_option(self):
         sql_connect = "sqlite:///:memory:"
         with open(self.file_path, 'w') as f:
-            f.write("sql_connect: %s" % utils.qq(sql_connect))
+            f.write("[DEFAULT]\n")
+            f.write("sql_connect = %s" % sql_connect)
         CONF = opp_config.OppConfig(self.file_path)
         self.assertEqual(CONF['sql_connect'], sql_connect)
-        self.assertEqual(CONF['sql_connec'], None)
 
-    def test_invalid_option(self):
-        sql_connect = "sqlite:///:memory:"
-        with open(self.file_path, 'w') as f:
-            f.write("sql_connect: %s" % sql_connect)
-        with self.assertRaises(config.ConfigFormatError):
-            opp_config.OppConfig(self.file_path)
+    def test_empty_option(self):
+        CONF = opp_config.OppConfig()
+        self.assertIsNone(CONF['test_option'])

@@ -53,7 +53,8 @@ class Item(Base):
         row = cipher.decrypt("".join(row))
 
         # Split decrypted data by delimeter and perform base64 decode
-        extracted_values = [base64.b64decode(x) for x in row.split('~')]
+        extracted_values = [base64.b64decode(x).decode() for
+                            x in row.split('~')]
 
         # Create item object
         item = {'id': self.id,

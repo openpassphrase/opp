@@ -11,7 +11,8 @@ class TestDbManager(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp(prefix='opp_')
         self.conf_filepath = os.path.join(self.test_dir, 'opp.cfg')
         self.db_filepath = os.path.join(self.test_dir, 'test.sqlite')
-        self.connection = ("sql_connect: 'sqlite:///%s'" % self.db_filepath)
+        self.connection = ("[DEFAULT]\nsql_connect = sqlite:///%s" %
+                           self.db_filepath)
 
     def tearDown(self):
         os.remove(self.conf_filepath)
@@ -19,7 +20,7 @@ class TestDbManager(unittest.TestCase):
         os.rmdir(self.test_dir)
 
     def _init_db(self):
-        with open(self.conf_filepath, 'wb') as conf_file:
+        with open(self.conf_filepath, 'w') as conf_file:
             conf_file.write(self.connection)
             conf_file.flush()
 
@@ -31,7 +32,7 @@ class TestDbManager(unittest.TestCase):
                                                        db_table)
         code, out, err = utils.execute(cmd)
         msg = "Expected table {0} was not found in the schema".format(db_table)
-        self.assertEqual(out.rstrip(), db_table, msg)
+        self.assertEqual(out.rstrip().decode(), db_table, msg)
 
     def test_schema_creation(self):
         self._init_db()

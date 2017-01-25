@@ -13,7 +13,7 @@ def pad(s):
 
 
 def unpad(s):
-    return s[0:-ord(s[-1])]
+    return s[0:-ord(s.decode()[-1])]
 
 
 # Usage:
@@ -36,4 +36,4 @@ class AESCipher(object):
         enc = base64.b64decode(enc)
         iv = enc[:16]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        return unpad(cipher.decrypt(enc[16:]))
+        return unpad(cipher.decrypt(enc[16:])).decode()

@@ -1,0 +1,2 @@
+graft opp/flask/templates
+graft opp/flask/static

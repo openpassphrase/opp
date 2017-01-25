@@ -1,4 +1,4 @@
-import base_handler
+from opp.api.v1 import base_handler
 from opp.common import utils
 from opp.db import api, models
 
