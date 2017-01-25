@@ -3,7 +3,7 @@ import os
 import tempfile
 import unittest
 
-from opp.api import v1 as api
+import opp.flask as flask
 from opp.common import utils
 
 
@@ -22,7 +22,7 @@ class BackendApiTest(unittest.TestCase):
         utils.execute("opp-db --config_file %s init" % cls.conf_filepath)
 
         # Create a test client and propgate exceptions to it
-        cls.client = api.app.test_client()
+        cls.client = flask.app.test_client()
         cls.client.testing = True
 
         # Create a user, authenticate and store JWT

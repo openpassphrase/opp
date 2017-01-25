@@ -3,6 +3,6 @@
 .cache
 build
 dist
-OpenPassPhrase.egg-info
+*.egg-info
 venv
 *.pyc
