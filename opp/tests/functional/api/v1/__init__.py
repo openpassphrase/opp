@@ -3,7 +3,7 @@ import os
 import tempfile
 import unittest
 
-import opp.flask as flask
+from opp.flask.backend import app
 from opp.common import utils
 
 
@@ -23,14 +23,14 @@ class BackendApiTest(unittest.TestCase):
         utils.execute("opp-db --config_file %s init" % cls.conf_filepath)
 
         # Create a test client and propgate exceptions to it
-        cls.client = flask.app.test_client()
+        cls.client = app.test_client()
         cls.client.testing = True
 
         # Create a user, authenticate and store JWT
         headers = {"Content-Type": "application/json"}
         data = json.dumps({'username': "u", 'password': "p"})
-        cls.client.put("/users", headers=headers, data=data)
-        response = cls.client.post("/auth", headers=headers, data=data)
+        cls.client.put("/v1/users", headers=headers, data=data)
+        response = cls.client.post("/v1/auth", headers=headers, data=data)
         data = json.loads(response.data.decode())
         cls.jwt = data['access_token']
 

@@ -9,14 +9,14 @@ class UsersApiTests(BackendApiTest):
     unintended interaction when adding new tests"""
 
     def test_disallowed_methods_users(self):
-        rget = self.client.patch('/users')
-        rpat = self.client.patch('/users')
+        rget = self.client.patch('/v1/users')
+        rpat = self.client.patch('/v1/users')
         self.assertEqual(rget.status_code, 405)
         self.assertEqual(rpat.status_code, 405)
 
     def test_users_cud(self):
         self.hdrs = {"Content-Type": "application/json"}
-        path = '/users'
+        path = '/v1/users'
 
         # Add a user, check for successful response
         data = {'username': "user", 'password': "pass"}
@@ -36,7 +36,7 @@ class UsersApiTests(BackendApiTest):
 
     def test_users_error_conditions(self):
         self.hdrs = {"Content-Type": "application/json"}
-        path = '/users'
+        path = '/v1/users'
 
         # Try to create user with missing username
         data = {'nousername': "user", 'password': "pass"}

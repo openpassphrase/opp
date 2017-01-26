@@ -9,14 +9,14 @@ class TestApiCategories(BackendApiTest):
     unintended interaction when adding new tests"""
 
     def test_disallowed_methods_categories(self):
-        rpat = self.client.patch('/api/v1/categories')
+        rpat = self.client.patch('/v1/categories')
         self.assertEqual(rpat.status_code, 405)
 
     def test_categories_crud(self):
         self.hdrs = {'x-opp-phrase': "123",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
-        path = '/api/v1/categories'
+        path = '/v1/categories'
 
         # Request getall categories, expect empty list initially
         data = self._get(path)
@@ -77,7 +77,7 @@ class TestApiCategories(BackendApiTest):
         self.assertEqual(data['categories'], [])
 
     def test_categories_error_conditions(self):
-        path = '/api/v1/categories'
+        path = '/v1/categories'
         self.hdrs = {'x-opp-phrase': "123",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
@@ -187,8 +187,8 @@ class TestApiCategories(BackendApiTest):
         self.hdrs = {'x-opp-phrase': "123",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
-        cat_path = '/api/v1/categories'
-        item_path = '/api/v1/items'
+        cat_path = '/v1/categories'
+        item_path = '/v1/items'
 
         # Request getall categories, expect empty list initially
         data = self._get(cat_path)

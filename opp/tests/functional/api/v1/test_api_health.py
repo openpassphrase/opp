@@ -9,6 +9,6 @@ class HealthApiTests(BackendApiTest):
     unintended interaction when adding new tests"""
 
     def test_health_check(self):
-        resp = self._get('/api/v1/health')
+        resp = self._get('/v1/health')
         self.assertEqual(resp['status'],
                          "OpenPassPhrase service is running")

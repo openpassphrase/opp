@@ -8,14 +8,14 @@ class TestApiItems(BackendApiTest):
     Note: All tests share the same DB, so please beware of
     unintended interaction when adding new tests"""
     def test_disallowed_methods_items(self):
-        rpat = self.client.patch('/api/v1/items')
+        rpat = self.client.patch('/v1/items')
         self.assertEqual(rpat.status_code, 405)
 
     def test_items_crud(self):
         self.hdrs = {'x-opp-phrase': "123",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
-        path = '/api/v1/items'
+        path = '/v1/items'
 
         # Request getall items, expect empty list initially
         data = self._get(path)
@@ -79,7 +79,7 @@ class TestApiItems(BackendApiTest):
         self.hdrs = {'x-opp-phrase': "123",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
-        path = '/api/v1/items'
+        path = '/v1/items'
 
         # Try to PUT with invalid item in list (int instead of string)
         data = {'payload': [{"name": 2}]}
