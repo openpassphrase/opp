@@ -17,30 +17,25 @@ logname = CONF['log_filename'] or '/tmp/openpassphrase.log'
 logging.basicConfig(filename=logname, level=logging.DEBUG)
 
 
-# JWT configs
-jwt_secret_key = CONF['jwt_secret_key']
-if not jwt_secret_key:
-    msg = ("Config option 'jwt_secret_key' not specified. "
-           "Using default insecure value!")
-    logging.warning(msg)
-    jwt_secret_key = 'default-insecure'
+# JWT and session configs
+if CONF['secret_key'] == "default-insecure":
+    logging.warning("Config option 'secret_key' not specified."
+                    " Using default insecure value!")
 try:
-    jwt_exp_delta = int(CONF['jwt_exp_delta']) or 300
-    if not jwt_exp_delta or jwt_exp_delta > pow(2, 31):
-        msg = ("Invalid value specified for 'jwt_exp_delta' config option. "
-               "Defaulting to 300 seconds.")
-        logging.warning(msg)
-        jwt_exp_delta = 300
+    exp_delta = int(CONF['exp_delta'])
+    if CONF['exp_delta'] > pow(2, 31):
+        logging.warning("Invalid value specified for 'exp_delta' "
+                        "config option. Defaulting to 300 seconds.")
+        exp_delta = 300
 except Exception:
-    msg = ("Invalid value specified for 'jwt_exp_delta' config option. "
-           "Defaulting to 300 seconds.")
-    logging.warning(msg)
-    jwt_exp_delta = 300
+    logging.warning("Invalid value specified for 'exp_delta' "
+                    "config option. Defaulting to 300 seconds.")
+    exp_delta = 300
 
 # Flask app
 app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = jwt_secret_key
-app.config['JWT_EXP_DELTA'] = timedelta(seconds=jwt_exp_delta)
+app.config['SECRET_KEY'] = CONF['SECRET_KEY']
+app.config['EXP_DELTA'] = timedelta(seconds=exp_delta)
 app.config['PREFERRED_URL_SCHEME'] = "https"
 
 if __name__ == "__main__":

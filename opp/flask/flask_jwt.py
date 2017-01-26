@@ -51,14 +51,14 @@ def _default_jwt_headers_handler(identity):
 
 def _default_jwt_payload_handler(identity):
     iat = datetime.utcnow()
-    exp = iat + current_app.config.get('JWT_EXP_DELTA')
+    exp = iat + current_app.config.get('EXP_DELTA')
     nbf = iat + current_app.config.get('JWT_NBF_DELTA')
     identity = getattr(identity, 'id') or identity['id']
     return {'exp': exp, 'iat': iat, 'nbf': nbf, 'identity': identity}
 
 
 def _default_jwt_encode_handler(identity):
-    secret = current_app.config['JWT_SECRET_KEY']
+    secret = current_app.config['SECRET_KEY']
     algorithm = current_app.config['JWT_ALGORITHM']
     required_claims = current_app.config['JWT_REQUIRED_CLAIMS']
 
@@ -75,7 +75,7 @@ def _default_jwt_encode_handler(identity):
 
 
 def _default_jwt_decode_handler(token):
-    secret = current_app.config['JWT_SECRET_KEY']
+    secret = current_app.config['SECRET_KEY']
     algorithm = current_app.config['JWT_ALGORITHM']
     leeway = current_app.config['JWT_LEEWAY']
 

@@ -32,14 +32,24 @@ a manner where duplicate values which occur later are simply ignored.
 Thus, highest override priority is afforded to the user supplied config and
 lowest to the system config.
 
-The config files contain options for configuring various parts of the service
-one per line in the following format:
+The config files contain options for configuring various parts of the service.
+The format is similar to standard INI file with options specified one per line
+and organized under sections. For example::
 
-    ``<option_name>: '<option_value>'``
+    [DEFAULT]
+    option1 = value1
+
+    [USER]
+    option1 = value2
+    option2 = value3
+
+.. note:: You **must** include at least **one** section in your config file,
+    otherwise the configuration loading will fail. The **only** section
+    currently being read is ``[DEFAULT]``.
 
 The following options are currently configurable for OpenPassPhrase:
 
-``sql_connect``
+``db_connect``
 
     ============    ======
     **Type:**       string
@@ -51,11 +61,11 @@ The following options are currently configurable for OpenPassPhrase:
 
     **Example:**
 
-    | ``sql_connect: 'mysql://<user>:<password>@<host>/<db>'``
+    | ``db_connect = mysql://<user>:<password>@<host>/<db>``
     |   or
-    | ``sql_connect: 'sqlite:////<full_path_to_db_file>'``
+    | ``db_connect = sqlite:////<full_path_to_db_file>``
 
-``jwt_secret_key``
+``secret_key``
 
     ============    =================================
     **Type:**       string
@@ -65,13 +75,14 @@ The following options are currently configurable for OpenPassPhrase:
 
     Used by the web server to encode and decode the signature component of the
     JSON Web Token (JWT). Refer to :ref:`front-end` description for more
-    information about JWT.
+    information about JWT. It is similarly used by the web app UI endpoints to
+    secure the user's login session cookie from tampering.
 
     **Example:**
 
-    | ``jwt_secret_key: 'large random value'``
+    | ``secret_key = large random value``
 
-``jwt_exp_delta``
+``exp_delta``
 
     ============    =======
     **Type:**       integer
@@ -81,8 +92,10 @@ The following options are currently configurable for OpenPassPhrase:
 
     This is the value in **seconds** that determines when the JWT will expire
     starting from issue time. After expiration, the token will not be
-    accepted and users will have to login to generate a new token.
+    accepted and users will have to login to generate a new token. It is also
+    used in a similar manner by the web app UI endpoints to epxire the user's
+    login session.
 
     **Example:**
 
-    | ``jwt_exp_delta: 300``
+    | ``exp_delta = 3600``
