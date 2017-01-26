@@ -45,17 +45,17 @@ class TestConfig(unittest.TestCase):
 
     def test_missing_section(self):
         with open(self.file_path, 'w') as f:
-            f.write("sql_connect = blah")
+            f.write("db_connect = blah")
         with self.assertRaises(configparser.MissingSectionHeaderError):
             opp_config.OppConfig(self.file_path)
 
     def test_valid_option(self):
-        sql_connect = "sqlite:///:memory:"
+        db_connect = "sqlite:///:memory:"
         with open(self.file_path, 'w') as f:
             f.write("[DEFAULT]\n")
-            f.write("sql_connect = %s" % sql_connect)
+            f.write("db_connect = %s" % db_connect)
         CONF = opp_config.OppConfig(self.file_path)
-        self.assertEqual(CONF['sql_connect'], sql_connect)
+        self.assertEqual(CONF['db_connect'], db_connect)
 
     def test_empty_option(self):
         CONF = opp_config.OppConfig()

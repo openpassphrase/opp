@@ -118,7 +118,7 @@ class TestBaseResponseHandler(unittest.TestCase):
         request.headers = {'x-opp-phrase': "123"}
         handler = bh.BaseResponseHandler(request)
         handler.respond()
-        self._check_called(func, "123")
+        self._check_called(func)
 
     @mock.patch('flask.request')
     @mock.patch('opp.db.api.get_session')

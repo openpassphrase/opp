@@ -16,7 +16,7 @@ class BackendApiTest(unittest.TestCase):
         cls.conf_filepath = os.path.join(cls.test_dir, 'opp.cfg')
         cls.db_filepath = os.path.join(cls.test_dir, 'test.sqlite')
         with open(cls.conf_filepath, 'w') as conf_file:
-            conf_file.write("[DEFAULT]\nsql_connect = sqlite:///%s" %
+            conf_file.write("[DEFAULT]\ndb_connect = sqlite:///%s" %
                             cls.db_filepath)
             conf_file.flush()
         os.environ['OPP_TOP_CONFIG'] = cls.conf_filepath

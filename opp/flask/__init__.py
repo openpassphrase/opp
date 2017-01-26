@@ -2,7 +2,7 @@ from datetime import timedelta
 import json
 import logging
 
-from flask import Flask, request
+from flask import escape, Flask, redirect, request, session, url_for
 
 from opp.api.v1 import categories, items, users
 from opp.common import opp_config, utils
@@ -92,7 +92,8 @@ def handle_categories():
     if err:
         return err, 400
     handler = categories.ResponseHandler(request)
-    response = handler.respond()
+    # Set require_phrase to True for all methods except DELETE
+    response = handler.respond(request.method != 'DELETE')
     return _to_json(response)
 
 
@@ -104,5 +105,37 @@ def handle_items():
     if err:
         return err, 400
     handler = items.ResponseHandler(request)
-    response = handler.respond()
+    # Set require_phrase to True for all methods except DELETE
+    response = handler.respond(request.method != 'DELETE')
     return _to_json(response)
+
+
+@app.route('/')
+def index():
+    if 'username' in session:
+        return 'Logged in as %s' % escape(session['username'])
+    return 'You are not logged in'
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        if authenticate(request.form['username'], request.form['password']):
+            session['username'] = request.form['username']
+            return redirect(url_for('index'))
+        else:
+            return redirect(url_for('login'))
+    return '''
+        <form method="post">
+            <p>username: <input type=text name=username>
+            <p>password: <input type=password name=password>
+            <p><input type=submit value=Login>
+        </form>
+    '''
+
+
+@app.route('/logout')
+def logout():
+    # remove the username from the session if it's there
+    session.pop('username', None)
+    return redirect(url_for('index'))

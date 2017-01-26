@@ -17,7 +17,7 @@ class TestDbApiCategories(unittest.TestCase):
         cls.test_dir = tempfile.mkdtemp(prefix='opp_')
         cls.conf_filepath = os.path.join(cls.test_dir, 'opp.cfg')
         cls.db_filepath = os.path.join(cls.test_dir, 'test.sqlite')
-        cls.connection = ("[DEFAULT]\nsql_connect = sqlite:///%s" %
+        cls.connection = ("[DEFAULT]\ndb_connect = sqlite:///%s" %
                           cls.db_filepath)
         with open(cls.conf_filepath, 'w') as conf_file:
             conf_file.write(cls.connection)

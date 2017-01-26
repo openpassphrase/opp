@@ -7,7 +7,7 @@ from opp.db import models
 
 def get_session(conf=None):
     conf = conf or opp_config.OppConfig()
-    engine = create_engine(conf['sql_connect'])
+    engine = create_engine(conf['db_connect'])
     session_factory = sessionmaker(engine)
     Session = scoped_session(session_factory)
     return Session()

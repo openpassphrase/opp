@@ -38,7 +38,7 @@ class BaseResponseHandler(object):
     def _do_post(self, phrase):
         return self.error("Action not implemented")
 
-    def _do_delete(self, phrase):
+    def _do_delete(self):
         return self.error("Action not implemented")
 
     def respond(self, require_phrase=True):
@@ -60,7 +60,7 @@ class BaseResponseHandler(object):
         elif self.request.method == "POST":
             response = self._do_post(phrase)
         elif self.request.method == "DELETE":
-            response = self._do_delete(phrase)
+            response = self._do_delete()
         else:
             response = self.error("Method not supported!")
 

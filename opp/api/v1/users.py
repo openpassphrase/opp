@@ -74,7 +74,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         except Exception:
             return self.error("Unable to update user in the database!")
 
-    def _do_delete(self, phrase):
+    def _do_delete(self):
         request_body = self.request.get_json()
 
         # Extract required username field

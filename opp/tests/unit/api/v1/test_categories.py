@@ -47,4 +47,4 @@ class TestResponseHandler(unittest.TestCase):
         request.headers = {'x-opp-phrase': "123"}
         handler = api.ResponseHandler(request)
         handler.respond()
-        self._check_called(func, "123")
+        self._check_called(func)

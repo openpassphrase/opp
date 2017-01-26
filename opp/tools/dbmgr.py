@@ -39,10 +39,10 @@ def main(config, config_file, verbose):
 @main.command()
 @pass_config
 def init(config):
-    sql_connect = config.conf['sql_connect']
-    if sql_connect:
+    db_connect = config.conf['db_connect']
+    if db_connect:
         try:
-            engine = create_engine(sql_connect)
+            engine = create_engine(db_connect)
         except exc.NoSuchModuleError as e:
             sys.exit("Error: %s" % str(e))
         try:

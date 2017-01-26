@@ -73,7 +73,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         except Exception:
             return self.error("Unable to update categories in the database!")
 
-    def _do_delete(self, phrase):
+    def _do_delete(self):
         payload, error = self._check_payload(expect_list=False)
         if error:
             return error

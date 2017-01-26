@@ -116,7 +116,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         except Exception:
             return self.error("Unable to update items in the database!")
 
-    def _do_delete(self, phrase):
+    def _do_delete(self):
         payload, error = self._check_payload(expect_list=True)
         if error:
             return error

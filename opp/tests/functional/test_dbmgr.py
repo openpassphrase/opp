@@ -11,7 +11,7 @@ class TestDbManager(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp(prefix='opp_')
         self.conf_filepath = os.path.join(self.test_dir, 'opp.cfg')
         self.db_filepath = os.path.join(self.test_dir, 'test.sqlite')
-        self.connection = ("[DEFAULT]\nsql_connect = sqlite:///%s" %
+        self.connection = ("[DEFAULT]\ndb_connect = sqlite:///%s" %
                            self.db_filepath)
 
     def tearDown(self):
