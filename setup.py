@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='opp',
+    name='openpassphrase',
     version='1.0.0',
     include_package_data=True,
     packages=find_packages(),

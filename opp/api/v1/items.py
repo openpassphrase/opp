@@ -1,6 +1,6 @@
 import base64
 
-import base_handler
+from opp.api.v1 import base_handler
 from opp.common import aescipher
 from opp.db import api, models
 
@@ -17,7 +17,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         return value
 
     def _chunk6(self, string):
-        chunk = len(string) / 6
+        chunk = int(len(string) / 6)
         chunks = []
         for i in range(0, 5):
             chunks.append(string[chunk * i: chunk * (i + 1)])
@@ -53,14 +53,15 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
             try:
                 # TODO: (alex) deteremine if ok to insert completely empty item
-                encoded_row = [base64.b64encode(x) for x in full_row]
+                encoded_row = [base64.b64encode(x.encode()).decode() for
+                               x in full_row]
                 encrypted_blob = cipher.encrypt("~".join(encoded_row))
                 [name, url, account, username, password, blob] = self._chunk6(
-                    encrypted_blob)
+                    encrypted_blob.decode())
                 items.append(models.Item(name=name, url=url, account=account,
                                          username=username, password=password,
                                          blob=blob, category_id=category_id))
-            except TypeError:
+            except (AttributeError, TypeError):
                 return self.error("Invalid item data in list!")
 
         try:
@@ -97,15 +98,16 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
             try:
                 # TODO: (alex) deteremine if ok to insert completely empty item
-                encoded_row = [base64.b64encode(x) for x in full_row]
+                encoded_row = [base64.b64encode(x.encode()).decode() for
+                               x in full_row]
                 encrypted_blob = cipher.encrypt("~".join(encoded_row))
                 [name, url, account, username, password, blob] = self._chunk6(
-                    encrypted_blob)
+                    encrypted_blob.decode())
                 items.append(models.Item(id=item_id, name=name, url=url,
                                          account=account, username=username,
                                          password=password, blob=blob,
                                          category_id=category_id))
-            except TypeError:
+            except (AttributeError, TypeError):
                 return self.error("Invalid item data in list!")
 
         try:

@@ -1,4 +1,4 @@
-import base_handler
+from opp.api.v1 import base_handler
 from opp.db import api, models
 from opp.common import aescipher
 

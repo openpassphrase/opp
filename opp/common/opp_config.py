@@ -1,4 +1,4 @@
-from config import Config, ConfigList, ConfigError
+from six.moves import configparser
 from os import environ, path
 
 
@@ -8,8 +8,6 @@ class OppConfig(object):
         usr_config = path.expanduser('~/.opp/opp.cfg')
         sys_config = '/etc/opp/opp.cfg'
 
-        self.cfglist = ConfigList()
-
         if not top_config:
             # User config not provided, attempt to read from env
             # This is mostly intended to be used for testing
@@ -18,16 +16,30 @@ class OppConfig(object):
             except KeyError:
                 pass
 
-        # Load configs in order of decreasing priority
-        if top_config and path.isfile(top_config):
-            self.cfglist.append(Config(file(top_config)))
-        if path.isfile(usr_config):
-            self.cfglist.append(Config(file(usr_config)))
+        # Create config list in order of increasing priority
+        cfglist = []
         if path.isfile(sys_config):
-            self.cfglist.append(Config(file(sys_config)))
+            cfglist.append(sys_config)
+        if path.isfile(usr_config):
+            cfglist.append(usr_config)
+        if top_config and path.isfile(top_config):
+            cfglist.append(top_config)
+
+        self.cfg = configparser.SafeConfigParser()
+        if cfglist:
+            self.cfg.read(cfglist)
+
+        # Set default values
+        self.def_sec = "DEFAULT"
+        cfg_defaults = [
+            ['secret_key', "default-insecure"],
+            ['exp_delta', "300"]]
+        for opt in cfg_defaults:
+            if not self.cfg.has_option(self.def_sec, opt[0]):
+                self.cfg.set(self.def_sec, opt[0], opt[1])
 
     def __getitem__(self, item):
         try:
-            return self.cfglist.getByPath(item)
-        except ConfigError:
+            return self.cfg.get(self.def_sec, item)
+        except configparser.Error:
             return None

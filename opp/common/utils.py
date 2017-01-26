@@ -3,35 +3,7 @@ import bcrypt
 import hashlib
 import shlex
 import subprocess
-from urlparse import parse_qs
-import uuid
-import wsgiref.util as wsgiutil
-
-
-def extract_path(env):
-    path = []
-    while True:
-        item = wsgiutil.shift_path_info(env)
-        if not item:
-            break
-        path.append(item.lower())
-    return path
-
-
-def extract_query(env):
-    try:
-        qs = parse_qs(env['QUERY_STRING'])
-    except ValueError:
-        qs = None
-    return qs
-
-
-def qq(arg):
-    return "'" + arg + "'"
-
-
-def genuuid():
-    return str(uuid.uuid4())
+import sys
 
 
 def execute(cmd):
@@ -55,12 +27,15 @@ def execute(cmd):
 
 
 def checkpw(password, hashed):
-    digest = hashlib.sha256(password).digest()
+    digest = hashlib.sha256(password.encode()).digest()
     encoded = base64.b64encode(digest)
-    return bcrypt.checkpw(encoded, hashed.encode())
+    if sys.version_info >= (3, 0):
+        return bcrypt.checkpw(encoded, hashed)
+    else:
+        return bcrypt.checkpw(encoded, hashed.encode())
 
 
 def hashpw(password):
-    digest = hashlib.sha256(password).digest()
+    digest = hashlib.sha256(password.encode()).digest()
     encoded = base64.b64encode(digest)
     return bcrypt.hashpw(encoded, bcrypt.gensalt())

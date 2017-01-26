@@ -4,10 +4,10 @@ import logging
 
 from flask import Flask, request
 
-from flask_jwt import JWT, jwt_required
 from opp.api.v1 import categories, items, users
 from opp.common import opp_config, utils
 from opp.db import api
+from opp.flask.flask_jwt import JWT, jwt_required
 
 
 CONF = opp_config.OppConfig()
