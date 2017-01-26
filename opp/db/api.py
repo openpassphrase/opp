@@ -1,4 +1,5 @@
-from sqlalchemy import create_engine
+import sys
+from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from opp.common import opp_config
@@ -7,10 +8,16 @@ from opp.db import models
 
 def get_session(conf=None):
     conf = conf or opp_config.OppConfig()
-    engine = create_engine(conf['db_connect'])
-    session_factory = sessionmaker(engine)
-    Session = scoped_session(session_factory)
-    return Session()
+    db_connect = conf['db_connect']
+    if db_connect:
+        try:
+            engine = create_engine(db_connect)
+            session_factory = sessionmaker(engine)
+            Session = scoped_session(session_factory)
+            return Session()
+        except exc.NoSuchModuleError as e:
+            sys.exit("Error: %s" % str(e))
+    sys.exit("Error: database connection string not configured.")
 
 
 def user_create(user, session=None, conf=None):
