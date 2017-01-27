@@ -4,7 +4,7 @@ import logging
 
 from flask import Flask, request
 
-from opp.api.v1 import categories, items, users
+from opp.api.v1 import categories, items
 from opp.common import opp_config, utils
 from opp.db import api
 from opp.flask.flask_jwt import JWT, jwt_required
@@ -74,16 +74,6 @@ jwt = JWT(app, authenticate, identity)
 @app.route("/v1/health")
 def health_check():
     return _to_json({'status': "OpenPassPhrase service is running"})
-
-
-@app.route("/v1/users", methods=['PUT', 'POST', 'DELETE'])
-def handle_users():
-    err = _enforce_content_type()
-    if err:
-        return err, 400
-    handler = users.ResponseHandler(request)
-    response = handler.respond(require_phrase=False)
-    return _to_json(response)
 
 
 @app.route("/v1/categories",

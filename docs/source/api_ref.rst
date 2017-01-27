@@ -72,53 +72,6 @@ Authenticate
 
 |
 
-Users endpoint
---------------
-``<base_url>/users``
-
-Create User
-~~~~~~~~~~~
-
-**Request:** ``PUT``
-
-**Body:** JSON object containing ``username`` and ``password`` fields.
-
-*Example:*
-
-``{"username": "user1", "password": "mypass"}``
-
-**Response:** ``{"result": "success"}``
-
-Update User
-~~~~~~~~~~~
-
-**Request:** ``POST``
-
-**Body:** JSON object containing ``username`` and current/new ``password``
-fields.
-
-*Example:*
-
-``{"username": "user1", "current_password": "mypass",
-"new_password": "newpass"}``
-
-**Response:** ``{"result": "success"}``
-
-Delete User
-~~~~~~~~~~~
-
-**Request:** ``DELETE``
-
-**Body:** JSON object containing ``username`` and ``password`` fields.
-
-*Example:*
-
-``{"username": "user1", "password": "mypass"}``
-
-**Response:** ``{"result": "success"}``
-
-|
-
 Categories endpoint
 -------------------
 ``<base_url>/categories``

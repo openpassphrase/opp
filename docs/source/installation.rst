@@ -121,6 +121,13 @@ This tool will use the ``sql_connect`` config option to connect to the database
 and create the schema. For more information refer to the :ref:`configuration`
 section.
 
+User management is also accomplished by the opp-db utility. This a deliberate
+design decision not to expose user creation capabilities externally. To
+add/delete users, run the following commands::
+
+    opp-db add-user -u <username> -p <passsword>
+    opp-db del-user -u <username> -p <passsword>
+
 Configure mod_wsgi:
 -------------------
 Make sure the ``mod_wsgi`` Apache module is installed (e.g. ``yum install
