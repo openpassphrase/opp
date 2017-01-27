@@ -131,33 +131,41 @@ add/delete users, run the following commands::
 Configure mod_wsgi:
 -------------------
 Make sure the ``mod_wsgi`` Apache module is installed (e.g. ``yum install
-mod_wsgi`` on CentOS or ``sudo apt-get install mod_wsgi`` on Ubuntu.
+mod_wsgi`` on CentOS or ``sudo apt-get install mod_wsgi`` on Ubuntu. Or
+follow the `mod_wsgi Quick Installation Guide <https://modwsgi.readthedocs.io
+/en/develop/user-guides/quick-installation-guide.html>`_ of the **mod_wsgi**
+documentation.
 
 The following is a sample Apache config file to enable routing of requests to
 the OpenPassPhrase API::
 
+    LoadModule wsgi_module <path/to/mod_wsgi.so>
+    WSGISocketPrefix run/wsgi
+
     <VirtualHost *:443>
-        ServerName bashmak.com
+        ServerName <yourserver.com>
         SSLEngine on
         SSLHonorCipherOrder on
         SSLCipherSuite <colon-separated list of allowed and disallowed ciphers>
-        SSLCertificateKeyFile "<path to your private key file>"
-        SSLCertificateFile "<path to your certificate file>"
-        SSLCertificateChainFile "<path to your certificate chain file>"
+        SSLCertificateKeyFile "<path/to/your/private/key/file>"
+        SSLCertificateFile "<path/to/your/certificate/file>"
+        SSLCertificateChainFile "<path/to/your/certificate/chain/file>"
 
-        WSGIScriptAlias <path to desired root url> /var/www/openpassphrase/setup.wsgi
+        WSGIScriptAlias <path/to/desired/root/url> <path/to/openpassphrase/repo/setup.wsgi>
+        WSGIDaemonProcess <yourserver.com> processes=2 threads=15 display-name=%{GROUP}
+        WSGIProcessGroup <yourserver.com>
 
-        <Directory /var/www/openpassphrase>
+        <Directory <path/to/openpassphrase/repo>
             Order deny,allow
             Allow from all
         </Directory>
     </VirtualHost>
 
-.. Note:: The values inside <> brackets must be set specifically for your
-   environment. Also note the WSGIScriptAlias setting which points to
+.. Note:: The values inside the <> brackets must be set specifically for
+   your environment. Also note the WSGIScriptAlias setting which points to
    ``setup.wsgi`` file, which resides in the top level of the repository.
-   The contents of this file may need to be altered based on your
-   particular directory structure setup.
+   The contents of this file need to be altered based on your particular
+   directory structure setup.
 
 Place the above conf file in the Apache config directory (e.g.
 ``/etc/httpd/conf.d``) and restart your Apache server.
