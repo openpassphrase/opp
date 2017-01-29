@@ -15,7 +15,7 @@
 
 import logging
 
-from flask import escape, Flask, redirect, request, session, url_for
+from flask import Flask, redirect, request, session, url_for
 
 from opp.common import opp_config, utils
 from opp.db import api
@@ -44,9 +44,7 @@ def authenticate(username, password):
 
 @app.route('/')
 def index():
-    if 'username' in session:
-        return 'Logged in as %s' % escape(session['username'])
-    return redirect(url_for('login'))
+    return app.send_static_file('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
