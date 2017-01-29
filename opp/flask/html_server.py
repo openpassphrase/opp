@@ -44,10 +44,7 @@ def authenticate(username, password):
 
 @app.route('/')
 def index():
-    if 'username' in session:
-        return 'Logged in as %s' % escape(session['username'])
-    return redirect(url_for('login'))
-
+    return app.send_static_file('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
