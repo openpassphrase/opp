@@ -51,7 +51,7 @@ class Item(Base):
     account = Column(String(255), nullable=True, default=None)
     username = Column(String(255), nullable=True, default=None)
     password = Column(String(255), nullable=True, default=None)
-    blob = Column(String(4096), nullable=False)
+    blob = Column(String(4096), nullable=True, default=None)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
