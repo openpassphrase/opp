@@ -7,7 +7,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
+# Unless required by applic/able law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
@@ -18,6 +18,7 @@ import json
 import logging
 
 from flask import Flask, request
+from flask_cors import CORS
 
 from opp.api.v1 import categories, items
 from opp.common import opp_config, utils
@@ -51,6 +52,7 @@ except Exception:
 
 # Flask app
 app = Flask(__name__)
+CORS(app)
 app.config['SECRET_KEY'] = CONF['SECRET_KEY']
 app.config['EXP_DELTA'] = timedelta(seconds=exp_delta)
 app.config['PREFERRED_URL_SCHEME'] = "https"
