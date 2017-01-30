@@ -17,6 +17,9 @@
 API Reference
 =============
 
+This is the backend API intended for consumption by the frontend applications
+(web and mobile).
+
 Overview
 --------
 
@@ -49,8 +52,6 @@ all Categories and Items endpoints.
 ``"x-opp-phrase: <phrase>"`` - Authorization passphrase used for decoding
 secret data. Required for all Categories and Items endpoints.
 
-|
-
 Authentication endpoint
 -----------------------
 ``<base_url>/auth``
@@ -70,7 +71,33 @@ Authenticate
 
 ``{"access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}``
 
-|
+Fetch All Endpoint
+------------------
+``<base_url>/fetchall``
+
+**Request:** ``GET``
+
+**Response:**
+
+| ``{``
+|   ``"result": "success",``
+|   ``"categories": [``
+|     ``{"category1": [{item1}, {item2]},``
+|     ``{"category2": [{item3}, {item4]}``
+|   ``]``
+| ``}``
+
+Where ``item`` objects contain:
+
+| ``{``
+|   ``"id": 1,``
+|   ``"name": "Wells Fargo",``
+|   ``"url": "https://wellsfargo.com",``
+|   ``"account": "01457XA8900",``
+|   ``"username": "mylogin",``
+|   ``"password": "mypassword",``
+|   ``"blob": "any custom data, may be delimited"``
+| ``}``
 
 Categories endpoint
 -------------------
@@ -86,7 +113,7 @@ Get Categories
 | ``{``
 |   ``"result": "success",``
 |   ``"categories": [``
-|     ``{"id": 1, "name": "category1"}``
+|     ``{"id": 1, "name": "category1"},``
 |     ``{"id": 2, "name": "category2"}``
 |   ``]``
 | ``}``
@@ -135,36 +162,9 @@ ID values.
 
 **Response:** ``{"result": "success"}``
 
-|
-
 Items Endpoint
 --------------
 ``<base_url>/items``
-
-Get Items
-~~~~~~~~~
-
-**Request:** ``GET``
-
-**Response:**
-
-| ``{``
-|   ``"result": "success",``
-|   ``"items": [ {item1_data}, {item2_data} ]``
-| ``}``
-
-Where ``item_data`` objects contain:
-
-| ``{``
-|   ``"id": 1,``
-|   ``"name": "Wells Fargo",``
-|   ``"url": "https://wellsfargo.com",``
-|   ``"account": "01457XA8900",``
-|   ``"username": "mylogin",``
-|   ``"password": "mypassword",``
-|   ``"blob": "any custom data, may be delimited",``
-|   ``"category": {"id": 1, "name": "Credit Cards"}``
-| ``}``
 
 Create Item
 ~~~~~~~~~~~~
@@ -175,10 +175,23 @@ Create Item
 
 *Example:*
 
-``{ "payload": [ {item1_data}, {item2_data} ] }``
+``{ "payload": [ {item1}, {item2} ] }``
 
-.. Note:: For item creation, the ``id`` and ``category.name`` fileds are
-   ignored. All of the other fields are optional and may be omitted.
+Where ``item`` objects contain any of the following optional fields:
+
+| ``{``
+|   ``"name": "Wells Fargo",``
+|   ``"url": "https://wellsfargo.com",``
+|   ``"account": "01457XA8900",``
+|   ``"username": "mylogin",``
+|   ``"password": "mypassword",``
+|   ``"blob": "any custom data, may be delimited",``
+|   ``"category_id": 1``
+| ``}``
+
+.. Note:: If ``category_id`` field is omitted, the item will be assigned
+   a category ID of 0 which will be mapped to a reserved **"default"**
+   category in the ``fetchall`` response.
 
 **Response:** ``{"result": "success"}``
 
@@ -191,11 +204,11 @@ Update Item
 
 *Example:*
 
-``{ "payload": [ {new_item1_data}, {new_item2_data} ] }``
+``{ "payload": [ {item1}, {item2} ] }``
 
-.. Note:: For item update, the ``category.name`` filed is ignored, while the
-   ``id`` field is mandatory. All of the other files are optional and may be
-   omitted.
+Where ``item`` objects contain any of the same optional fields used in
+item creation, plus a mandatory item ``id`` fields used to refer to the
+item being updated.
 
 **Response:** ``{"result": "success"}``
 
