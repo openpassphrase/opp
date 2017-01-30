@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Http } from '@angular/http';
 import { Router } from '@angular/router';
+import { MdSnackBar } from '@angular/material';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Auth } from '../services/auth.service';
 
@@ -13,10 +13,10 @@ export class LoginComponent implements OnInit {
   authForm: FormGroup;
 
   constructor(
-    private http: Http,
     private auth: Auth,
     private router: Router,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private snackBar: MdSnackBar
   ) { }
 
   ngOnInit() {
@@ -30,15 +30,19 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
-    const url = 'http://192.168.1.15:5000/api/v1/auth';
-    console.log(url);
-    this.http.post(url, this.authForm.value)
-      .map(res => res.json())
-      .subscribe(
-        // We're assuming the response will be an object
-        // with the JWT on an id_token key
-        data => localStorage.setItem('id_token', data.access_token),
-        error => console.log(error)
-      );
+    this.auth.login(this.authForm.value).subscribe(
+      // We're assuming the response will be an object
+      // with the JWT on an id_token key
+      data => {
+        localStorage.setItem('id_token', data.access_token);
+        this.router.navigate(['admin']);
+      },
+      error => {
+        if (error.status === 401) {
+          this.snackBar.open('invalid user name or password.', undefined, { duration: 6000 });
+        } else {
+          console.log(error);
+        }
+      });
   }
 }

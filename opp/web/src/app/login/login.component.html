@@ -9,18 +9,19 @@
       Don't forget to sign out when done!
     </md-card-subtitle>
 
-
     <md-card-content fxLayout="column" fxLayout.gt-xs="row" fxLayoutGap="10px">
       <form novalidate [formGroup]="authForm" (ngSubmit)="login()">
-        <md-input-container>
-          <input md-input formControlName="username" placeholder="User name" type="text" focused>
-        </md-input-container>
+        <div>
+          <md-input-container>
+            <input md-input formControlName="username" placeholder="User name" required type="text" focused>
+          </md-input-container>
 
-        <md-input-container>
-          <input md-input formControlName="password" placeholder="Password" type="password">
-        </md-input-container>
+          <md-input-container>
+            <input md-input formControlName="password" placeholder="Password" required type="password">
+          </md-input-container>
 
-        <button md-raised-button type="submit" color="primary" [disabled]="authForm.invalid">Submit</button>
+          <button md-raised-button type="submit" color="primary" [disabled]="authForm.invalid">Submit</button>
+        </div>
       </form>
     </md-card-content>
   </md-card>
