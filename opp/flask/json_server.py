@@ -20,7 +20,7 @@ import logging
 from flask import Flask, request
 from flask_cors import CORS
 
-from opp.api.v1 import categories, items
+from opp.api.v1 import categories, fetch_all, items
 from opp.common import opp_config, utils
 from opp.db import api
 from opp.flask.flask_jwt import JWT, jwt_required
@@ -91,6 +91,17 @@ jwt = JWT(app, authenticate, identity)
 @app.route("/v1/health")
 def health_check():
     return _to_json({'status': "OpenPassPhrase service is running"})
+
+
+@app.route("/v1/fetchall")
+@jwt_required()
+def handle_fetchall():
+    err = _enforce_content_type()
+    if err:
+        return err, 400
+    handler = fetch_all.ResponseHandler(request)
+    response = handler.respond()
+    return _to_json(response)
 
 
 @app.route("/v1/categories",

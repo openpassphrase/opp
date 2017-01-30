@@ -99,8 +99,9 @@ See the :ref:`expdelta` configuration setting for more details.
 
 .. warning:: Once issued, the server has no way of invalidating a JWT short
     of manually changing the secret signing key on the server. To mitigate
-    this vulnerability the ``exp_delta`` configuration setting must be
-    set to a reasonable tradeoff between security and convenience.
+    this vulnerability the ``exp_delta`` configuration setting should be
+    set to a value that represents a reasonable tradeoff between security
+    and convenience.
 
 Request  handlers
 ~~~~~~~~~~~~~~~~~
