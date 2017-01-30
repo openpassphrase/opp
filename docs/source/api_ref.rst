@@ -20,7 +20,7 @@ API Reference
 Overview
 --------
 
-**Base URL:** ``https://<your domain>/opp/api/<version>``
+**Base URL:** ``https://<your domain>/api/<version>``
 
 Where *<version>* is provided in anticipation of multiple API versions in the
 future. Current latest version is *v1*.
@@ -53,7 +53,7 @@ secret data. Required for all Categories and Items endpoints.
 
 Authentication endpoint
 -----------------------
-``<base_url>/login``
+``<base_url>/auth``
 
 Authenticate
 ~~~~~~~~~~~~
