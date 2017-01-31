@@ -38,6 +38,8 @@ class TestDbApiItems(unittest.TestCase):
             conf_file.write(cls.connection)
             conf_file.flush()
         utils.execute("opp-db --config_file %s init" % cls.conf_filepath)
+        utils.execute("opp-db --config_file %s add-user -u u -p p" %
+                      cls.conf_filepath)
 
     @classmethod
     def tearDownClass(cls):
@@ -56,89 +58,88 @@ class TestDbApiItems(unittest.TestCase):
 
     def setUp(self):
         super(TestDbApiItems, self).setUp()
-        conf = opp_config.OppConfig(self.conf_filepath)
-        self.session = api.get_session(conf)
+        self.c = opp_config.OppConfig(self.conf_filepath)
+        self.u = api.user_get_by_username("u", conf=self.c)
 
     def tearDown(self):
-        self.session.close()
-        super(TestDbApiItems, self).tearDown()
+        pass
 
     def test_items_basic(self):
         # Expect empty item list initially
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(items, [])
 
         # Insert and retrieve an item
-        item = models.Item(blob="blob", category_id=None)
-        api.item_create([item], session=self.session)
-        items = api.item_getall(session=self.session)
+        item = models.Item(blob="blob", category_id=None, user=self.u)
+        api.item_create([item], conf=self.c)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 1)
 
         # Update and check the item
         item.blob = "new blob"
         item.category_id = 999
-        api.item_update([item], session=self.session)
-        items = api.item_getall(session=self.session)
+        api.item_update([item], conf=self.c)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0].blob, "new blob")
         self.assertEqual(items[0].category_id, 999)
 
         # Update item with valid category
-        category = models.Category(name="blah")
-        api.category_create([category], session=self.session)
+        category = models.Category(name="blah", user=self.u)
+        api.category_create([category], conf=self.c)
         item.category_id = 1
-        api.item_update([item], session=self.session)
-        items = api.item_getall(session=self.session)
+        api.item_update([item], conf=self.c)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0].blob, "new blob")
         self.assertEqual(items[0].category_id, 1)
         self.assertIsNotNone(items[0].category)
 
         # Clean up and verify
-        categories = api.category_getall(session=self.session)
-        api.category_delete(categories, True, session=self.session)
-        categories = api.category_getall(session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
+        api.category_delete(categories, True, conf=self.c)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 0)
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 0)
 
     def test_items_get_filter(self):
         # Insert several items
-        items = [models.Item(blob="blob0"),
-                 models.Item(blob="blob1"),
-                 models.Item(blob="blob2")]
-        api.item_create(items, session=self.session)
+        items = [models.Item(blob="blob0", user=self.u),
+                 models.Item(blob="blob1", user=self.u),
+                 models.Item(blob="blob2", user=self.u)]
+        api.item_create(items, conf=self.c)
 
         # Retrieve first and last items only
         ids = [1, 3]
-        items = api.item_getall(filter_ids=ids, session=self.session)
+        items = api.item_getall(self.u, filter_ids=ids, conf=self.c)
         self.assertEqual(len(items), 2)
         self.assertEqual(items[0].blob, "blob0")
         self.assertEqual(items[1].blob, "blob2")
 
         # Clean up and verify
-        items = api.item_getall(session=self.session)
-        api.item_delete(items, session=self.session)
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.u, conf=self.c)
+        api.item_delete(items, conf=self.c)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 0)
 
     def test_items_delete_by_id(self):
         # Insert several items
-        items = [models.Item(blob="blob3"),
-                 models.Item(blob="blob4"),
-                 models.Item(blob="blob5")]
-        api.item_create(items, session=self.session)
+        items = [models.Item(blob="blob3", user=self.u),
+                 models.Item(blob="blob4", user=self.u),
+                 models.Item(blob="blob5", user=self.u)]
+        api.item_create(items, conf=self.c)
 
         # Delete first and last items only
         ids = [1, 3]
-        api.item_delete_by_id(filter_ids=ids, session=self.session)
+        api.item_delete_by_id(self.u, filter_ids=ids, conf=self.c)
 
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0].blob, "blob4")
 
         # Clean up and verify
-        items = api.item_getall(session=self.session)
-        api.item_delete(items, session=self.session)
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.u, conf=self.c)
+        api.item_delete(items, conf=self.c)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 0)

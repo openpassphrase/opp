@@ -17,7 +17,7 @@ from datetime import timedelta
 import json
 import logging
 
-from flask import Flask, request
+from flask import Flask, request, _app_ctx_stack
 
 from opp.api.v1 import categories, fetch_all, items
 from opp.common import opp_config, utils
@@ -97,7 +97,8 @@ def handle_fetchall():
     err = _enforce_content_type()
     if err:
         return err, 400
-    handler = fetch_all.ResponseHandler(request)
+    user = _app_ctx_stack.top.current_identity
+    handler = fetch_all.ResponseHandler(request, user)
     response = handler.respond()
     return _to_json(response)
 
@@ -109,7 +110,8 @@ def handle_categories():
     err = _enforce_content_type()
     if err:
         return err, 400
-    handler = categories.ResponseHandler(request)
+    user = _app_ctx_stack.top.current_identity
+    handler = categories.ResponseHandler(request, user)
     # Set require_phrase to True for all methods except DELETE
     response = handler.respond(request.method != 'DELETE')
     return _to_json(response)
@@ -122,7 +124,8 @@ def handle_items():
     err = _enforce_content_type()
     if err:
         return err, 400
-    handler = items.ResponseHandler(request)
+    user = _app_ctx_stack.top.current_identity
+    handler = items.ResponseHandler(request, user)
     # Set require_phrase to True for all methods except DELETE
     response = handler.respond(request.method != 'DELETE')
     return _to_json(response)

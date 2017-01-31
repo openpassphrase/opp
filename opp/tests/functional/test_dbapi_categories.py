@@ -38,6 +38,8 @@ class TestDbApiCategories(unittest.TestCase):
             conf_file.write(cls.connection)
             conf_file.flush()
         utils.execute("opp-db --config_file %s init" % cls.conf_filepath)
+        utils.execute("opp-db --config_file %s add-user -u u -p p" %
+                      cls.conf_filepath)
 
     @classmethod
     def tearDownClass(cls):
@@ -55,97 +57,97 @@ class TestDbApiCategories(unittest.TestCase):
             pass
 
     def setUp(self):
-        conf = opp_config.OppConfig(self.conf_filepath)
-        self.session = api.get_session(conf)
+        self.c = opp_config.OppConfig(self.conf_filepath)
+        self.u = api.user_get_by_username("u", conf=self.c)
 
     def tearDown(self):
-        self.session.close()
+        pass
 
     def test_categories_basic(self):
         # Expect empty category list initially
-        categories = api.category_getall(session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(categories, [])
 
         # Insert and retrieve a category
-        category = models.Category(name="name")
-        api.category_create([category], session=self.session)
-        categories = api.category_getall(session=self.session)
+        category = models.Category(name="name", user=self.u)
+        api.category_create([category], conf=self.c)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 1)
 
         # Update and check the category
         category.name = 'new name'
-        api.category_update([category], session=self.session)
-        categories = api.category_getall(session=self.session)
+        api.category_update([category], conf=self.c)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 1)
         self.assertEqual(categories[0].name, "new name")
 
         # Clean up and verify
-        api.category_delete(categories, True, session=self.session)
-        categories = api.category_getall(session=self.session)
+        api.category_delete(categories, True, conf=self.c)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 0)
 
     def test_categories_get_filter(self):
         # Insert several categories
-        categories = [models.Category(name="name0"),
-                      models.Category(name="name1"),
-                      models.Category(name="name2")]
-        api.category_create(categories, session=self.session)
+        categories = [models.Category(name="name0", user=self.u),
+                      models.Category(name="name1", user=self.u),
+                      models.Category(name="name2", user=self.u)]
+        api.category_create(categories, conf=self.c)
 
         # Retrieve first and last categories only
         ids = [1, 3]
-        categories = api.category_getall(filter_ids=ids, session=self.session)
+        categories = api.category_getall(self.u, filter_ids=ids, conf=self.c)
         self.assertEqual(len(categories), 2)
         self.assertEqual(categories[0].name, "name0")
         self.assertEqual(categories[1].name, "name2")
 
         # Clean up and verify
-        categories = api.category_getall(session=self.session)
-        api.category_delete(categories, True, session=self.session)
-        categories = api.category_getall(session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
+        api.category_delete(categories, True, conf=self.c)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 0)
 
     def test_categories_delete_by_id(self):
         # Insert several categories
-        categories = [models.Category(name="name3"),
-                      models.Category(name="name4"),
-                      models.Category(name="name5")]
-        api.category_create(categories, session=self.session)
+        categories = [models.Category(name="name3", user=self.u),
+                      models.Category(name="name4", user=self.u),
+                      models.Category(name="name5", user=self.u)]
+        api.category_create(categories, conf=self.c)
 
         # Delete first and last categories only
         ids = [1, 3]
-        api.category_delete_by_id(ids, cascade=False, session=self.session)
+        api.category_delete_by_id(self.u, ids, cascade=False, conf=self.c)
 
-        categories = api.category_getall(session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 1)
         self.assertEqual(categories[0].name, "name4")
 
         # Clean up and verify
-        categories = api.category_getall(session=self.session)
-        api.category_delete(categories, True, session=self.session)
-        categories = api.category_getall(session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
+        api.category_delete(categories, True, conf=self.c)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 0)
 
     def test_categories_delete_cascade(self):
         # Insert categories
-        categories = [models.Category(name="cat1"),
-                      models.Category(name="cat2")]
-        api.category_create(categories, session=self.session)
+        categories = [models.Category(name="cat1", user=self.u),
+                      models.Category(name="cat2", user=self.u)]
+        api.category_create(categories, conf=self.c)
 
         # Verify categories
-        categories = api.category_getall(session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 2)
         self.assertEqual(categories[0].name, "cat1")
         self.assertEqual(categories[1].name, "cat2")
 
         # Insert items
-        items = [models.Item(blob="item1", category_id=1),
-                 models.Item(blob="item2", category_id=1),
-                 models.Item(blob="item3", category_id=2),
-                 models.Item(blob="item4", category_id=2)]
-        api.item_create(items, session=self.session)
+        items = [models.Item(blob="item1", category_id=1, user=self.u),
+                 models.Item(blob="item2", category_id=1, user=self.u),
+                 models.Item(blob="item3", category_id=2, user=self.u),
+                 models.Item(blob="item4", category_id=2, user=self.u)]
+        api.item_create(items, conf=self.c)
 
         # Verify items
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 4)
 
         i1, i2, i3, i4 = items
@@ -171,17 +173,17 @@ class TestDbApiCategories(unittest.TestCase):
         self.assertEqual(i4.category.id, 2)
 
         # Delete category 1 with cascade
-        api.category_delete(categories[:1], cascade=True,
-                            session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
+        api.category_delete(categories[:1], cascade=True, conf=self.c)
 
         # Verify only 1 category remains
-        categories = api.category_getall(session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 1)
         self.assertEqual(categories[0].name, "cat2")
 
         # Verify items 1 & 2 were deleted through cascade action
         # and that items 3 & 4 remain unchanged
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 2)
         i3, i4 = items
         self.assertEqual(i3.blob, "item3")
@@ -194,15 +196,14 @@ class TestDbApiCategories(unittest.TestCase):
         self.assertEqual(i4.category.id, 2)
 
         # Delete category 2 without cascade
-        api.category_delete(categories, cascade=False,
-                            session=self.session)
+        api.category_delete(categories, cascade=False, conf=self.c)
 
         # Verify categories list is now empty
-        categories = api.category_getall(session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 0)
 
         # Verify that items 3 & 4 have no category association
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 2)
         i3, i4 = items
         self.assertEqual(i3.blob, "item3")
@@ -213,12 +214,12 @@ class TestDbApiCategories(unittest.TestCase):
         self.assertIsNone(i4.category)
 
         # Clean up and verify
-        categories = api.category_getall(session=self.session)
-        api.category_delete(categories, True, session=self.session)
-        categories = api.category_getall(session=self.session)
+        categories = api.category_getall(self.u, conf=self.c)
+        api.category_delete(categories, True, conf=self.c)
+        categories = api.category_getall(self.u, conf=self.c)
         self.assertEqual(len(categories), 0)
 
-        items = api.item_getall(session=self.session)
-        api.item_delete(items, session=self.session)
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.u, conf=self.c)
+        api.item_delete(items, conf=self.c)
+        items = api.item_getall(self.u, conf=self.c)
         self.assertEqual(len(items), 0)

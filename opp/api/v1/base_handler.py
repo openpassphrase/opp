@@ -13,13 +13,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from opp.db import api
-
 
 class BaseResponseHandler(object):
 
-    def __init__(self, request):
+    def __init__(self, request, user=None):
         self.request = request
+        self.user = user
 
     def error(self, msg=None):
         return {'result': "error", 'message': msg}
@@ -65,9 +64,6 @@ class BaseResponseHandler(object):
         else:
             phrase = None
 
-        # Obtain DB session for making transactions
-        self.session = api.get_session()
-
         if self.request.method == "GET":
             response = self._do_get(phrase)
         elif self.request.method == "PUT":
@@ -79,7 +75,6 @@ class BaseResponseHandler(object):
         else:
             response = self.error("Method not supported!")
 
-        self.session.close()
         return response
 
 

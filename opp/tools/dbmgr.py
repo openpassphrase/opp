@@ -103,14 +103,13 @@ def add_user(config, u, p):
 @pass_config
 def del_user(config, u, p):
     try:
-        session = api.get_session(config.conf)
-        user = api.user_get_by_username(u, session=session)
+        user = api.user_get_by_username(u, conf=config.conf)
         if not user:
             sys.exit("Error: user does not exist!")
         if not utils.checkpw(p, user.password):
             sys.exit("Error: incorrect password!")
-        api.user_delete(user, session=session)
-        user = api.user_get_by_username(u, session=session)
+        api.user_delete(user, conf=config.conf)
+        user = api.user_get_by_username(u, conf=config.conf)
         if user:
             print("Error: unable to delete user: %s" % u)
         else:

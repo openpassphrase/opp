@@ -55,17 +55,16 @@ class TestDbApiUsers(unittest.TestCase):
             pass
 
     def setUp(self):
-        conf = opp_config.OppConfig(self.conf_filepath)
-        self.session = api.get_session(conf)
+        self.c = opp_config.OppConfig(self.conf_filepath)
 
     def tearDown(self):
-        self.session.close()
+        pass
 
     def test_users_basic(self):
         # Insert and retrieve an user
         user = models.User(username="user", password="pass")
-        api.user_create(user, session=self.session)
-        user = api.user_get_by_username(user.username, session=self.session)
+        api.user_create(user, conf=self.c)
+        user = api.user_get_by_username("user", conf=self.c)
         self.assertIsNotNone(user)
         self.assertEqual(user.username, "user")
         self.assertEqual(user.password, "pass")
@@ -73,14 +72,14 @@ class TestDbApiUsers(unittest.TestCase):
         # Update and check the user
         user.username = "new user"
         user.password = "new_pass"
-        api.user_update(user, session=self.session)
-        new_user = api.user_get_by_id(user.id, session=self.session)
+        api.user_update(user, conf=self.c)
+        new_user = api.user_get_by_id(user.id, conf=self.c)
         self.assertIsNotNone(new_user)
         self.assertEqual(new_user.username, user.username)
         self.assertEqual(new_user.password, user.password)
         self.assertEqual(new_user.id, user.id)
 
         # Clean up and verify
-        api.user_delete_by_username(user.username, session=self.session)
-        user = api.user_get_by_id(user.id, session=self.session)
+        api.user_delete_by_username(user.username, conf=self.c)
+        user = api.user_get_by_id(user.id, conf=self.c)
         self.assertIsNone(user)

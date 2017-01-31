@@ -23,7 +23,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
     def _do_get(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
-        items = api.item_getall(session=self.session)
+        items = api.item_getall(self.user)
         for item in items:
             response.append(item.extract(cipher))
         categories = {}
