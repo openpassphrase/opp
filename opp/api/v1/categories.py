@@ -23,11 +23,13 @@ class ResponseHandler(base_handler.BaseResponseHandler):
     def _do_get(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
-        categories = api.category_getall(self.user)
-        for category in categories:
-            response.append(category.extract(cipher))
-
-        return {'result': "success", 'categories': response}
+        try:
+            categories = api.category_getall(self.session, self.user)
+            for category in categories:
+                response.append(category.extract(cipher))
+            return {'result': "success", 'categories': response}
+        except Exception:
+            return self.error("Unable to fetch categories from the database!")
 
     def _do_put(self, phrase):
         cat_list, error = self._check_payload(expect_list=True)
@@ -47,8 +49,11 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                 return self.error("Invalid category name in list!")
 
         try:
-            api.category_create(categories)
-            return {'result': "success"}
+            categories = api.category_create(self.session, categories)
+            response = []
+            for category in categories:
+                response.append(category.extract(cipher))
+            return {'result': "success", 'categories': response}
         except Exception:
             return self.error("Unable to add new categories to the database!")
 
@@ -84,7 +89,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                 return self.error("Invalid category name in list!")
 
         try:
-            api.category_update(categories)
+            api.category_update(self.session, categories)
             return {'result': "success"}
         except Exception:
             return self.error("Unable to update categories in the database!")
@@ -111,7 +116,8 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return self.error("Invalid category id list!")
 
         try:
-            api.category_delete_by_id(self.user, categories, cascade)
+            api.category_delete_by_id(self.session, self.user,
+                                      categories, cascade)
             return {'result': "success"}
         except Exception:
             return self.error("Unable to delete categories from the database!")

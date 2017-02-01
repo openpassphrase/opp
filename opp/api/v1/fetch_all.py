@@ -23,7 +23,10 @@ class ResponseHandler(base_handler.BaseResponseHandler):
     def _do_get(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
-        items = api.item_getall(self.user)
+        try:
+            items = api.item_getall(self.session, self.user)
+        except Exception:
+            return self.error("Unable to fetch from the database!")
         for item in items:
             response.append(item.extract(cipher))
         categories = {}

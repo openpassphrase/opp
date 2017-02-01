@@ -21,6 +21,13 @@ from opp.db import api, models
 from opp.common import opp_config, utils
 
 
+def with_session(function):
+    def wrapper(self):
+        with self.s.begin():
+            function(self)
+    return wrapper
+
+
 class TestDbApiUsers(unittest.TestCase):
 
     """These tests exercise the top level request/response functionality of
@@ -55,16 +62,18 @@ class TestDbApiUsers(unittest.TestCase):
             pass
 
     def setUp(self):
-        self.c = opp_config.OppConfig(self.conf_filepath)
+        conf = opp_config.OppConfig(self.conf_filepath)
+        self.s = api.get_scoped_session(conf)
 
     def tearDown(self):
         pass
 
+    @with_session
     def test_users_basic(self):
         # Insert and retrieve an user
         user = models.User(username="user", password="pass")
-        api.user_create(user, conf=self.c)
-        user = api.user_get_by_username("user", conf=self.c)
+        api.user_create(self.s, user)
+        user = api.user_get_by_username(self.s, user.username)
         self.assertIsNotNone(user)
         self.assertEqual(user.username, "user")
         self.assertEqual(user.password, "pass")
@@ -72,14 +81,14 @@ class TestDbApiUsers(unittest.TestCase):
         # Update and check the user
         user.username = "new user"
         user.password = "new_pass"
-        api.user_update(user, conf=self.c)
-        new_user = api.user_get_by_id(user.id, conf=self.c)
+        api.user_update(self.s, user)
+        new_user = api.user_get_by_id(self.s, user.id)
         self.assertIsNotNone(new_user)
         self.assertEqual(new_user.username, user.username)
         self.assertEqual(new_user.password, user.password)
         self.assertEqual(new_user.id, user.id)
 
         # Clean up and verify
-        api.user_delete_by_username(user.username, conf=self.c)
-        user = api.user_get_by_id(user.id, conf=self.c)
+        api.user_delete_by_username(self.s, user.username)
+        user = api.user_get_by_id(self.s, user.id)
         self.assertIsNone(user)

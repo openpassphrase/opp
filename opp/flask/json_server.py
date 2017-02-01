@@ -17,7 +17,7 @@ from datetime import timedelta
 import json
 import logging
 
-from flask import Flask, request, _app_ctx_stack
+from flask import Flask, g, request, _app_ctx_stack
 
 from opp.api.v1 import categories, fetch_all, items
 from opp.common import opp_config, utils
@@ -56,15 +56,24 @@ app.config['EXP_DELTA'] = timedelta(seconds=exp_delta)
 app.config['PREFERRED_URL_SCHEME'] = "https"
 
 
+@app.before_request
+def get_scoped_session():
+    g.session = api.get_scoped_session()
+
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    g.session.remove()
+
+
 def authenticate(username, password):
-    user = api.user_get_by_username(username)
+    user = api.user_get_by_username(g.session, username)
     if user and utils.checkpw(password, user.password):
         return user
-    return None
 
 
 def identity(payload):
-    return api.user_get_by_id(payload['identity'])
+    return api.user_get_by_id(g.session, payload['identity'])
 
 
 def _to_json(dictionary):
@@ -98,7 +107,7 @@ def handle_fetchall():
     if err:
         return err, 400
     user = _app_ctx_stack.top.current_identity
-    handler = fetch_all.ResponseHandler(request, user)
+    handler = fetch_all.ResponseHandler(request, user, g.session)
     response = handler.respond()
     return _to_json(response)
 
@@ -111,7 +120,7 @@ def handle_categories():
     if err:
         return err, 400
     user = _app_ctx_stack.top.current_identity
-    handler = categories.ResponseHandler(request, user)
+    handler = categories.ResponseHandler(request, user, g.session)
     # Set require_phrase to True for all methods except DELETE
     response = handler.respond(request.method != 'DELETE')
     return _to_json(response)
@@ -125,7 +134,7 @@ def handle_items():
     if err:
         return err, 400
     user = _app_ctx_stack.top.current_identity
-    handler = items.ResponseHandler(request, user)
+    handler = items.ResponseHandler(request, user, g.session)
     # Set require_phrase to True for all methods except DELETE
     response = handler.respond(request.method != 'DELETE')
     return _to_json(response)

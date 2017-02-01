@@ -16,9 +16,10 @@
 
 class BaseResponseHandler(object):
 
-    def __init__(self, request, user=None):
+    def __init__(self, request, user, session):
         self.request = request
         self.user = user
+        self.session = session
 
     def error(self, msg=None):
         return {'result': "error", 'message': msg}
@@ -64,16 +65,17 @@ class BaseResponseHandler(object):
         else:
             phrase = None
 
-        if self.request.method == "GET":
-            response = self._do_get(phrase)
-        elif self.request.method == "PUT":
-            response = self._do_put(phrase)
-        elif self.request.method == "POST":
-            response = self._do_post(phrase)
-        elif self.request.method == "DELETE":
-            response = self._do_delete()
-        else:
-            response = self.error("Method not supported!")
+        with self.session.begin():
+            if self.request.method == "GET":
+                response = self._do_get(phrase)
+            elif self.request.method == "PUT":
+                response = self._do_put(phrase)
+            elif self.request.method == "POST":
+                response = self._do_post(phrase)
+            elif self.request.method == "DELETE":
+                response = self._do_delete()
+            else:
+                response = self.error("Method not supported!")
 
         return response
 

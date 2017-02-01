@@ -42,11 +42,13 @@ class ResponseHandler(base_handler.BaseResponseHandler):
     def _do_get(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
-        items = api.item_getall(self.user)
-        for item in items:
-            response.append(item.extract(cipher))
-
-        return {'result': 'success', 'items': response}
+        try:
+            items = api.item_getall(self.session, self.user)
+            for item in items:
+                response.append(item.extract(cipher))
+            return {'result': 'success', 'items': response}
+        except Exception:
+            return self.error("Unable to fetch items from the database!")
 
     def _do_put(self, phrase):
         item_list, error = self._check_payload(expect_list=True)
@@ -81,8 +83,11 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                 return self.error("Invalid item data in list!")
 
         try:
-            api.item_create(items)
-            return {'result': "success"}
+            items = api.item_create(self.session, items)
+            response = []
+            for item in items:
+                response.append(item.extract(cipher))
+            return {'result': 'success', 'items': response}
         except Exception:
             return self.error("Unable to add new items to the database!")
 
@@ -128,7 +133,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                 return self.error("Invalid item data in list!")
 
         try:
-            api.item_update(items)
+            api.item_update(self.session, items)
             return {'result': "success"}
         except Exception:
             return self.error("Unable to update items in the database!")
@@ -139,7 +144,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return error
 
         try:
-            api.item_delete_by_id(self.user, payload)
+            api.item_delete_by_id(self.session, self.user, payload)
             return {'result': "success"}
         except Exception:
             return self.error("Unable to delete items from the database!")
