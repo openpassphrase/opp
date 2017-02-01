@@ -17,7 +17,9 @@ from datetime import timedelta
 import json
 import logging
 
+
 from flask import Flask, g, request, _app_ctx_stack
+from flask_cors import CORS
 
 from opp.api.v1 import categories, fetch_all, items
 from opp.common import opp_config, utils
@@ -51,6 +53,7 @@ except Exception:
 
 # Flask app
 app = Flask(__name__)
+CORS(app)
 app.config['SECRET_KEY'] = CONF['SECRET_KEY']
 app.config['EXP_DELTA'] = timedelta(seconds=exp_delta)
 app.config['PREFERRED_URL_SCHEME'] = "https"

@@ -1,0 +1,12 @@
+<div fxLayout fxLayoutAlign="center start">
+  <div fxFlex="70" fxFlex.xs="100">
+    <form novalidate [formGroup]="addCategoryForm" (ngSubmit)="addCategory()">
+      <md-input-container>
+        <input md-input formControlName="category" placeholder="New group" required type="text">
+      </md-input-container>
+      
+      <button md-fab type="submit"><md-icon>add</md-icon></button>
+    </form>
+    <hr />
+  </div>
+</div>
