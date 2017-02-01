@@ -14,101 +14,93 @@
 # under the License.
 
 import sys
+
 from sqlalchemy import create_engine, exc
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker, subqueryload
 
 from opp.common import opp_config
 from opp.db import models
 
 
-def get_session(conf=None):
-    conf = conf or opp_config.OppConfig()
-    db_connect = conf['db_connect']
-    if db_connect:
+def get_scoped_session(conf=None):
+    conf = conf or opp_config.OppConfig(conf)
+    if conf['db_connect']:
         try:
-            engine = create_engine(db_connect)
-            session_factory = sessionmaker(engine)
-            Session = scoped_session(session_factory)
-            return Session()
+            engine = create_engine(conf['db_connect'])
+            session_factory = sessionmaker(engine, autocommit=True)
+            return scoped_session(session_factory)
         except exc.NoSuchModuleError as e:
             sys.exit("Error: %s" % str(e))
-    sys.exit("Error: database connection string not configured.")
+        sys.exit("Error: database connection string not configured.")
 
 
-def user_create(user, session=None, conf=None):
-    if user:
-        session = session or get_session(conf)
+def user_create(session, user):
+    if session and user:
         session.add(user)
-        session.commit()
 
 
-def user_update(user, session=None, conf=None):
-    if user:
-        session = session or get_session(conf)
+def user_update(session, user):
+    if session and user:
         session.merge(user)
-        session.commit()
 
 
-def user_get_by_id(id, session=None, conf=None):
-    if id:
-        session = session or get_session(conf)
+def user_get_by_id(session, id):
+    if session and id:
         query = session.query(models.User).filter(
             models.User.id == id)
         return query.one_or_none()
     return None
 
 
-def user_get_by_username(username, session=None, conf=None):
-    if username:
-        session = session or get_session(conf)
+def user_get_by_username(session, username):
+    if session and username:
         query = session.query(models.User).filter(
             models.User.username == username)
         return query.one_or_none()
     return None
 
 
-def user_delete(user, session=None, conf=None):
-    if user:
-        session = session or get_session(conf)
+def user_delete(session, user):
+    if session and user:
         session.delete(user)
-        session.commit()
 
 
-def user_delete_by_username(username, session=None, conf=None):
-    if username:
-        session = session or get_session(conf)
-        user = user_get_by_username(username, session, conf)
-        user_delete(user, session, conf)
+def user_delete_by_username(session, username):
+    user = user_get_by_username(session, username)
+    user_delete(session, user)
 
 
-def category_create(categories, session=None, conf=None):
-    if categories:
-        session = session or get_session(conf)
+def category_create(session, categories):
+    if session and categories:
         session.add_all(categories)
-        session.commit()
+        return categories
 
 
-def category_update(categories, session=None, conf=None):
-    session = session or get_session(conf)
-    for category in categories:
-        session.merge(category)
-    session.commit()
+def category_update(session, categories):
+    if session:
+        for category in categories:
+            session.merge(category)
 
 
-def category_getall(filter_ids=None, session=None, conf=None):
-    session = session or get_session(conf)
-    if filter_ids:
-        query = session.query(models.Category).order_by(
-            models.Category.id).filter(
-            models.Category.id.in_(filter_ids))
-    else:
-        query = session.query(models.Category).order_by(models.Category.id)
-    return query.all()
+def category_getall(session, user, filter_ids=None):
+    if session and user:
+        session.add(user)
+        if filter_ids:
+            query = session.query(models.Category).order_by(
+                models.Category.id).filter(
+                models.Category.id.in_(filter_ids)).filter(
+                models.User.id == user.id).options(
+                subqueryload(models.Category.items))
+        else:
+            query = session.query(models.Category).filter(
+                models.User.id == user.id).order_by(
+                models.Category.id).options(
+                subqueryload(models.Category.items))
+        return query.all()
 
 
-def category_delete(categories, cascade, session=None, conf=None):
-    if categories:
-        session = session or get_session(conf)
+def category_delete(session, categories, cascade):
+    if session:
         if cascade:
             for category in categories:
                 for item in category.items:
@@ -120,56 +112,54 @@ def category_delete(categories, cascade, session=None, conf=None):
                     item.category_id = None
                     session.add(item)
                 session.delete(category)
-        session.commit()
 
 
-def category_delete_by_id(filter_ids, cascade, session=None, conf=None):
-    if filter_ids:
-        session = session or get_session(conf)
-        categories = category_getall(filter_ids, session, conf)
-        category_delete(categories, cascade, session, conf)
+def category_delete_by_id(session, user, filter_ids, cascade):
+    categories = category_getall(session, user, filter_ids)
+    category_delete(session, categories, cascade)
 
 
-def item_create(items, session=None, conf=None):
-    if items:
-        session = session or get_session(conf)
+def item_create(session, items):
+    if session and items:
         session.add_all(items)
-        session.commit()
+        return items
 
 
-def item_update(items, session=None, conf=None):
-    session = session or get_session(conf)
-    for item in items:
-        session.merge(item)
-    session.commit()
+def item_update(session, items):
+    if session:
+        for item in items:
+            session.merge(item)
 
 
-def item_getall(filter_ids=None, session=None, conf=None):
-    session = session or get_session(conf)
+def item_getall(session, user, filter_ids=None):
+    if session and user:
+        session.add(user)
+        if filter_ids:
+            query = session.query(
+                models.Item).order_by(
+                models.Item.id).filter(
+                models.Item.id.in_(filter_ids)).filter(
+                models.User.id == user.id).outerjoin(
+                models.Category).options(
+                subqueryload(models.Item.category))
+
+        else:
+            query = session.query(
+                models.Item).order_by(
+                models.Item.id).filter(
+                models.User.id == user.id).outerjoin(
+                models.Category).options(
+                subqueryload(models.Item.category))
+        return query.all()
+
+
+def item_delete(session, items):
+    if session:
+        for item in items:
+            session.delete(item)
+
+
+def item_delete_by_id(session, user, filter_ids):
     if filter_ids:
-        query = session.query(
-            models.Item).order_by(
-            models.Item.id).filter(
-            models.Item.id.in_(filter_ids)).outerjoin(
-            models.Category)
-
-    else:
-        query = session.query(
-            models.Item).order_by(
-            models.Item.id).outerjoin(
-            models.Category)
-    return query.all()
-
-
-def item_delete(items, session=None, conf=None):
-    session = session or get_session(conf)
-    for item in items:
-        session.delete(item)
-    session.commit()
-
-
-def item_delete_by_id(filter_ids, session=None, conf=None):
-    if filter_ids:
-        session = session or get_session(conf)
-        items = item_getall(filter_ids, session, conf)
-        item_delete(items, session, conf)
+        items = item_getall(session, user, filter_ids)
+        item_delete(session, items)

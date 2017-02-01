@@ -80,17 +80,19 @@ def init(config):
 @pass_config
 def add_user(config, u, p):
     try:
-        user = api.user_get_by_username(u, conf=config.conf)
-        if user:
-            sys.exit("Error: user already exists!")
-        hashed = utils.hashpw(p)
-        user = models.User(username=u, password=hashed)
-        api.user_create(user, conf=config.conf)
-        user = api.user_get_by_username(u, conf=config.conf)
-        if user:
-            print("Successfully added new user: %s" % u)
-        else:
-            print("Error: unable to add user: %s" % u)
+        s = api.get_scoped_session(config.conf)
+        with s.begin():
+            user = api.user_get_by_username(s, u)
+            if user:
+                sys.exit("Error: user already exists!")
+            hashed = utils.hashpw(p)
+            user = models.User(username=u, password=hashed)
+            api.user_create(s, user)
+            user = api.user_get_by_username(s, u)
+            if user:
+                print("Successfully added new user: %s" % u)
+            else:
+                print("Error: unable to add user: %s" % u)
     except Exception as e:
         sys.exit("Error: %s" % str(e))
 
@@ -103,18 +105,19 @@ def add_user(config, u, p):
 @pass_config
 def del_user(config, u, p):
     try:
-        session = api.get_session(config.conf)
-        user = api.user_get_by_username(u, session=session)
-        if not user:
-            sys.exit("Error: user does not exist!")
-        if not utils.checkpw(p, user.password):
-            sys.exit("Error: incorrect password!")
-        api.user_delete(user, session=session)
-        user = api.user_get_by_username(u, session=session)
-        if user:
-            print("Error: unable to delete user: %s" % u)
-        else:
-            print("Successfully deleted user: %s" % u)
+        s = api.get_scoped_session(config.conf)
+        with s.begin():
+            user = api.user_get_by_username(s, u)
+            if not user:
+                sys.exit("Error: user does not exist!")
+            if not utils.checkpw(p, user.password):
+                sys.exit("Error: incorrect password!")
+            api.user_delete(s, user)
+            user = api.user_get_by_username(s, u)
+            if user:
+                print("Error: unable to delete user: %s" % u)
+            else:
+                print("Successfully deleted user: %s" % u)
     except Exception as e:
         sys.exit("Error: %s" % str(e))
 

@@ -46,6 +46,8 @@ class Item(Base):
     id = Column(Integer, Sequence('item_id_seq'), primary_key=True)
     category_id = Column(Integer, Sequence('category_id_seq'),
                          ForeignKey('categories.id'), default=None)
+    user_id = Column(Integer, Sequence('user_id_seq'),
+                     ForeignKey('users.id'), nullable=False)
     name = Column(String(255), nullable=True, default=None)
     url = Column(String(2000), nullable=True, default=None)
     account = Column(String(255), nullable=True, default=None)
@@ -58,6 +60,7 @@ class Item(Base):
                         nullable=False, onupdate=lambda: datetime.now())
 
     category = relationship('Category')
+    user = relationship('User')
 
     def extract(self, cipher):
         # Create a list of all encrypted columns
@@ -93,12 +96,15 @@ class Category(Base):
 
     id = Column(Integer, Sequence('category_id_seq'), primary_key=True)
     name = Column(String(255), nullable=False)
+    user_id = Column(Integer, Sequence('user_id_seq'),
+                     ForeignKey('users.id'), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False, onupdate=lambda: datetime.now())
 
     items = relationship('Item', order_by=Item.id)
+    user = relationship('User')
 
     def extract(self, cipher):
         category = {'id': self.id,

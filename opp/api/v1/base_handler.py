@@ -13,13 +13,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from opp.db import api
-
 
 class BaseResponseHandler(object):
 
-    def __init__(self, request):
+    def __init__(self, request, user, session):
         self.request = request
+        self.user = user
+        self.session = session
 
     def error(self, msg=None):
         return {'result': "error", 'message': msg}
@@ -65,21 +65,18 @@ class BaseResponseHandler(object):
         else:
             phrase = None
 
-        # Obtain DB session for making transactions
-        self.session = api.get_session()
+        with self.session.begin():
+            if self.request.method == "GET":
+                response = self._do_get(phrase)
+            elif self.request.method == "PUT":
+                response = self._do_put(phrase)
+            elif self.request.method == "POST":
+                response = self._do_post(phrase)
+            elif self.request.method == "DELETE":
+                response = self._do_delete()
+            else:
+                response = self.error("Method not supported!")
 
-        if self.request.method == "GET":
-            response = self._do_get(phrase)
-        elif self.request.method == "PUT":
-            response = self._do_put(phrase)
-        elif self.request.method == "POST":
-            response = self._do_post(phrase)
-        elif self.request.method == "DELETE":
-            response = self._do_delete()
-        else:
-            response = self.error("Method not supported!")
-
-        self.session.close()
         return response
 
 

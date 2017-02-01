@@ -42,11 +42,13 @@ class ResponseHandler(base_handler.BaseResponseHandler):
     def _do_get(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
-        items = api.item_getall(session=self.session)
-        for item in items:
-            response.append(item.extract(cipher))
-
-        return {'result': 'success', 'items': response}
+        try:
+            items = api.item_getall(self.session, self.user)
+            for item in items:
+                response.append(item.extract(cipher))
+            return {'result': 'success', 'items': response}
+        except Exception:
+            return self.error("Unable to fetch items from the database!")
 
     def _do_put(self, phrase):
         item_list, error = self._check_payload(expect_list=True)
@@ -75,13 +77,17 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                     encrypted_blob.decode())
                 items.append(models.Item(name=name, url=url, account=account,
                                          username=username, password=password,
-                                         blob=blob, category_id=category_id))
+                                         blob=blob, category_id=category_id,
+                                         user=self.user))
             except (AttributeError, TypeError):
                 return self.error("Invalid item data in list!")
 
         try:
-            api.item_create(items, session=self.session)
-            return {'result': "success"}
+            items = api.item_create(self.session, items)
+            response = []
+            for item in items:
+                response.append(item.extract(cipher))
+            return {'result': 'success', 'items': response}
         except Exception:
             return self.error("Unable to add new items to the database!")
 
@@ -121,12 +127,13 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                 items.append(models.Item(id=item_id, name=name, url=url,
                                          account=account, username=username,
                                          password=password, blob=blob,
-                                         category_id=category_id))
+                                         category_id=category_id,
+                                         user=self.user))
             except (AttributeError, TypeError):
                 return self.error("Invalid item data in list!")
 
         try:
-            api.item_update(items, session=self.session)
+            api.item_update(self.session, items)
             return {'result': "success"}
         except Exception:
             return self.error("Unable to update items in the database!")
@@ -137,7 +144,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return error
 
         try:
-            api.item_delete_by_id(payload, session=self.session)
+            api.item_delete_by_id(self.session, self.user, payload)
             return {'result': "success"}
         except Exception:
             return self.error("Unable to delete items from the database!")
