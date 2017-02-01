@@ -1,0 +1,13 @@
+<form novalidate [formGroup]="addCategoryForm" (ngSubmit)="addCategory()">
+  <md-input-container>
+    <input md-input 
+      formControlName="category"
+      placeholder="New group"
+      (keyup.escape)="clear()"
+      required
+      autocomplete="off"
+      type="text">
+  </md-input-container>
+  
+  <button md-fab type="submit"><md-icon>add</md-icon></button>
+</form>

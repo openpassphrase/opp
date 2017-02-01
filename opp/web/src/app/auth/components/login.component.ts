@@ -20,9 +20,6 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.auth.loggedIn()) {
-      this.router.navigate(['admin']);
-    }
     this.authForm = this._fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
@@ -35,7 +32,7 @@ export class LoginComponent implements OnInit {
       // with the JWT on an id_token key
       data => {
         localStorage.setItem('id_token', data.access_token);
-        this.router.navigate(['admin']);
+        this.router.navigate(['passwords']);
       },
       error => {
         if (error.status === 401) {

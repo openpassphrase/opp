@@ -1,5 +1,8 @@
-<md-toolbar color="primary">
-  <span>Open Pass Phrase</span>
-</md-toolbar>
+<app-header
+  [loggedIn]="isLoggedIn"
+  (logout)="logout()"
+  ></app-header>
 
-<router-outlet></router-outlet>
+<main class="main">
+  <router-outlet></router-outlet>
+</main>
