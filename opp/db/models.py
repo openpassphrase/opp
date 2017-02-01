@@ -28,6 +28,7 @@ Base = declarative_base()
 class User(Base):
 
     __tablename__ = 'users'
+    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
 
     id = Column(Integer, Sequence('item_id_seq'), primary_key=True)
     username = Column(String(255), nullable=False, unique=True)
@@ -41,7 +42,8 @@ class User(Base):
 class Item(Base):
 
     __tablename__ = 'items'
-    __table_args__ = (Index('category_id_idx', 'category_id'),)
+    __table_args__ = (Index('category_id_idx', 'category_id'),
+                      {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'})
 
     id = Column(Integer, Sequence('item_id_seq'), primary_key=True)
     category_id = Column(Integer, Sequence('category_id_seq'),
@@ -93,6 +95,7 @@ class Item(Base):
 class Category(Base):
 
     __tablename__ = 'categories'
+    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
 
     id = Column(Integer, Sequence('category_id_seq'), primary_key=True)
     name = Column(String(255), nullable=False)

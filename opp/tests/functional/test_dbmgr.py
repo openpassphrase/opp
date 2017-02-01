@@ -20,7 +20,7 @@ import unittest
 from opp.common import utils
 
 
-class TestDbManager(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

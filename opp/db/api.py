@@ -15,11 +15,19 @@
 
 import sys
 
-from sqlalchemy import create_engine, exc
+from sqlalchemy import create_engine, event, exc
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import scoped_session, sessionmaker, subqueryload
 
 from opp.common import opp_config
 from opp.db import models
+
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 
 def get_scoped_session(conf=None):

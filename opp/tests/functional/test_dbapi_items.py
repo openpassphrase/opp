@@ -28,7 +28,7 @@ def with_session(function):
     return wrapper
 
 
-class TestDbApiItems(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     """These tests exercise the top level request/response functionality of
     the backend API.
@@ -64,7 +64,6 @@ class TestDbApiItems(unittest.TestCase):
             pass
 
     def setUp(self):
-        super(TestDbApiItems, self).setUp()
         conf = opp_config.OppConfig(self.conf_filepath)
         self.s = api.get_scoped_session(conf)
         self.u = api.user_get_by_username(self.s, "u")
@@ -89,7 +88,6 @@ class TestDbApiItems(unittest.TestCase):
         # Update the item
         with self.s.begin():
             item.blob = "new blob"
-            item.category_id = 999
             api.item_update(self.s, [item])
 
         # Check the updated item
@@ -97,7 +95,7 @@ class TestDbApiItems(unittest.TestCase):
             items = api.item_getall(self.s, self.u)
             self.assertEqual(len(items), 1)
             self.assertEqual(items[0].blob, "new blob")
-            self.assertEqual(items[0].category_id, 999)
+            self.assertEqual(items[0].category_id, None)
 
         # Update item with valid category
         with self.s.begin():
