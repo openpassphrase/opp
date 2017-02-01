@@ -73,6 +73,7 @@ def user_delete_by_username(session, username):
 def category_create(session, categories):
     if session and categories:
         session.add_all(categories)
+        session.flush()
         return categories
 
 
@@ -122,6 +123,7 @@ def category_delete_by_id(session, user, filter_ids, cascade):
 def item_create(session, items):
     if session and items:
         session.add_all(items)
+        session.flush()
         return items
 
 

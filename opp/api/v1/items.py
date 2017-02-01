@@ -44,11 +44,11 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         cipher = aescipher.AESCipher(phrase)
         try:
             items = api.item_getall(self.session, self.user)
-            for item in items:
-                response.append(item.extract(cipher))
-            return {'result': 'success', 'items': response}
         except Exception:
             return self.error("Unable to fetch items from the database!")
+        for item in items:
+            response.append(item.extract(cipher))
+        return {'result': 'success', 'items': response}
 
     def _do_put(self, phrase):
         item_list, error = self._check_payload(expect_list=True)
@@ -84,12 +84,12 @@ class ResponseHandler(base_handler.BaseResponseHandler):
 
         try:
             items = api.item_create(self.session, items)
-            response = []
-            for item in items:
-                response.append(item.extract(cipher))
-            return {'result': 'success', 'items': response}
         except Exception:
             return self.error("Unable to add new items to the database!")
+        response = []
+        for item in items:
+            response.append(item.extract(cipher))
+        return {'result': 'success', 'items': response}
 
     def _do_post(self, phrase):
         item_list, error = self._check_payload(expect_list=True)
