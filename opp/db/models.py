@@ -28,6 +28,7 @@ Base = declarative_base()
 class User(Base):
 
     __tablename__ = 'users'
+    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
 
     id = Column(Integer, Sequence('item_id_seq'), primary_key=True)
     username = Column(String(255), nullable=False, unique=True)
@@ -41,7 +42,8 @@ class User(Base):
 class Item(Base):
 
     __tablename__ = 'items'
-    __table_args__ = (Index('category_id_idx', 'category_id'),)
+    __table_args__ = (Index('category_id_idx', 'category_id'),
+                      {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'})
 
     id = Column(Integer, Sequence('item_id_seq'), primary_key=True)
     category_id = Column(Integer, Sequence('category_id_seq'),
@@ -62,7 +64,7 @@ class Item(Base):
     category = relationship('Category')
     user = relationship('User')
 
-    def extract(self, cipher):
+    def extract(self, cipher, with_category=True):
         # Create a list of all encrypted columns
         row = [self.name, self.url, self.account, self.username,
                self.password, self.blob]
@@ -82,10 +84,11 @@ class Item(Base):
                 'username': extracted_values[3],
                 'password': extracted_values[4],
                 'blob': extracted_values[5]}
-        if self.category:
-            item['category'] = self.category.extract(cipher)
-        else:
-            item['category'] = {"id": self.category_id}
+        if with_category:
+            if self.category:
+                item['category'] = self.category.extract(cipher)
+            else:
+                item['category'] = {"id": self.category_id}
 
         return item
 
@@ -93,6 +96,7 @@ class Item(Base):
 class Category(Base):
 
     __tablename__ = 'categories'
+    __table_args__ = {'mysql_engine': 'InnoDB', 'mysql_charset': 'utf8'}
 
     id = Column(Integer, Sequence('category_id_seq'), primary_key=True)
     name = Column(String(255), nullable=False)
@@ -106,7 +110,12 @@ class Category(Base):
     items = relationship('Item', order_by=Item.id)
     user = relationship('User')
 
-    def extract(self, cipher):
+    def extract(self, cipher, with_items=False):
         category = {'id': self.id,
                     'name': cipher.decrypt(self.name)}
+        if with_items:
+            items_array = []
+            for item in self.items:
+                items_array.append(item.extract(cipher, False))
+            category['items'] = items_array
         return category

@@ -21,7 +21,7 @@ from opp.db import api, models
 from opp.common import opp_config, utils
 
 
-class TestDbApiCategories(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     """These tests exercise the top level request/response functionality of
     the backend API.

@@ -22,12 +22,15 @@ from opp.db import api, models
 
 class ResponseHandler(base_handler.BaseResponseHandler):
 
-    def _parse_or_set_empty(self, row, key):
+    def _parse_or_set_empty(self, row, key, none_if_empty=False):
         try:
             value = row[key]
         except KeyError:
-            return ""
-        if value is None:
+            if none_if_empty:
+                return None
+            else:
+                return ""
+        if not none_if_empty and value is None:
             return ""
         return value
 
@@ -65,8 +68,9 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             username = self._parse_or_set_empty(row, 'username')
             password = self._parse_or_set_empty(row, 'password')
             blob = self._parse_or_set_empty(row, 'blob')
-            category_id = self._parse_or_set_empty(row, 'category_id')
             full_row = [name, url, account, username, password, blob]
+
+            category_id = self._parse_or_set_empty(row, 'category_id', True)
 
             try:
                 # TODO: (alex) deteremine if ok to insert completely empty item
@@ -114,8 +118,9 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             username = self._parse_or_set_empty(row, 'username')
             password = self._parse_or_set_empty(row, 'password')
             blob = self._parse_or_set_empty(row, 'blob')
-            category_id = self._parse_or_set_empty(row, 'category_id')
             full_row = [name, url, account, username, password, blob]
+
+            category_id = self._parse_or_set_empty(row, 'category_id', True)
 
             try:
                 # TODO: (alex) deteremine if ok to insert completely empty item

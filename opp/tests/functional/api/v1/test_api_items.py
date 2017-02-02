@@ -16,7 +16,7 @@
 from . import BackendApiTest
 
 
-class TestApiItems(BackendApiTest):
+class TestCase(BackendApiTest):
 
     """These tests exercise the top level request/response functionality of
     the backend API.

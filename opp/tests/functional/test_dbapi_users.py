@@ -28,7 +28,7 @@ def with_session(function):
     return wrapper
 
 
-class TestDbApiUsers(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     """These tests exercise the top level request/response functionality of
     the backend API.

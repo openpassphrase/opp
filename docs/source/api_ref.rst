@@ -82,8 +82,8 @@ Fetch All Endpoint
 | ``{``
 |   ``"result": "success",``
 |   ``"categories": [``
-|     ``{"category1": [{item1}, {item2]},``
-|     ``{"category2": [{item3}, {item4]}``
+|     ``{"id": 1, "name": "category1", "items": [{<item1>}, {<item2>}]},``
+|     ``{"id": 2, "name": "category2", "items": [{<item3>}, {<item4>}]}``
 |   ``]``
 | ``}``
 

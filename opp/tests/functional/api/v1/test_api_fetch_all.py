@@ -16,7 +16,7 @@
 from . import BackendApiTest
 
 
-class TestApiFetchAll(BackendApiTest):
+class TestCase(BackendApiTest):
 
     """These tests exercise the top level request/response functionality of
     the backend API.
@@ -68,15 +68,23 @@ class TestApiFetchAll(BackendApiTest):
 
         c1, c2, c3 = data['categories']
 
-        self.assertEqual(len(c1['cat1']), 2)
-        self.assertEqual(len(c2['cat2']), 2)
-        self.assertEqual(len(c3['default']), 2)
+        self.assertEqual(len(c1['items']), 2)
+        self.assertEqual(len(c2['items']), 2)
+        self.assertEqual(len(c3['items']), 2)
 
-        self.assertEqual(c1['cat1'][0]['name'], "i1")
-        self.assertEqual(c1['cat1'][1]['name'], "i2")
+        self.assertEqual(c1['id'], 1)
+        self.assertEqual(c2['id'], 2)
+        self.assertEqual(c3['id'], None)
 
-        self.assertEqual(c2['cat2'][0]['name'], "i3")
-        self.assertEqual(c2['cat2'][1]['name'], "i4")
+        self.assertEqual(c1['name'], "cat1")
+        self.assertEqual(c2['name'], "cat2")
+        self.assertEqual(c3['name'], "default")
 
-        self.assertEqual(c3['default'][0]['name'], "i5")
-        self.assertEqual(c3['default'][1]['name'], "i6")
+        self.assertEqual(c1['items'][0]['name'], "i1")
+        self.assertEqual(c1['items'][1]['name'], "i2")
+
+        self.assertEqual(c2['items'][0]['name'], "i3")
+        self.assertEqual(c2['items'][1]['name'], "i4")
+
+        self.assertEqual(c3['items'][0]['name'], "i5")
+        self.assertEqual(c3['items'][1]['name'], "i6")

@@ -15,11 +15,19 @@
 
 import sys
 
-from sqlalchemy import create_engine, exc
+from sqlalchemy import create_engine, event, exc
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import scoped_session, sessionmaker, subqueryload
 
 from opp.common import opp_config
 from opp.db import models
+
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 
 def get_scoped_session(conf=None):
@@ -152,6 +160,17 @@ def item_getall(session, user, filter_ids=None):
                 models.User.id == user.id).outerjoin(
                 models.Category).options(
                 subqueryload(models.Item.category))
+        return query.all()
+
+
+def item_getall_orphan(session, user):
+    if session and user:
+        session.add(user)
+        query = session.query(
+            models.Item).order_by(
+            models.Item.id).filter(
+            models.User.id == user.id).filter(
+            models.Item.category_id.is_(None))
         return query.all()
 
 
