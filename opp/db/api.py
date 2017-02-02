@@ -163,6 +163,17 @@ def item_getall(session, user, filter_ids=None):
         return query.all()
 
 
+def item_getall_orphan(session, user):
+    if session and user:
+        session.add(user)
+        query = session.query(
+            models.Item).order_by(
+            models.Item.id).filter(
+            models.User.id == user.id).filter(
+            models.Item.category_id.is_(None))
+        return query.all()
+
+
 def item_delete(session, items):
     if session:
         for item in items:
