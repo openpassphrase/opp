@@ -136,7 +136,11 @@ Create Category
 
 ``{"payload": ["category_name1", "category_name2"]}``
 
-**Response:** ``{"result": "success"}``
+**Response:** ``{"result": "success", "categories": [{<category1>}, {<category2>}]}``
+
+Where ``category`` objects contain:
+
+| ``{"id": 1, "name": "category_name1"}``
 
 Update Category
 ~~~~~~~~~~~~~~~
@@ -200,7 +204,23 @@ Where ``item`` objects contain any of the following optional fields:
    a category ID of 0 which will be mapped to a reserved **"default"**
    category in the ``fetchall`` response.
 
-**Response:** ``{"result": "success"}``
+**Response:** ``{"result": "success, "items": [{<item1>}, {<item2>}]}``
+
+Where ``item`` objects contain:
+
+| ``{``
+|   ``"name": "Wells Fargo",``
+|   ``"url": "https://wellsfargo.com",``
+|   ``"account": "01457XA8900",``
+|   ``"username": "mylogin",``
+|   ``"password": "mypassword",``
+|   ``"blob": "any custom data, may be delimited",``
+|   ``"category":``
+|     ``{``
+|       ``"id": 1, "name": "category1"``
+|     ``}``
+| ``}``
+
 
 Update Item
 ~~~~~~~~~~~~
