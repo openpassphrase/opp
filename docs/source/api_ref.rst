@@ -61,11 +61,13 @@ Authenticate
 
 **Request:** ``POST``
 
-**Body:** JSON object containing ``username`` and ``password`` fields.
+**Body:** JSON object containing mandatory ``username`` and ``password``
+fields and an optional ``exp_delta`` parameter for customizing the expiration
+time of the JWT that will be issued in response.
 
 *Example:*
 
-``{"username": "user1", "password": "mypass"}``
+``{"username": "user1", "password": "mypass", "exp_delta": 3600}``
 
 **Response:**
 
@@ -83,7 +85,8 @@ Fetch All Endpoint
 |   ``"result": "success",``
 |   ``"categories": [``
 |     ``{"id": 1, "name": "category1", "items": [{<item1>}, {<item2>}]},``
-|     ``{"id": 2, "name": "category2", "items": [{<item3>}, {<item4>}]}``
+|     ``{"id": 2, "name": "category2", "items": [{<item3>}, {<item4>}]},``
+|     ``{"id": null, "name": "default", "items": [{<item5>}, {<item6>}]}``
 |   ``]``
 | ``}``
 
@@ -98,6 +101,10 @@ Where ``item`` objects contain:
 |   ``"password": "mypassword",``
 |   ``"blob": "any custom data, may be delimited"``
 | ``}``
+
+.. note:: The "default" category name is reserved. This category is
+    automatically created for items that are not assigned a category
+    id upon creation.
 
 Categories endpoint
 -------------------
