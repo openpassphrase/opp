@@ -82,8 +82,9 @@ Fetch All Endpoint
 | ``{``
 |   ``"result": "success",``
 |   ``"categories": [``
-|     ``{"category1": [{item1}, {item2]},``
-|     ``{"category2": [{item3}, {item4]}``
+|     ``{"id": 1, "name": "category1", "items": [{<item1>}, {<item2>}]},``
+|     ``{"id": 2, "name": "category2", "items": [{<item3>}, {<item4>}]},``
+|     ``{"id": null, "name": "default", "items": [{<item5>}, {<item6>}]}``
 |   ``]``
 | ``}``
 
@@ -98,6 +99,10 @@ Where ``item`` objects contain:
 |   ``"password": "mypassword",``
 |   ``"blob": "any custom data, may be delimited"``
 | ``}``
+
+.. note:: The "default" category name is reserved. This category is
+    automatically created for items that are not assigned a category
+    id upon creation.
 
 Categories endpoint
 -------------------
