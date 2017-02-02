@@ -36,6 +36,7 @@ CONFIG_DEFAULTS = {
     'JWT_AUTH_URL_RULE': '/v1/auth',
     'JWT_AUTH_USERNAME_KEY': 'username',
     'JWT_AUTH_PASSWORD_KEY': 'password',
+    'JWT_AUTH_EXPDELTA_KEY': 'exp_delta',
     'JWT_ALGORITHM': 'HS256',
     'JWT_LEEWAY': timedelta(seconds=10),
     'JWT_AUTH_HEADER': 'x-opp-jwt',
@@ -49,20 +50,38 @@ def _default_jwt_headers_handler(identity):
     return None
 
 
-def _default_jwt_payload_handler(identity):
+def _default_jwt_payload_handler(identity, exp_delta=None):
+    if exp_delta:
+        try:
+            exp_delta = int(exp_delta)
+            if exp_delta > pow(2, 31):
+                exp_delta = current_app.config.get('EXP_DELTA')
+                logger.warning("Invalid value specified for 'exp_delta'. "
+                               " Using default value: %s seconds." %
+                               current_app.config.get('EXP_DELTA').seconds)
+            else:
+                exp_delta = timedelta(seconds=exp_delta)
+        except Exception:
+            exp_delta = current_app.config.get('EXP_DELTA')
+            logger.warning("Invalid value specified for 'exp_delta'. "
+                           " Using default value of %s seconds" %
+                           current_app.config.get('EXP_DELTA').seconds)
+    else:
+        exp_delta = current_app.config.get('EXP_DELTA')
+
     iat = datetime.utcnow()
-    exp = iat + current_app.config.get('EXP_DELTA')
+    exp = iat + exp_delta
     nbf = iat + current_app.config.get('JWT_NBF_DELTA')
     identity = getattr(identity, 'id') or identity['id']
     return {'exp': exp, 'iat': iat, 'nbf': nbf, 'identity': identity}
 
 
-def _default_jwt_encode_handler(identity):
+def _default_jwt_encode_handler(identity, exp_delta=None):
     secret = current_app.config['SECRET_KEY']
     algorithm = current_app.config['JWT_ALGORITHM']
     required_claims = current_app.config['JWT_REQUIRED_CLAIMS']
 
-    payload = _jwt.jwt_payload_callback(identity)
+    payload = _jwt.jwt_payload_callback(identity, exp_delta)
     missing_claims = list(set(required_claims) - set(payload.keys()))
 
     if missing_claims:
@@ -120,7 +139,8 @@ def _default_auth_request_handler():
     data = request.get_json()
     username = data.get(current_app.config.get('JWT_AUTH_USERNAME_KEY'), None)
     password = data.get(current_app.config.get('JWT_AUTH_PASSWORD_KEY'), None)
-    criterion = [username, password, len(data) == 2]
+    exp_delta = data.get(current_app.config.get('JWT_AUTH_EXPDELTA_KEY'), None)
+    criterion = [username, password, len(data) >= 2]
 
     if not all(criterion):
         raise JWTError('Bad Request', 'Invalid credentials')
@@ -128,7 +148,7 @@ def _default_auth_request_handler():
     identity = _jwt.authentication_callback(username, password)
 
     if identity:
-        access_token = _jwt.jwt_encode_callback(identity)
+        access_token = _jwt.jwt_encode_callback(identity, exp_delta)
         return _jwt.auth_response_callback(access_token, identity)
     else:
         raise JWTError('Bad Request', 'Invalid credentials')

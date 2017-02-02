@@ -61,11 +61,13 @@ Authenticate
 
 **Request:** ``POST``
 
-**Body:** JSON object containing ``username`` and ``password`` fields.
+**Body:** JSON object containing mandatory ``username`` and ``password``
+fields and an optional ``exp_delta`` parameter for customizing the expiration
+time of the JWT that will be issued in response.
 
 *Example:*
 
-``{"username": "user1", "password": "mypass"}``
+``{"username": "user1", "password": "mypass", "exp_delta": 3600}``
 
 **Response:**
 
