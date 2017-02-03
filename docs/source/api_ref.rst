@@ -153,7 +153,7 @@ updated name values.
 *Example:*
 
 ``{"categories": [{"id": 1, "name", "new_name"},
-{"id": 2, "name", "new_name"}]}``
+{"id": 2, "name": "new_name"}]}``
 
 **Response:** ``{"result": "success"}``
 
