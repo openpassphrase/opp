@@ -17,12 +17,12 @@ import base64
 
 from xkcdpass import xkcd_password as xp
 
-from opp.api.v1 import base_handler
+from opp.api.v1 import base_handler as bh
 from opp.common import aescipher
 from opp.db import api, models
 
 
-class ResponseHandler(base_handler.BaseResponseHandler):
+class ResponseHandler(bh.BaseResponseHandler):
 
     def _parse_or_set_empty(self, row, key, none_if_empty=False):
         try:
@@ -87,7 +87,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             for item in items:
                 response.append(item.extract(cipher))
         except Exception:
-            return self.error("Unable to fetch items from the database!")
+            raise bh.OppError("Unable to fetch items from the database!")
         return {'result': 'success', 'items': response}
 
     def _do_put(self, phrase):
@@ -97,9 +97,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                          {'name': "autogenerate",
                           'is_list': False,
                           'required': False}]
-        payload_objects, error = self._check_payload(payload_dicts)
-        if error:
-            return error
+        payload_objects = self._check_payload(payload_dicts)
         item_list = payload_objects[0]
 
         cipher = aescipher.AESCipher(phrase)
@@ -128,12 +126,12 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                                          blob=blob, category_id=category_id,
                                          user=self.user))
             except (AttributeError, TypeError):
-                return self.error("Invalid item data in list!")
+                raise bh.OppError("Invalid item data in list!")
 
         try:
             items = api.item_create(self.session, items)
         except Exception:
-            return self.error("Unable to add new items to the database!")
+            raise bh.OppError("Unable to add new items to the database!")
 
         response = []
         for item in items:
@@ -147,9 +145,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                          {'name': "autogenerate",
                           'is_list': False,
                           'required': False}]
-        payload_objects, error = self._check_payload(payload_dicts)
-        if error:
-            return error
+        payload_objects = self._check_payload(payload_dicts)
         item_list = payload_objects[0]
 
         cipher = aescipher.AESCipher(phrase)
@@ -159,9 +155,9 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             try:
                 item_id = row['id']
             except KeyError:
-                return self.error("Missing item id in list!")
+                raise bh.OppError("Missing item id in list!")
             if not item_id:
-                return self.error("Empty item id in list!")
+                raise bh.OppError("Empty item id in list!")
 
             # Extract various item data into a list
             name = self._parse_or_set_empty(row, 'name')
@@ -187,26 +183,23 @@ class ResponseHandler(base_handler.BaseResponseHandler):
                                          category_id=category_id,
                                          user=self.user))
             except (AttributeError, TypeError):
-                return self.error("Invalid item data in list!")
+                raise bh.OppError("Invalid item data in list!")
 
         try:
             api.item_update(self.session, items)
             return {'result': "success"}
         except Exception:
-            return self.error("Unable to update items in the database!")
+            raise bh.OppError("Unable to update items in the database!")
 
     def _do_delete(self):
         payload_dicts = [{'name': "ids",
                           'is_list': True,
                           'required': True}]
-        payload_objects, error = self._check_payload(payload_dicts)
-        if error:
-            return error
-
+        payload_objects = self._check_payload(payload_dicts)
         id_list = payload_objects[0]
 
         try:
             api.item_delete_by_id(self.session, self.user, id_list)
             return {'result': "success"}
         except Exception:
-            return self.error("Unable to delete items from the database!")
+            raise bh.OppError("Unable to delete items from the database!")

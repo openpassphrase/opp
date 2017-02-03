@@ -13,6 +13,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from collections import OrderedDict
+import json
+
 
 class BaseResponseHandler(object):
 
@@ -21,55 +24,52 @@ class BaseResponseHandler(object):
         self.user = user
         self.session = session
 
-    def error(self, msg=None):
-        return {'result': "error", 'message': msg}
-
     def _check_payload(self, check_dict=None):
         request_body = self.request.get_json()
         payload_objects = []
 
         if not check_dict:
-            return payload_objects, None
+            return payload_objects
         elif not request_body:
-            return None, self.error("Missing payload!")
+            raise OppError("Missing payload!")
 
         for obj in check_dict:
             try:
                 payload_obj = request_body[obj['name']]
                 if obj['is_list']:
                     if not isinstance(payload_obj, list):
-                        return None, self.error("'%s' object should be in"
-                                                " list form!" % obj['name'])
+                        raise OppError("'%s' object should be in"
+                                       " list form!" % obj['name'])
                 else:
                     if isinstance(payload_obj, list):
-                        return None, self.error("'%s' object should not be "
-                                                "in list form!" % obj['name'])
+                        raise OppError("'%s' object should not be "
+                                       "in list form!" % obj['name'])
                 payload_objects.append(payload_obj)
             except KeyError:
                 if obj['required']:
-                    return None, self.error("Required payload object '%s'"
-                                            " is missing!" % obj['name'])
+                    raise OppError("Required payload object '%s'"
+                                   " is missing!" % obj['name'])
 
-        return payload_objects, None
+        return payload_objects
 
     def _do_get(self, phrase):
-        return self.error("Action not implemented")
+        raise OppError("Action not implemented")
 
     def _do_put(self, phrase):
-        return self.error("Action not implemented")
+        raise OppError("Action not implemented")
 
     def _do_post(self, phrase):
-        return self.error("Action not implemented")
+        raise OppError("Action not implemented")
 
     def _do_delete(self):
-        return self.error("Action not implemented")
+        raise OppError("Action not implemented")
 
     def respond(self, require_phrase=True):
         if require_phrase:
             try:
                 phrase = self.request.headers['x-opp-phrase']
             except KeyError:
-                return self.error("Passphrase header missing!")
+                raise OppError("Passphrase header missing!")
         else:
             phrase = None
 
@@ -83,14 +83,26 @@ class BaseResponseHandler(object):
             elif self.request.method == "DELETE":
                 response = self._do_delete()
             else:
-                response = self.error("Method not supported!")
+                raise OppError("Method not supported!")
 
         return response
 
 
-class ErrorResponseHandler(BaseResponseHandler):
-    def __init__(self, message):
-        self.message = message
+class OppError(Exception):
+    def __init__(self, error, desc=None, status=400, headers=None):
+        self.error = error or ""
+        self.desc = desc or ""
+        self.status = status or 400
+        self.headers = headers
 
-    def respond(self):
-        return self.error(self.message)
+    def __repr__(self):
+        return 'OppError: %s' % self.error
+
+    def __str__(self):
+        return '%s. %s' % (self.error, self.desc)
+
+    def json(self):
+        dumps = OrderedDict([('status_code', self.status),
+                             ('error', self.error),
+                             ('description', self.desc)])
+        return json.dumps(dumps, indent=4)

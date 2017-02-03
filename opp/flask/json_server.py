@@ -21,7 +21,7 @@ import logging
 from flask import Flask, g, request, _app_ctx_stack
 from flask_cors import CORS
 
-from opp.api.v1 import categories, fetch_all, items
+from opp.api.v1 import base_handler, categories, fetch_all, items
 from opp.common import opp_config, utils
 from opp.db import api
 from opp.flask.flask_jwt import JWT, jwt_required
@@ -59,6 +59,12 @@ app.config['EXP_DELTA'] = timedelta(seconds=exp_delta)
 app.config['PREFERRED_URL_SCHEME'] = "https"
 
 
+@app.errorhandler(base_handler.OppError)
+def error_handler(error):
+    logging.error(error)
+    return error.json(), error.status, error.headers
+
+
 @app.before_request
 def get_scoped_session():
     g.session = api.get_scoped_session()
@@ -66,7 +72,8 @@ def get_scoped_session():
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    g.session.remove()
+    if g.session:
+        g.session.remove()
 
 
 def authenticate(username, password):

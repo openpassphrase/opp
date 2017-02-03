@@ -21,22 +21,33 @@ from opp.api.v1 import base_handler as bh
 
 class TestBaseResponseHandler(unittest.TestCase):
 
+    def assertRaisesWithMsg(self, msg, func, *args, **kwargs):
+        try:
+            func(*args, **kwargs)
+            self.assertFail()
+        except Exception as e:
+            self.assertEqual(e.error, msg)
+
     @mock.patch('flask.request')
-    def test_check_payload_empty(self, request):
+    def test_check_payload_empty_ok(self, request):
         request.get_json.return_value = {}
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload()
+        payload = handler._check_payload()
         self.assertEqual(payload, [])
-        self.assertEqual(error, None)
+
+    @mock.patch('flask.request')
+    def test_check_payload_empty_not_ok(self, request):
+        request.get_json.return_value = {}
+        handler = bh.BaseResponseHandler(request, None, None)
+        self.assertRaisesWithMsg("Missing payload!",
+                                 handler._check_payload, True)
 
     @mock.patch('flask.request')
     def test_check_payload_none(self, request):
         request.get_json.return_value = None
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(True)
-        self.assertEqual(payload, None)
-        self.assertEqual(error, {'result': "error",
-                                 'message': "Missing payload!"})
+        self.assertRaisesWithMsg("Missing payload!",
+                                 handler._check_payload, True)
 
     @mock.patch('flask.request')
     def test_check_payload_objects(self, request):
@@ -50,9 +61,8 @@ class TestBaseResponseHandler(unittest.TestCase):
                       {'name': "list_obj",
                        'is_list': True,
                        'required': False}]
-        payload_objects, error = handler._check_payload(check_dict)
+        payload_objects = handler._check_payload(check_dict)
         self.assertNotEqual(payload_objects, None)
-        self.assertIsNone(error)
         self.assertEqual(len(payload_objects), 2)
         obj, list_obj = payload_objects
         self.assertEqual(obj['name'], "value")
@@ -69,9 +79,8 @@ class TestBaseResponseHandler(unittest.TestCase):
                       {'name': "list_obj",
                        'is_list': True,
                        'required': False}]
-        payload_objects, error = handler._check_payload(check_dict)
+        payload_objects = handler._check_payload(check_dict)
         self.assertNotEqual(payload_objects, None)
-        self.assertIsNone(error)
         self.assertEqual(len(payload_objects), 1)
         self.assertEqual(payload_objects[0]['name'], "value")
 
@@ -86,12 +95,9 @@ class TestBaseResponseHandler(unittest.TestCase):
                       {'name': "list_obj",
                        'is_list': True,
                        'required': True}]
-        payload_objects, error = handler._check_payload(check_dict)
-        self.assertIsNone(payload_objects)
-        self.assertIsNotNone(error)
-        self.assertEqual(error['result'], "error")
-        self.assertEqual(error['message'], ("Required payload object "
-                                            "'list_obj' is missing!"))
+        self.assertRaisesWithMsg("Required payload object "
+                                 "'list_obj' is missing!",
+                                 handler._check_payload, check_dict)
 
     @mock.patch('flask.request')
     def test_check_payload_object_expect_list(self, request):
@@ -99,12 +105,8 @@ class TestBaseResponseHandler(unittest.TestCase):
         request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
         check_dict = [{'name': "obj", 'is_list': True, 'required': True}]
-        payload_objects, error = handler._check_payload(check_dict)
-        self.assertIsNone(payload_objects)
-        self.assertIsNotNone(error)
-        self.assertEqual(error['result'], "error")
-        self.assertEqual(error['message'], ("'obj' object should be "
-                                            "in list form!"))
+        self.assertRaisesWithMsg("'obj' object should be in list form!",
+                                 handler._check_payload, check_dict)
 
     @mock.patch('flask.request')
     def test_check_payload_object_not_list(self, request):
@@ -112,20 +114,15 @@ class TestBaseResponseHandler(unittest.TestCase):
         request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
         check_dict = [{'name': "obj", 'is_list': False, 'required': True}]
-        payload_objects, error = handler._check_payload(check_dict)
-        self.assertIsNone(payload_objects)
-        self.assertIsNotNone(error)
-        self.assertEqual(error['result'], "error")
-        self.assertEqual(error['message'], ("'obj' object should not "
-                                            "be in list form!"))
+        self.assertRaisesWithMsg("'obj' object should not be in list form!",
+                                 handler._check_payload, check_dict)
 
     @mock.patch('flask.request')
     def test_respond_missing_phrase(self, request):
         request.headers = {}
         handler = bh.BaseResponseHandler(request, None, None)
-        self.assertEqual(handler.respond(),
-                         {'result': "error",
-                         'message': "Passphrase header missing!"})
+        self.assertRaisesWithMsg("Passphrase header missing!",
+                                 handler.respond)
 
     def _check_called(self, func_name, *exp_args, **exp_kwargs):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
@@ -175,15 +172,5 @@ class TestBaseResponseHandler(unittest.TestCase):
     def test_respond_bad_verb(self, session, request):
         request.method = "BAD"
         handler = bh.BaseResponseHandler(request, None, session)
-        response = handler.respond(require_phrase=False)
-        expected = {'result': "error", 'message': "Method not supported!"}
-        self.assertEqual(response, expected)
-
-
-class TestErrorResponseHandler(unittest.TestCase):
-
-    def test_respond(self):
-        handler = bh.ErrorResponseHandler("some error msg")
-        response = handler.respond()
-        expected = {'message': 'some error msg', 'result': 'error'}
-        self.assertEqual(response, expected)
+        self.assertRaisesWithMsg("Method not supported!",
+                                 handler.respond, require_phrase=False)

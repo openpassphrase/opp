@@ -97,9 +97,8 @@ class TestCase(BackendApiTest):
 
         # Try to PUT with invalid item in list (int instead of string)
         data = {'items': [{"name": 2}]}
-        data = self._put(path, data)
-        self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Invalid item data in list!")
+        data = self._put(path, data, 400)
+        self.assertEqual(data['error'], "Invalid item data in list!")
 
         # Add an item
         data = {'items': [{"name": "i4"}]}
@@ -115,21 +114,18 @@ class TestCase(BackendApiTest):
 
         # Try to POST with missing item id
         data = {'items': [{'noid': item_id}]}
-        data = self._post(path, data)
-        self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Missing item id in list!")
+        data = self._post(path, data, 400)
+        self.assertEqual(data['error'], "Missing item id in list!")
 
         # Try to POST with empty item id
         data = {'items': [{'id': ""}]}
-        data = self._post(path, data)
-        self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Empty item id in list!")
+        data = self._post(path, data, 400)
+        self.assertEqual(data['error'], "Empty item id in list!")
 
         # Try to POST with invalid item in list
         data = {'items': [{'id': item_id, 'name': 1}]}
-        data = self._post(path, data)
-        self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Invalid item data in list!")
+        data = self._post(path, data, 400)
+        self.assertEqual(data['error'], "Invalid item data in list!")
 
         # Clean up by deleting the item
         data = {'ids': [item_id]}
