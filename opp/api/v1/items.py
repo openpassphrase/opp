@@ -15,6 +15,8 @@
 
 import base64
 
+from xkcdpass import xkcd_password as xp
+
 from opp.api.v1 import base_handler
 from opp.common import aescipher
 from opp.db import api, models
@@ -41,6 +43,41 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             chunks.append(string[chunk * i: chunk * (i + 1)])
         chunks.append(string[chunk * 5:])
         return chunks
+
+    def _genpwd(self, count, options):
+        wordfile = xp.locate_wordfile()
+
+        try:
+            min_length = options['min_length']
+        except (TypeError, KeyError):
+            min_length = 5
+        try:
+            max_length = options['max_length']
+        except (TypeError, KeyError):
+            max_length = 9
+        try:
+            valid_chars = options['valid_chars']
+        except (TypeError, KeyError):
+            valid_chars = "."
+        try:
+            numwords = options['numwords']
+        except (TypeError, KeyError):
+            numwords = 6
+        try:
+            delimiter = options['delimiter']
+        except (TypeError, KeyError):
+            delimiter = " "
+
+        mywords = xp.generate_wordlist(wordfile=wordfile,
+                                       min_length=min_length,
+                                       max_length=max_length,
+                                       valid_chars=valid_chars)
+        for x in range(count):
+            yield xp.generate_xkcdpassword(mywords,
+                                           numwords=numwords,
+                                           interactive=False,
+                                           acrostic=False,
+                                           delimiter=delimiter)
 
     def _do_get(self, phrase):
         response = []
