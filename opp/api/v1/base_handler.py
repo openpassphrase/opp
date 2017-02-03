@@ -24,25 +24,33 @@ class BaseResponseHandler(object):
     def error(self, msg=None):
         return {'result': "error", 'message': msg}
 
-    def _check_payload(self, expect_list):
+    def _check_payload(self, check_dict=None):
         request_body = self.request.get_json()
+        payload_objects = []
 
-        try:
-            payload = request_body['payload']
-        except KeyError:
-            return None, self.error("Payload missing!")
+        if not check_dict:
+            return payload_objects, None
+        elif not request_body:
+            return None, self.error("Missing payload!")
 
-        if not payload:
-            return None, self.error("Empty payload!")
+        for obj in check_dict:
+            try:
+                payload_obj = request_body[obj['name']]
+                if obj['is_list']:
+                    if not isinstance(payload_obj, list):
+                        return None, self.error("'%s' object should be in"
+                                                " list form!" % obj['name'])
+                else:
+                    if isinstance(payload_obj, list):
+                        return None, self.error("'%s' object should not be "
+                                                "in list form!" % obj['name'])
+                payload_objects.append(payload_obj)
+            except KeyError:
+                if obj['required']:
+                    return None, self.error("Required payload object '%s'"
+                                            " is missing!" % obj['name'])
 
-        if expect_list:
-            if not isinstance(payload, list):
-                return None, self.error("Payload should be in list form!")
-        else:
-            if isinstance(payload, list):
-                return None, self.error("Payload should not be in list form!")
-
-        return payload, None
+        return payload_objects, None
 
     def _do_get(self, phrase):
         return self.error("Action not implemented")

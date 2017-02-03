@@ -130,29 +130,29 @@ Create Category
 
 **Request:** ``PUT``
 
-**Body:** ``payload`` object containing a list of category names.
+**Body:** ``category_names`` object containing a list of category names.
 
 *Example:*
 
-``{"payload": ["category_name1", "category_name2"]}``
+``{"category_names": ["category1", "category2"]}``
 
 **Response:** ``{"result": "success", "categories": [{<category1>}, {<category2>}]}``
 
 Where ``category`` objects contain:
 
-| ``{"id": 1, "name": "category_name1"}``
+| ``{"id": 1, "name": "category1"}``
 
 Update Category
 ~~~~~~~~~~~~~~~
 
 **Request:** ``POST``
 
-**Body:** ``payload`` object containing a list of category IDs and
+**Body:** ``categories`` object containing a list of category IDs and
 updated name values.
 
 *Example:*
 
-``{"payload": [{"id": 1, "name", "new_name"},
+``{"categories": [{"id": 1, "name", "new_name"},
 {"id": 2, "name", "new_name"}]}``
 
 **Response:** ``{"result": "success"}``
@@ -162,14 +162,14 @@ Delete Category
 
 **Request:** ``DELETE``
 
-**Body:** ``payload`` object containing a list of category IDs and a boolean
+**Body:** ``ids`` object containing a list of category IDs and a boolean
 ``cascade`` value indicating whether to delete the corresponding rows from the
 ``items`` table for each deleted category or simply zero out their category
 ID values.
 
 *Example:*
 
-``{"payload": {"cascade": True, "ids": [1, 2]}}``
+``{"cascade": True, "ids": [1, 2]}``
 
 **Response:** ``{"result": "success"}``
 
@@ -182,11 +182,11 @@ Create Item
 
 **Request:** ``PUT``
 
-**Body:** ``payload`` object containing a list of items.
+**Body:** ``items`` object containing a list of items.
 
 *Example:*
 
-``{ "payload": [ {item1}, {item2} ] }``
+``{ "items": [ {item1}, {item2} ] }``
 
 Where ``item`` objects contain any of the following optional fields:
 
@@ -227,11 +227,11 @@ Update Item
 
 **Request:** ``POST``
 
-**Body:** ``payload`` object containing a list of items.
+**Body:** ``items`` object containing a list of items.
 
 *Example:*
 
-``{ "payload": [ {item1}, {item2} ] }``
+``{ "items": [ {item1}, {item2} ] }``
 
 Where ``item`` objects contain any of the same optional fields used in
 item creation, plus a mandatory item ``id`` fields used to refer to the
@@ -244,10 +244,10 @@ Delete Item
 
 **Request:** ``DELETE``
 
-**Body:** ``payload`` object containing a list of item IDs to be deleted.
+**Body:** ``ids`` object containing a list of item IDs to be deleted.
 
 *Example:*
 
-``{"payload": [1, 2]}``
+``{"ids": [1, 2]}``
 
 **Response:** ``{"result": "success"}``

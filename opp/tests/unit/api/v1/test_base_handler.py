@@ -22,67 +22,102 @@ from opp.api.v1 import base_handler as bh
 class TestBaseResponseHandler(unittest.TestCase):
 
     @mock.patch('flask.request')
-    def test_check_payload_missing(self, request):
-        request.get_json.return_value = {'key': "value"}
+    def test_check_payload_empty(self, request):
+        request.get_json.return_value = {}
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
-        self.assertEqual(payload, None)
-        self.assertEqual(error, {'result': "error",
-                                 'message': "Payload missing!"})
+        payload, error = handler._check_payload()
+        self.assertEqual(payload, [])
+        self.assertEqual(error, None)
 
     @mock.patch('flask.request')
     def test_check_payload_none(self, request):
-        request.get_json.return_value = {'payload': None}
+        request.get_json.return_value = None
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
+        payload, error = handler._check_payload(True)
         self.assertEqual(payload, None)
         self.assertEqual(error, {'result': "error",
-                                 'message': "Empty payload!"})
+                                 'message': "Missing payload!"})
 
     @mock.patch('flask.request')
-    def test_check_payload_empty(self, request):
-        request.get_json.return_value = {'payload': ""}
+    def test_check_payload_objects(self, request):
+        payload = {'obj': {'name': "value"},
+                   'list_obj': [1, 2, 3]}
+        request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
-        self.assertEqual(payload, None)
-        self.assertEqual(error, {'result': "error",
-                                 'message': "Empty payload!"})
-
-    @mock.patch('flask.request')
-    def test_check_payload_list(self, request):
-        request.get_json.return_value = {'payload': ["blah", "blah"]}
-        handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
-        self.assertNotEqual(payload, None)
+        check_dict = [{'name': "obj",
+                       'is_list': False,
+                       'required': True},
+                      {'name': "list_obj",
+                       'is_list': True,
+                       'required': False}]
+        payload_objects, error = handler._check_payload(check_dict)
+        self.assertNotEqual(payload_objects, None)
         self.assertIsNone(error)
+        self.assertEqual(len(payload_objects), 2)
+        obj, list_obj = payload_objects
+        self.assertEqual(obj['name'], "value")
+        self.assertEqual(len(list_obj), 3)
 
     @mock.patch('flask.request')
-    def test_check_payload_not_list(self, request):
-        request.get_json.return_value = {'payload': {"blah": "blah"}}
+    def test_check_payload_object_missing_not_required(self, request):
+        payload = {'obj': {'name': "value"}}
+        request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
-        self.assertEqual(payload, None)
-        self.assertEqual(error,
-                         {'result': "error",
-                          'message': "Payload should be in list form!"})
-
-    @mock.patch('flask.request')
-    def test_check_payload_obj(self, request):
-        request.get_json.return_value = {'payload': {"blah": "blah"}}
-        handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=False)
-        self.assertNotEqual(payload, None)
+        check_dict = [{'name': "obj",
+                       'is_list': False,
+                       'required': True},
+                      {'name': "list_obj",
+                       'is_list': True,
+                       'required': False}]
+        payload_objects, error = handler._check_payload(check_dict)
+        self.assertNotEqual(payload_objects, None)
         self.assertIsNone(error)
+        self.assertEqual(len(payload_objects), 1)
+        self.assertEqual(payload_objects[0]['name'], "value")
 
     @mock.patch('flask.request')
-    def test_check_payload_not_obj(self, request):
-        request.get_json.return_value = {'payload': ["blah", "blah"]}
+    def test_check_payload_object_missing_required(self, request):
+        payload = {'obj': {'name': "value"}}
+        request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=False)
-        self.assertEqual(payload, None)
-        self.assertEqual(error,
-                         {'result': "error",
-                          'message': "Payload should not be in list form!"})
+        check_dict = [{'name': "obj",
+                       'is_list': False,
+                       'required': True},
+                      {'name': "list_obj",
+                       'is_list': True,
+                       'required': True}]
+        payload_objects, error = handler._check_payload(check_dict)
+        self.assertIsNone(payload_objects)
+        self.assertIsNotNone(error)
+        self.assertEqual(error['result'], "error")
+        self.assertEqual(error['message'], ("Required payload object "
+                                            "'list_obj' is missing!"))
+
+    @mock.patch('flask.request')
+    def test_check_payload_object_expect_list(self, request):
+        payload = {'obj': {'name': "value"}}
+        request.get_json.return_value = payload
+        handler = bh.BaseResponseHandler(request, None, None)
+        check_dict = [{'name': "obj", 'is_list': True, 'required': True}]
+        payload_objects, error = handler._check_payload(check_dict)
+        self.assertIsNone(payload_objects)
+        self.assertIsNotNone(error)
+        self.assertEqual(error['result'], "error")
+        self.assertEqual(error['message'], ("'obj' object should be "
+                                            "in list form!"))
+
+    @mock.patch('flask.request')
+    def test_check_payload_object_not_list(self, request):
+        payload = {'obj': [1, 2, 3]}
+        request.get_json.return_value = payload
+        handler = bh.BaseResponseHandler(request, None, None)
+        check_dict = [{'name': "obj", 'is_list': False, 'required': True}]
+        payload_objects, error = handler._check_payload(check_dict)
+        self.assertIsNone(payload_objects)
+        self.assertIsNotNone(error)
+        self.assertEqual(error['result'], "error")
+        self.assertEqual(error['message'], ("'obj' object should not "
+                                            "be in list form!"))
 
     @mock.patch('flask.request')
     def test_respond_missing_phrase(self, request):

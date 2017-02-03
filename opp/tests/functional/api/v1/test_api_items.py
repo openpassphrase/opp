@@ -38,7 +38,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['items'], [])
 
         # Add 3 items, check for successful response
-        data = {'payload':
+        data = {'items':
                 [{"name": "i1"}, {"name": "i2"}, {"name": "i3"}]}
         data = self._put(path, data)
         self.assertEqual(data['result'], "success")
@@ -53,9 +53,9 @@ class TestCase(BackendApiTest):
         self.assertEqual(item3['name'], "i3")
 
         # Update items 1 & 3
-        payload = [{'id': 1, 'name': "new_i1"},
-                   {'id': 3, 'name': "new_i3"}]
-        data = {'payload': payload}
+        items = [{'id': 1, 'name': "new_i1"},
+                 {'id': 3, 'name': "new_i3"}]
+        data = {'items': items}
         data = self._post(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -69,7 +69,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(item3['name'], "new_i3")
 
         # Delete items 1 & 3
-        data = {'payload': [item1['id'], item3['id']]}
+        data = {'ids': [item1['id'], item3['id']]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -80,8 +80,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['items'][0]['name'], "i2")
 
         # Clean up by deleting item 2
-        payload = [item2['id']]
-        data = {'payload': [item2['id']]}
+        data = {'ids': [item2['id']]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -97,13 +96,13 @@ class TestCase(BackendApiTest):
         path = '/v1/items'
 
         # Try to PUT with invalid item in list (int instead of string)
-        data = {'payload': [{"name": 2}]}
+        data = {'items': [{"name": 2}]}
         data = self._put(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Invalid item data in list!")
 
         # Add an item
-        data = {'payload': [{"name": "i4"}]}
+        data = {'items': [{"name": "i4"}]}
         data = self._put(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -115,25 +114,25 @@ class TestCase(BackendApiTest):
         item_id = data['items'][0]['id']
 
         # Try to POST with missing item id
-        data = {'payload': [{'noid': item_id}]}
+        data = {'items': [{'noid': item_id}]}
         data = self._post(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Missing item id in list!")
 
         # Try to POST with empty item id
-        data = {'payload': [{'id': ""}]}
+        data = {'items': [{'id': ""}]}
         data = self._post(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Empty item id in list!")
 
         # Try to POST with invalid item in list
-        data = {'payload': [{'id': item_id, 'name': 1}]}
+        data = {'items': [{'id': item_id, 'name': 1}]}
         data = self._post(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Invalid item data in list!")
 
         # Clean up by deleting the item
-        data = {'payload': [item_id]}
+        data = {'ids': [item_id]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "success")
 

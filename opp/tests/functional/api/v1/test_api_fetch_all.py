@@ -46,12 +46,12 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['categories'], [])
 
         # Add 2 categories, check for successful response
-        data = {'payload': ["cat1", "cat2"]}
+        data = {'category_names': ["cat1", "cat2"]}
         data = self._put(cpath, data)
         self.assertEqual(data['result'], "success")
 
         # Add 6 items, check for successful response
-        data = {'payload':
+        data = {'items':
                 [{"name": "i1", "category_id": 1},
                  {"name": "i2", "category_id": 1},
                  {"name": "i3", "category_id": 2},

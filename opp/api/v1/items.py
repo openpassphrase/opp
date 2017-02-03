@@ -54,9 +54,16 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         return {'result': 'success', 'items': response}
 
     def _do_put(self, phrase):
-        item_list, error = self._check_payload(expect_list=True)
+        payload_dicts = [{'name': "items",
+                          'is_list': True,
+                          'required': True},
+                         {'name': "autogenerate",
+                          'is_list': False,
+                          'required': False}]
+        payload_objects, error = self._check_payload(payload_dicts)
         if error:
             return error
+        item_list = payload_objects[0]
 
         cipher = aescipher.AESCipher(phrase)
         items = []
@@ -96,9 +103,16 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         return {'result': 'success', 'items': response}
 
     def _do_post(self, phrase):
-        item_list, error = self._check_payload(expect_list=True)
+        payload_dicts = [{'name': "items",
+                          'is_list': True,
+                          'required': True},
+                         {'name': "autogenerate",
+                          'is_list': False,
+                          'required': False}]
+        payload_objects, error = self._check_payload(payload_dicts)
         if error:
             return error
+        item_list = payload_objects[0]
 
         cipher = aescipher.AESCipher(phrase)
         items = []
@@ -144,12 +158,17 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return self.error("Unable to update items in the database!")
 
     def _do_delete(self):
-        payload, error = self._check_payload(expect_list=True)
+        payload_dicts = [{'name': "ids",
+                          'is_list': True,
+                          'required': True}]
+        payload_objects, error = self._check_payload(payload_dicts)
         if error:
             return error
 
+        id_list = payload_objects[0]
+
         try:
-            api.item_delete_by_id(self.session, self.user, payload)
+            api.item_delete_by_id(self.session, self.user, id_list)
             return {'result': "success"}
         except Exception:
             return self.error("Unable to delete items from the database!")

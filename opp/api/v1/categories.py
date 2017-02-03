@@ -32,9 +32,13 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         return {'result': "success", 'categories': response}
 
     def _do_put(self, phrase):
-        cat_list, error = self._check_payload(expect_list=True)
+        payload_dicts = [{'name': "category_names",
+                          'is_list': True,
+                          'required': True}]
+        payload_objects, error = self._check_payload(payload_dicts)
         if error:
             return error
+        cat_list = payload_objects[0]
 
         cipher = aescipher.AESCipher(phrase)
         categories = []
@@ -58,9 +62,13 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         return {'result': "success", 'categories': response}
 
     def _do_post(self, phrase):
-        cat_list, error = self._check_payload(expect_list=True)
+        payload_dicts = [{'name': "categories",
+                          'is_list': True,
+                          'required': True}]
+        payload_objects, error = self._check_payload(payload_dicts)
         if error:
             return error
+        cat_list = payload_objects[0]
 
         cipher = aescipher.AESCipher(phrase)
         categories = []
@@ -95,25 +103,22 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             return self.error("Unable to update categories in the database!")
 
     def _do_delete(self):
-        payload, error = self._check_payload(expect_list=False)
+        payload_dicts = [{'name': "ids",
+                          'is_list': True,
+                          'required': True},
+                         {'name': "cascade",
+                          'is_list': False,
+                          'required': True}]
+        payload_objects, error = self._check_payload(payload_dicts)
         if error:
             return error
+        categories, cascade = payload_objects
 
-        try:
-            cascade = payload['cascade']
-        except KeyError:
-            return self.error("Missing cascade value!")
-        if cascade is not True and cascade is not False:
-            return self.error("Invalid cascade value!")
-
-        try:
-            categories = payload['ids']
-        except KeyError:
-            return self.error("Missing category id list!")
+        # Additional validation of input parameters
         if not categories:
             return self.error("Empty category id list!")
-        if not isinstance(categories, list):
-            return self.error("Invalid category id list!")
+        if cascade is not True and cascade is not False:
+            return self.error("Invalid cascade value!")
 
         try:
             api.category_delete_by_id(self.session, self.user,

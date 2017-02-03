@@ -39,7 +39,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['categories'], [])
 
         # Add 3 categories, check for successful response
-        data = {'payload': ["cat1", "cat2", "cat3"]}
+        data = {'category_names': ["cat1", "cat2", "cat3"]}
         data = self._put(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -53,9 +53,9 @@ class TestCase(BackendApiTest):
         self.assertEqual(cat3['name'], "cat3")
 
         # Update categories 1 & 3
-        payload = [{'id': 1, 'name': "new_cat1"},
-                   {'id': 3, 'name': "new_cat3"}]
-        data = {'payload': payload}
+        categories = [{'id': 1, 'name': "new_cat1"},
+                      {'id': 3, 'name': "new_cat3"}]
+        data = {'categories': categories}
         data = self._post(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -69,8 +69,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(cat3['name'], "new_cat3")
 
         # Delete categories 1 & 3
-        payload = {'cascade': False, 'ids': [cat1['id'], cat3['id']]}
-        data = {'payload': payload}
+        data = {'cascade': False, 'ids': [cat1['id'], cat3['id']]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -81,8 +80,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['categories'][0]['name'], "cat2")
 
         # Clean up by deleting category 2
-        payload = {'cascade': False, 'ids': [cat2['id']]}
-        data = {'payload': payload}
+        data = {'cascade': False, 'ids': [cat2['id']]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -98,19 +96,19 @@ class TestCase(BackendApiTest):
                      'Content-Type': "application/json"}
 
         # Try to PUT with empty category list
-        data = {'payload': ["cat1", ""]}
+        data = {'category_names': ["cat1", ""]}
         data = self._put(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Empty category name in list!")
 
         # Try to PUT with invalid category name in list (int instead of string)
-        data = {'payload': ["cat1", 2]}
+        data = {'category_names': ["cat1", 2]}
         data = self._put(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Invalid category name in list!")
 
         # Add a category
-        data = {'payload': ["cat4"]}
+        data = {'category_names': ["cat4"]}
         data = self._put(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -122,74 +120,70 @@ class TestCase(BackendApiTest):
         cat_id = data['categories'][0]['id']
 
         # Try to POST with missing category id
-        data = {'payload': [{'noid': cat_id}]}
+        data = {'categories': [{'noid': cat_id}]}
         data = self._post(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Missing category id in list!")
 
         # Try to POST with empty category id
-        data = {'payload': [{'id': ""}]}
+        data = {'categories': [{'id': ""}]}
         data = self._post(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Empty category id in list!")
 
         # Try to POST with missing category name
-        data = {'payload': [{'id': cat_id, 'nocategory': "new_cat4"}]}
+        data = {'categories': [{'id': cat_id, 'nocategory': "new_cat4"}]}
         data = self._post(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Missing category name in list!")
 
         # Try to POST with empty category name
-        data = {'payload': [{'id': cat_id, 'name': ""}]}
+        data = {'categories': [{'id': cat_id, 'name': ""}]}
         data = self._post(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Empty category name in list!")
 
         # Try to POST with invalid category name in list
-        data = {'payload': [{'id': cat_id, 'name': 1}]}
+        data = {'categories': [{'id': cat_id, 'name': 1}]}
         data = self._post(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Invalid category name in list!")
 
-        # Try to delete with invalid payload (list form)
-        data = {'payload': [1, 2, 3]}
-        data = self._delete(path, data)
-        self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'],
-                         "Payload should not be in list form!")
-
         # Try to delete with missing cascade value
-        data = {'payload': {'notcascade': False, 'ids': [2]}}
+        data = {'notcascade': False, 'ids': [2]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Missing cascade value!")
+        self.assertEqual(data['message'], ("Required payload object "
+                                           "'cascade' is missing!"))
 
         # Try to delete with invalid cascade value (string instead of boolean)
-        data = {'payload': {'cascade': "False", 'ids': [2]}}
+        data = {'cascade': "False", 'ids': [2]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Invalid cascade value!")
 
         # Try to delete with missing category id list
-        data = {'payload': {'cascade': False, 'notids': [2]}}
+        data = {'cascade': False, 'notids': [2]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Missing category id list!")
+        self.assertEqual(data['message'], ("Required payload object "
+                                           "'ids' is missing!"))
 
         # Try to delete with empty category id list
-        data = {'payload': {'cascade': False, 'ids': []}}
+        data = {'cascade': False, 'ids': []}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "error")
         self.assertEqual(data['message'], "Empty category id list!")
 
         # Try to delete with invalid category id list
-        data = {'payload': {'cascade': False, 'ids': "1"}}
+        data = {'cascade': False, 'ids': "1"}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "error")
-        self.assertEqual(data['message'], "Invalid category id list!")
+        self.assertEqual(data['message'], ("'ids' object should "
+                                           "be in list form!"))
 
         # Clean up by deleting the category
-        data = {'payload': {'cascade': False, 'ids': [cat_id]}}
+        data = {'cascade': False, 'ids': [cat_id]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "success")
 
@@ -211,7 +205,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['categories'], [])
 
         # Add two categories
-        data = {'payload': ["cat1", "cat2"]}
+        data = {'category_names': ["cat1", "cat2"]}
         data = self._put(cat_path, data)
         self.assertEqual(data['result'], "success")
 
@@ -226,7 +220,7 @@ class TestCase(BackendApiTest):
                  {'name': "i2", 'category_id': c1['id']},
                  {'name': "i3", 'category_id': c2['id']},
                  {'name': "i4", 'category_id': c2['id']}]
-        data = {'payload': items}
+        data = {'items': items}
         data = self._put(item_path, data)
         self.assertEqual(data['result'], "success")
 
@@ -254,8 +248,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(i4['category']['id'], c2['id'])
 
         # Delete category 1 with cascade
-        payload = {'cascade': True, 'ids': [c1['id']]}
-        data = {'payload': payload}
+        data = {'cascade': True, 'ids': [c1['id']]}
         data = self._delete(cat_path, data)
         self.assertEqual(data['result'], "success")
 
@@ -278,8 +271,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(i4['category']['id'], c2['id'])
 
         # Delete category 2 without cascade
-        payload = {'cascade': False, 'ids': [c2['id']]}
-        data = {'payload': payload}
+        data = {'cascade': False, 'ids': [c2['id']]}
         data = self._delete(cat_path, data)
         self.assertEqual(data['result'], "success")
 
@@ -299,7 +291,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(i4['category']['id'], None)
 
         # Delete remaining two items to clean up
-        data = {'payload': [i3['id'], i4['id']]}
+        data = {'ids': [i3['id'], i4['id']]}
         data = self._delete(item_path, data)
         self.assertEqual(data['result'], "success")
 
