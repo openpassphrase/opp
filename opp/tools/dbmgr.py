@@ -21,7 +21,7 @@ import click
 from sqlalchemy import create_engine, exc
 from sqlalchemy_utils import database_exists, create_database
 
-from opp.common import opp_config, utils
+from opp.common import aescipher, opp_config, utils
 from opp.db import api, models
 
 
@@ -42,9 +42,9 @@ def printv(config, msg):
 
 @click.group()
 @click.option('--verbose', is_flag=True,
-              help='Enable verbose output')
+              help="Enable verbose output")
 @click.option('--config_file', default=None,
-              help='User supplied configuration file')
+              help="User supplied configuration file")
 @pass_config
 def main(config, config_file, verbose):
     config.verbose = verbose
@@ -72,21 +72,27 @@ def init(config):
     models.Base.metadata.create_all(engine)
 
 
+@click.option('--phrase', default=None, required=True,
+              help="passphrase for encryption")
 @click.option('-p', default=None, required=True,
-              help='password')
+              help="password")
 @click.option('-u', default=None, required=True,
-              help='username')
+              help="username")
 @main.command(name='add-user')
 @pass_config
-def add_user(config, u, p):
+def add_user(config, u, p, phrase):
+    if len(phrase) < 6:
+        sys.exit("Error: passphrase must be at least 6 characters long!")
     try:
+        cipher = aescipher.AESCipher(phrase)
+        ok = cipher.encrypt("OK")
         s = api.get_scoped_session(config.conf)
         with s.begin():
             user = api.user_get_by_username(s, u)
             if user:
                 sys.exit("Error: user already exists!")
             hashed = utils.hashpw(p)
-            user = models.User(username=u, password=hashed)
+            user = models.User(username=u, password=hashed, phrase_check=ok)
             api.user_create(s, user)
             user = api.user_get_by_username(s, u)
             if user:
@@ -98,9 +104,9 @@ def add_user(config, u, p):
 
 
 @click.option('-p', default=None, required=True,
-              help='password')
+              help="password")
 @click.option('-u', default=None, required=True,
-              help='username')
+              help="username")
 @main.command(name='del-user')
 @pass_config
 def del_user(config, u, p):

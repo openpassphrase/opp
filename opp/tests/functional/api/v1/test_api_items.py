@@ -27,7 +27,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(rpat.status_code, 405)
 
     def test_items_crud(self):
-        self.hdrs = {'x-opp-phrase': "123",
+        self.hdrs = {'x-opp-phrase': "123456",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
         path = '/v1/items'
@@ -90,7 +90,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['items'], [])
 
     def test_items_error_conditions(self):
-        self.hdrs = {'x-opp-phrase': "123",
+        self.hdrs = {'x-opp-phrase': "123456",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
         path = '/v1/items'

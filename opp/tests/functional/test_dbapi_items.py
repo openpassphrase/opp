@@ -45,8 +45,8 @@ class TestCase(unittest.TestCase):
             conf_file.write(cls.connection)
             conf_file.flush()
         utils.execute("opp-db --config_file %s init" % cls.conf_filepath)
-        utils.execute("opp-db --config_file %s add-user -u u -p p" %
-                      cls.conf_filepath)
+        utils.execute("opp-db --config_file %s add-user -uu -pp "
+                      "--phrase=123456" % cls.conf_filepath)
 
     @classmethod
     def tearDownClass(cls):

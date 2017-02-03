@@ -16,6 +16,8 @@
 from collections import OrderedDict
 import json
 
+from opp.common import aescipher
+
 
 class BaseResponseHandler(object):
 
@@ -65,11 +67,16 @@ class BaseResponseHandler(object):
         raise OppError("Action not implemented")
 
     def respond(self, require_phrase=True):
+        # Validate passphrase if required
         if require_phrase:
             try:
                 phrase = self.request.headers['x-opp-phrase']
             except KeyError:
                 raise OppError("Passphrase header missing!")
+
+            cipher = aescipher.AESCipher(phrase)
+            if cipher.decrypt(self.user.phrase_check) != "OK":
+                raise OppError("Incorrect passphrase supplied!")
         else:
             phrase = None
 

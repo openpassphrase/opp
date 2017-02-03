@@ -33,6 +33,7 @@ class User(Base):
     id = Column(Integer, Sequence('item_id_seq'), primary_key=True)
     username = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
+    phrase_check = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),

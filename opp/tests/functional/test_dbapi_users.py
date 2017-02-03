@@ -71,7 +71,7 @@ class TestCase(unittest.TestCase):
     @with_session
     def test_users_basic(self):
         # Insert and retrieve an user
-        user = models.User(username="user", password="pass")
+        user = models.User(username="user", password="pass", phrase_check="xx")
         api.user_create(self.s, user)
         user = api.user_get_by_username(self.s, user.username)
         self.assertIsNotNone(user)

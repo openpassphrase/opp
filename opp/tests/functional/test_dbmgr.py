@@ -67,47 +67,56 @@ class TestCase(unittest.TestCase):
             self._assert_table_exists(table)
 
     def test_add_del_user(self):
-        utils.execute("opp-db --config_file %s add-user -u u -p p"
-                      % self.conf_filepath)
+        utils.execute("opp-db --config_file %s add-user -uu -pp "
+                      "--phrase=123456" % self.conf_filepath)
         self._assert_user_exists('u')
-        utils.execute("opp-db --config_file %s del-user -u u -p p"
+        utils.execute("opp-db --config_file %s del-user -uu -pp"
                       % self.conf_filepath)
         self._assert_user_does_not_exist('u')
 
     def test_add_duplicate_user(self):
-        utils.execute("opp-db --config_file %s add-user -u u -p p"
-                      % self.conf_filepath)
+        utils.execute("opp-db --config_file %s add-user -uu -pp "
+                      "--phrase=123456" % self.conf_filepath)
         try:
-            utils.execute("opp-db --config_file %s add-user -u u -p p"
-                          % self.conf_filepath)
+            utils.execute("opp-db --config_file %s add-user -uu -pp "
+                          "--phrase=123456" % self.conf_filepath)
             self.assertFail("Expected user already exists message!")
         except Exception as e:
             self.assertIn("Error: user already exists!", str(e))
 
         # Cleanup
-        utils.execute("opp-db --config_file %s del-user -u u -p p"
+        utils.execute("opp-db --config_file %s del-user -uu -pp"
                       % self.conf_filepath)
         self._assert_user_does_not_exist('u')
 
+    def test_add_user_passphrase_too_short(self):
+        try:
+            utils.execute("opp-db --config_file %s add-user -uu -pp "
+                          "--phrase=12345" % self.conf_filepath)
+            self.assertFail("Expected passphrase too short message!")
+        except Exception as e:
+            self.assertIn("Error: passphrase must be at least 6"
+                          " characters long!", str(e))
+
     def test_del_missing_user(self):
         try:
-            utils.execute("opp-db --config_file %s del-user -u u -p p"
+            utils.execute("opp-db --config_file %s del-user -uu -pp"
                           % self.conf_filepath)
             self.assertFail("Expected user does not exist message!")
         except Exception as e:
             self.assertIn("Error: user does not exist!", str(e))
 
     def test_del_user_incorrect_password(self):
-        utils.execute("opp-db --config_file %s add-user -u u -p p"
-                      % self.conf_filepath)
+        utils.execute("opp-db --config_file %s add-user -uu -pp "
+                      "--phrase=123456" % self.conf_filepath)
         try:
-            utils.execute("opp-db --config_file %s del-user -u u -p x"
+            utils.execute("opp-db --config_file %s del-user -uu -px"
                           % self.conf_filepath)
             self.assertFail("Expected incorrect password message!")
         except Exception as e:
             self.assertIn("Error: incorrect password!", str(e))
 
         # Cleanup
-        utils.execute("opp-db --config_file %s del-user -u u -p p"
+        utils.execute("opp-db --config_file %s del-user -uu -pp"
                       % self.conf_filepath)
         self._assert_user_does_not_exist('u')

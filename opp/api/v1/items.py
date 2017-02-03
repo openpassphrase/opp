@@ -79,6 +79,33 @@ class ResponseHandler(bh.BaseResponseHandler):
                                            acrostic=False,
                                            delimiter=delimiter)
 
+    def _extract_and_encrypt_item(self, row, cipher, item_id=None):
+        # Extract various item data into a list
+        name = self._parse_or_set_empty(row, 'name')
+        url = self._parse_or_set_empty(row, 'url')
+        account = self._parse_or_set_empty(row, 'account')
+        username = self._parse_or_set_empty(row, 'username')
+        password = self._parse_or_set_empty(row, 'password')
+        blob = self._parse_or_set_empty(row, 'blob')
+        full_row = [name, url, account, username, password, blob]
+
+        category_id = self._parse_or_set_empty(row, 'category_id', True)
+
+        try:
+            # TODO: (alex) deteremine if ok to insert completely empty item
+            encoded_row = [base64.b64encode(x.encode()).decode() for
+                           x in full_row]
+            encrypted_blob = cipher.encrypt("~".join(encoded_row))
+            [name, url, account, username, password, blob] = self._chunk6(
+                encrypted_blob.decode())
+            return models.Item(id=item_id, name=name, url=url,
+                               account=account, username=username,
+                               password=password, blob=blob,
+                               category_id=category_id,
+                               user=self.user)
+        except (AttributeError, TypeError):
+            raise bh.OppError("Invalid item data in list!")
+
     def _do_get(self, phrase):
         response = []
         cipher = aescipher.AESCipher(phrase)
@@ -103,30 +130,7 @@ class ResponseHandler(bh.BaseResponseHandler):
         cipher = aescipher.AESCipher(phrase)
         items = []
         for row in item_list:
-            # Extract various item data into a list
-            name = self._parse_or_set_empty(row, 'name')
-            url = self._parse_or_set_empty(row, 'url')
-            account = self._parse_or_set_empty(row, 'account')
-            username = self._parse_or_set_empty(row, 'username')
-            password = self._parse_or_set_empty(row, 'password')
-            blob = self._parse_or_set_empty(row, 'blob')
-            full_row = [name, url, account, username, password, blob]
-
-            category_id = self._parse_or_set_empty(row, 'category_id', True)
-
-            try:
-                # TODO: (alex) deteremine if ok to insert completely empty item
-                encoded_row = [base64.b64encode(x.encode()).decode() for
-                               x in full_row]
-                encrypted_blob = cipher.encrypt("~".join(encoded_row))
-                [name, url, account, username, password, blob] = self._chunk6(
-                    encrypted_blob.decode())
-                items.append(models.Item(name=name, url=url, account=account,
-                                         username=username, password=password,
-                                         blob=blob, category_id=category_id,
-                                         user=self.user))
-            except (AttributeError, TypeError):
-                raise bh.OppError("Invalid item data in list!")
+            items.append(self._extract_and_encrypt_item(row, cipher))
 
         try:
             items = api.item_create(self.session, items)
@@ -159,31 +163,7 @@ class ResponseHandler(bh.BaseResponseHandler):
             if not item_id:
                 raise bh.OppError("Empty item id in list!")
 
-            # Extract various item data into a list
-            name = self._parse_or_set_empty(row, 'name')
-            url = self._parse_or_set_empty(row, 'url')
-            account = self._parse_or_set_empty(row, 'account')
-            username = self._parse_or_set_empty(row, 'username')
-            password = self._parse_or_set_empty(row, 'password')
-            blob = self._parse_or_set_empty(row, 'blob')
-            full_row = [name, url, account, username, password, blob]
-
-            category_id = self._parse_or_set_empty(row, 'category_id', True)
-
-            try:
-                # TODO: (alex) deteremine if ok to insert completely empty item
-                encoded_row = [base64.b64encode(x.encode()).decode() for
-                               x in full_row]
-                encrypted_blob = cipher.encrypt("~".join(encoded_row))
-                [name, url, account, username, password, blob] = self._chunk6(
-                    encrypted_blob.decode())
-                items.append(models.Item(id=item_id, name=name, url=url,
-                                         account=account, username=username,
-                                         password=password, blob=blob,
-                                         category_id=category_id,
-                                         user=self.user))
-            except (AttributeError, TypeError):
-                raise bh.OppError("Invalid item data in list!")
+            items.append(self._extract_and_encrypt_item(row, cipher, item_id))
 
         try:
             api.item_update(self.session, items)

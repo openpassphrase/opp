@@ -28,7 +28,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(rpat.status_code, 405)
 
     def test_categories_crud(self):
-        self.hdrs = {'x-opp-phrase': "123",
+        self.hdrs = {'x-opp-phrase': "123456",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
         path = '/v1/categories'
@@ -91,7 +91,7 @@ class TestCase(BackendApiTest):
 
     def test_categories_error_conditions(self):
         path = '/v1/categories'
-        self.hdrs = {'x-opp-phrase': "123",
+        self.hdrs = {'x-opp-phrase': "123456",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
 
@@ -181,7 +181,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['categories'], [])
 
     def test_categories_delete_cascade(self):
-        self.hdrs = {'x-opp-phrase': "123",
+        self.hdrs = {'x-opp-phrase': "123456",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
         cat_path = '/v1/categories'

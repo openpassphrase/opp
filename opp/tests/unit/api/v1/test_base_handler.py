@@ -17,6 +17,7 @@ import mock
 import unittest
 
 from opp.api.v1 import base_handler as bh
+from opp.common import aescipher as ac
 
 
 class TestBaseResponseHandler(unittest.TestCase):
@@ -124,53 +125,78 @@ class TestBaseResponseHandler(unittest.TestCase):
         self.assertRaisesWithMsg("Passphrase header missing!",
                                  handler.respond)
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
+    @mock.patch('flask.request')
+    def test_respond_bad_phrase(self, request, cipher, user):
+        request.headers = {'x-opp-phrase': "123"}
+        cipher.return_value = "NOTOK"
+        handler = bh.BaseResponseHandler(request, user, None)
+        self.assertRaisesWithMsg("Incorrect passphrase supplied!",
+                                 handler.respond)
+
     def _check_called(self, func_name, *exp_args, **exp_kwargs):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(bh.BaseResponseHandler, '_do_get')
-    def test_respond_get(self, func, session, request):
+    def test_respond_get(self, func, session, request, cipher, user):
         request.method = "GET"
         request.headers = {'x-opp-phrase': "123"}
-        handler = bh.BaseResponseHandler(request, None, session)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
         handler.respond()
         self._check_called(func, "123")
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(bh.BaseResponseHandler, '_do_put')
-    def test_respond_put(self, func, session, request):
+    def test_respond_put(self, func, session, request, cipher, user):
         request.method = "PUT"
         request.headers = {'x-opp-phrase': "123"}
-        handler = bh.BaseResponseHandler(request, None, session)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
         handler.respond()
         self._check_called(func, "123")
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(bh.BaseResponseHandler, '_do_post')
-    def test_respond_post(self, func, session, request):
+    def test_respond_post(self, func, session, request, cipher, user):
         request.method = "POST"
         request.headers = {'x-opp-phrase': "123"}
-        handler = bh.BaseResponseHandler(request, None, session)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
         handler.respond()
         self._check_called(func, "123")
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(bh.BaseResponseHandler, '_do_delete')
-    def test_respond_delete(self, func, session, request):
+    def test_respond_delete(self, func, session, request, cipher, user):
         request.method = "DELETE"
         request.headers = {'x-opp-phrase': "123"}
-        handler = bh.BaseResponseHandler(request, None, session)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
         handler.respond()
         self._check_called(func)
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
-    def test_respond_bad_verb(self, session, request):
+    def test_respond_bad_verb(self, session, request, cipher, user):
         request.method = "BAD"
-        handler = bh.BaseResponseHandler(request, None, session)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
         self.assertRaisesWithMsg("Method not supported!",
                                  handler.respond, require_phrase=False)
