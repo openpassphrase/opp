@@ -50,7 +50,8 @@ All 200 responses are returned in the following form:
 all Categories and Items endpoints.
 
 ``"x-opp-phrase: <phrase>"`` - Authorization passphrase used for decoding
-secret data. Required for all Categories and Items endpoints.
+secret data. Required for the *fetchall* endpoint and for Categories/Items
+create/update calls.
 
 Authentication endpoint
 -----------------------

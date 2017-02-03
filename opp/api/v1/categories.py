@@ -25,10 +25,10 @@ class ResponseHandler(base_handler.BaseResponseHandler):
         cipher = aescipher.AESCipher(phrase)
         try:
             categories = api.category_getall(self.session, self.user)
+            for category in categories:
+                response.append(category.extract(cipher))
         except Exception:
             return self.error("Unable to fetch categories from the database!")
-        for category in categories:
-            response.append(category.extract(cipher))
         return {'result': "success", 'categories': response}
 
     def _do_put(self, phrase):
@@ -56,6 +56,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             categories = api.category_create(self.session, categories)
         except Exception:
             return self.error("Unable to add new categories to the database!")
+
         response = []
         for category in categories:
             response.append(category.extract(cipher))

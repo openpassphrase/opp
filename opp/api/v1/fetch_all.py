@@ -21,18 +21,19 @@ from opp.db import api, models
 class ResponseHandler(base_handler.BaseResponseHandler):
 
     def _do_get(self, phrase):
+        cat_array = []
         cipher = aescipher.AESCipher(phrase)
         try:
             categories = api.category_getall(self.session, self.user)
+            for category in categories:
+                cat_array.append(category.extract(cipher, with_items=True))
+
             items = api.item_getall_orphan(self.session, self.user)
+            if items:
+                category = models.Category(name=cipher.encrypt("default"),
+                                           items=items)
+                cat_array.append(category.extract(cipher, with_items=True))
         except Exception:
             return self.error("Unable to fetch from the database!")
-        cat_array = []
-        for category in categories:
-            cat_array.append(category.extract(cipher, with_items=True))
-        if items:
-            category = models.Category(name=cipher.encrypt("default"),
-                                       items=items)
-            cat_array.append(category.extract(cipher, with_items=True))
 
         return {'result': 'success', 'categories': cat_array}
