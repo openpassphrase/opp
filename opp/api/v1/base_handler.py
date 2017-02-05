@@ -51,6 +51,11 @@ class BaseResponseHandler(object):
                 if obj['required']:
                     raise OppError("Required payload object '%s'"
                                    " is missing!" % obj['name'])
+                else:
+                    if obj['is_list']:
+                        payload_objects.append([])
+                    else:
+                        payload_objects.append({})
 
         return payload_objects
 

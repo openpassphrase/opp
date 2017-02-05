@@ -44,7 +44,7 @@ class ResponseHandler(bh.BaseResponseHandler):
         chunks.append(string[chunk * 5:])
         return chunks
 
-    def _genpwd(self, count, options):
+    def _get_words(self, options):
         wordfile = xp.locate_wordfile()
 
         try:
@@ -59,6 +59,34 @@ class ResponseHandler(bh.BaseResponseHandler):
             valid_chars = options['valid_chars']
         except (TypeError, KeyError):
             valid_chars = "."
+
+        # Sanity validation
+        msg = "Invalid password generation options!"
+
+        if min_length < 1 or min_length > 15:
+            desc = ("For sanity's sake, minimum length must be "
+                    "a positive number less than or equal to 15.")
+            raise bh.OppError(msg, desc)
+
+        if max_length < 5 or max_length > 20:
+            desc = ("For sanity's sake, maximum length must"
+                    " be a number between 5 and 20.")
+            raise bh.OppError(msg, desc)
+
+        if min_length > max_length:
+            desc = "Minimum length cannot be larger than maximum length."
+            raise bh.OppError(msg, desc)
+
+        try:
+            return xp.generate_wordlist(wordfile=wordfile,
+                                        min_length=min_length,
+                                        max_length=max_length,
+                                        valid_chars=valid_chars)
+        except Exception:
+            raise bh.OppError("Exception during password generation!",
+                              None, 500)
+
+    def _gen_pwd(self, words, options):
         try:
             numwords = options['numwords']
         except (TypeError, KeyError):
@@ -68,24 +96,30 @@ class ResponseHandler(bh.BaseResponseHandler):
         except (TypeError, KeyError):
             delimiter = " "
 
-        mywords = xp.generate_wordlist(wordfile=wordfile,
-                                       min_length=min_length,
-                                       max_length=max_length,
-                                       valid_chars=valid_chars)
-        for x in range(count):
-            yield xp.generate_xkcdpassword(mywords,
-                                           numwords=numwords,
-                                           interactive=False,
-                                           acrostic=False,
-                                           delimiter=delimiter)
+        # Sanity validation
+        if numwords < 1 or numwords > 20:
+            msg = "Invalid password generation options!"
+            desc = ("For sanity's sake, numwords must be a "
+                    "positive number less than or equal to 20.")
+            raise bh.OppError(msg, desc)
 
-    def _extract_and_encrypt_item(self, row, cipher, item_id=None):
+        try:
+            return xp.generate_xkcdpassword(words,
+                                            numwords=numwords,
+                                            interactive=False,
+                                            acrostic=False,
+                                            delimiter=delimiter)
+        except Exception:
+            raise bh.OppError("Exception during password generation!",
+                              None, 500)
+
+    def make_item(self, row, cipher, password, item_id=None):
         # Extract various item data into a list
         name = self._parse_or_set_empty(row, 'name')
         url = self._parse_or_set_empty(row, 'url')
         account = self._parse_or_set_empty(row, 'account')
         username = self._parse_or_set_empty(row, 'username')
-        password = self._parse_or_set_empty(row, 'password')
+        password = password or self._parse_or_set_empty(row, 'password')
         blob = self._parse_or_set_empty(row, 'blob')
         full_row = [name, url, account, username, password, blob]
 
@@ -121,16 +155,38 @@ class ResponseHandler(bh.BaseResponseHandler):
         payload_dicts = [{'name': "items",
                           'is_list': True,
                           'required': True},
-                         {'name': "autogenerate",
+                         {'name': "auto_pass",
+                          'is_list': False,
+                          'required': False},
+                         {'name': "unique",
+                          'is_list': False,
+                          'required': False},
+                         {'name': "genopts",
                           'is_list': False,
                           'required': False}]
-        payload_objects = self._check_payload(payload_dicts)
-        item_list = payload_objects[0]
+        item_list, auto_pass, unique, genopts = self._check_payload(
+            payload_dicts)
+
+        if auto_pass is True:
+            # Retrieve words dictionary
+            words = self._get_words(genopts)
+
+            # Generate common password for all items
+            if unique is not True:
+                common_password = self._gen_pwd(words, genopts)
 
         cipher = aescipher.AESCipher(phrase)
         items = []
         for row in item_list:
-            items.append(self._extract_and_encrypt_item(row, cipher))
+            if auto_pass is True:
+                if unique is True:
+                    password = self._gen_pwd(words, genopts)
+                else:
+                    password = common_password
+            else:
+                password = None
+
+            items.append(self.make_item(row, cipher, password))
 
         try:
             items = api.item_create(self.session, items)
@@ -146,11 +202,25 @@ class ResponseHandler(bh.BaseResponseHandler):
         payload_dicts = [{'name': "items",
                           'is_list': True,
                           'required': True},
-                         {'name': "autogenerate",
+                         {'name': "auto_pass",
+                          'is_list': False,
+                          'required': False},
+                         {'name': "unique",
+                          'is_list': False,
+                          'required': False},
+                         {'name': "genopts",
                           'is_list': False,
                           'required': False}]
-        payload_objects = self._check_payload(payload_dicts)
-        item_list = payload_objects[0]
+        item_list, auto_pass, unique, genopts = self._check_payload(
+            payload_dicts)
+
+        if auto_pass is True:
+            # Retrieve words dictionary
+            words = self._get_words(genopts)
+
+            # Generate common password for all items if needed
+            if unique is not True:
+                common_password = self._gen_pwd(words, genopts)
 
         cipher = aescipher.AESCipher(phrase)
         items = []
@@ -163,7 +233,15 @@ class ResponseHandler(bh.BaseResponseHandler):
             if not item_id:
                 raise bh.OppError("Empty item id in list!")
 
-            items.append(self._extract_and_encrypt_item(row, cipher, item_id))
+            if auto_pass is True:
+                if unique is True:
+                    password = self._gen_pwd(words, genopts)
+                else:
+                    password = common_password
+            else:
+                password = None
+
+            items.append(self.make_item(row, cipher, password, item_id))
 
         try:
             api.item_update(self.session, items)

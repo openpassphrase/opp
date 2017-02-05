@@ -79,11 +79,16 @@ class TestBaseResponseHandler(unittest.TestCase):
                        'required': True},
                       {'name': "list_obj",
                        'is_list': True,
+                       'required': False},
+                      {'name': "obj2",
+                       'is_list': False,
                        'required': False}]
         payload_objects = handler._check_payload(check_dict)
         self.assertNotEqual(payload_objects, None)
-        self.assertEqual(len(payload_objects), 1)
+        self.assertEqual(len(payload_objects), 3)
         self.assertEqual(payload_objects[0]['name'], "value")
+        self.assertEqual(payload_objects[1], [])
+        self.assertEqual(payload_objects[2], {})
 
     @mock.patch('flask.request')
     def test_check_payload_object_missing_required(self, request):

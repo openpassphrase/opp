@@ -136,3 +136,111 @@ class TestCase(BackendApiTest):
         data = self._get(path)
         self.assertEqual(data['result'], "success")
         self.assertEqual(data['items'], [])
+
+    def test_items_create_auto_password(self):
+        self.hdrs = {'x-opp-phrase': "123456",
+                     'x-opp-jwt': self.jwt,
+                     'Content-Type': "application/json"}
+        path = '/v1/items'
+
+        # Request getall items, expect empty list initially
+        data = self._get(path)
+        self.assertEqual(data['result'], "success")
+        self.assertEqual(data['items'], [])
+
+        # Add 2 items with autogenerate password option
+        data = {'items':
+                [{"name": "i1"}, {"name": "i2"}],
+                'auto_pass': True}
+        data = self._put(path, data)
+        self.assertEqual(data['result'], "success")
+
+        # Check item passwords
+        self.assertEqual(len(data['items']), 2)
+        item1, item2 = data['items']
+        self.assertEqual(item1['name'], "i1")
+        self.assertEqual(item2['name'], "i2")
+        self.assertEqual(item1['password'], item2['password'])
+        self.assertEqual(len(item1['password'].split(" ")), 6)
+
+        # Add 2 items with autogenerate password and unique options
+        data = {'items':
+                [{"name": "i3"}, {"name": "i4"}],
+                'auto_pass': True, 'unique': True,
+                'genopts': {'numwords': 10, 'delimiter': "~"}}
+        data = self._put(path, data)
+        self.assertEqual(data['result'], "success")
+
+        # Check item passwords
+        self.assertEqual(len(data['items']), 2)
+        item1, item2 = data['items']
+        self.assertEqual(item1['name'], "i3")
+        self.assertEqual(item2['name'], "i4")
+        self.assertNotEqual(item1['password'], item2['password'])
+        self.assertEqual(len(item1['password'].split("~")), 10)
+        self.assertEqual(len(item2['password'].split("~")), 10)
+
+        # Clean up
+        data = self._get(path)
+        data = {'ids': [item['id'] for item in data['items']]}
+        data = self._delete(path, data)
+        self.assertEqual(data['result'], "success")
+
+    def test_items_update_auto_password(self):
+        self.hdrs = {'x-opp-phrase': "123456",
+                     'x-opp-jwt': self.jwt,
+                     'Content-Type': "application/json"}
+        path = '/v1/items'
+
+        # Request getall items, expect empty list initially
+        data = self._get(path)
+        self.assertEqual(data['result'], "success")
+        self.assertEqual(data['items'], [])
+
+        # Add 2 items with passwords
+        data = {'items':
+                [{"password": "p1"}, {"password": "p2"}]}
+        data = self._put(path, data)
+        self.assertEqual(data['result'], "success")
+
+        # Check item passwords
+        self.assertEqual(len(data['items']), 2)
+        item1, item2 = data['items']
+        self.assertEqual(item1['password'], "p1")
+        self.assertEqual(item2['password'], "p2")
+
+        # Update items with autogenerate password option
+        data = {'items':
+                [{"id": item1['id']}, {"id": item2['id']}],
+                'auto_pass': True}
+        data = self._post(path, data)
+        self.assertEqual(data['result'], "success")
+
+        # Check item passwords
+        data = self._get(path)
+        self.assertEqual(len(data['items']), 2)
+        item1, item2 = data['items']
+        self.assertEqual(item1['password'], item2['password'])
+        self.assertEqual(len(item1['password'].split(" ")), 6)
+
+        # Update items with autogenerate password and unique options
+        data = {'items':
+                [{"id": item1['id']}, {"id": item2['id']}],
+                'auto_pass': True, 'unique': True,
+                'genopts': {'numwords': 10, 'delimiter': "~"}}
+        data = self._post(path, data)
+        self.assertEqual(data['result'], "success")
+
+        # Check item passwords
+        data = self._get(path)
+        self.assertEqual(len(data['items']), 2)
+        item1, item2 = data['items']
+        self.assertNotEqual(item1['password'], item2['password'])
+        self.assertEqual(len(item1['password'].split("~")), 10)
+        self.assertEqual(len(item2['password'].split("~")), 10)
+
+        # Clean up
+        data = self._get(path)
+        data = {'ids': [item['id'] for item in data['items']]}
+        data = self._delete(path, data)
+        self.assertEqual(data['result'], "success")
