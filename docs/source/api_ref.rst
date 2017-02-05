@@ -170,7 +170,7 @@ ID values.
 
 *Example:*
 
-``{"cascade": True, "ids": [1, 2]}``
+``{"cascade": true, "ids": [1, 2]}``
 
 **Response:** ``{"result": "success"}``
 
@@ -187,9 +187,21 @@ Create Item
 
 *Example:*
 
-``{ "items": [ {item1}, {item2} ] }``
+| ``{ "items": [{item1}, {item2}],``
+|   ``"auto_pass": true,``
+|   ``"unique": true,``
+|   ``"genopts":``
+|     ``{``
+|       ``"min_length":5,``
+|       ``"max_length":9,``
+|       ``"valid_chars":".",``
+|       ``"numwords":6,``
+|       ``"delimiter":" "``
+|     ``}``
+| ``}``
 
-Where ``item`` objects contain any of the following optional fields:
+Where ``items`` array is mandatory and consists of objects containing any of
+the following optional fields:
 
 | ``{``
 |   ``"name": "Wells Fargo",``
@@ -204,6 +216,24 @@ Where ``item`` objects contain any of the following optional fields:
 .. Note:: If ``category_id`` field is omitted, the item will be assigned
    a category ID of 0 which will be mapped to a reserved **"default"**
    category in the ``fetchall`` response.
+
+Remaining fields are optional and pertain to automatic generation of
+passwords for the items in the ``items`` array:
+
+- ``auto_pass``: if this field is supplied and set to *true*, then the
+  password fields inside the ``items`` array are ignored and instead
+  a random password is automatically generated using the `xkcdpass
+  <https://github.com/redacted/XKCD-password-generator>`_ library.
+
+- ``unique``: if this field is supplied and set to *true*, then each
+  item in the array will have a unique password generated for it. Otherwise,
+  all items will share the same auto-generated password.
+
+- ``genopts``: these are password generation options which are passed to
+  the **xkcdpass** module. The example above shows the default options
+  which will be used if this field is ommitted. For more information about
+  these options refer to xkcdpass `documentation <https://github.com/
+  redacted/XKCD-password-generator#running-xkcdpass>`_.
 
 **Response:** ``{"result": "success, "items": [{<item1>}, {<item2>}]}``
 
@@ -232,11 +262,22 @@ Update Item
 
 *Example:*
 
-``{ "items": [ {item1}, {item2} ] }``
+| ``{ "items": [{item1}, {item2}],``
+|   ``"auto_pass": true,``
+|   ``"unique": true,``
+|   ``"genopts":``
+|     ``{``
+|       ``"min_length":5,``
+|       ``"max_length":9,``
+|       ``"valid_chars":".",``
+|       ``"numwords":6,``
+|       ``"delimiter":" "``
+|     ``}``
+| ``}``
 
 Where ``item`` objects contain any of the same optional fields used in
-item creation, plus a mandatory item ``id`` fields used to refer to the
-item being updated.
+item creation, plus a mandatory item ``id`` field used to refer to the
+item being updated. Remaining fields are the same as used in item creation.
 
 **Response:** ``{"result": "success"}``
 
