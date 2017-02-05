@@ -13,7 +13,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import base64
 from datetime import datetime
 
 from sqlalchemy import (Column, DateTime, ForeignKey,
@@ -66,25 +65,13 @@ class Item(Base):
     user = relationship('User')
 
     def extract(self, cipher, with_category=True):
-        # Create a list of all encrypted columns
-        row = [self.name, self.url, self.account, self.username,
-               self.password, self.blob]
-
-        # Concatenate all the columns into one big blob and decrypt
-        row = cipher.decrypt("".join(row))
-
-        # Split decrypted data by delimeter and perform base64 decode
-        extracted_values = [base64.b64decode(x).decode() for
-                            x in row.split('~')]
-
-        # Create item object
         item = {'id': self.id,
-                'name': extracted_values[0],
-                'url': extracted_values[1],
-                'account': extracted_values[2],
-                'username': extracted_values[3],
-                'password': extracted_values[4],
-                'blob': extracted_values[5]}
+                'name': cipher.decrypt(self.name),
+                'url': cipher.decrypt(self.url),
+                'account': cipher.decrypt(self.account),
+                'username': cipher.decrypt(self.username),
+                'password': cipher.decrypt(self.password),
+                'blob': cipher.decrypt(self.blob)}
         if with_category:
             if self.category:
                 item['category'] = self.category.extract(cipher)
@@ -92,6 +79,14 @@ class Item(Base):
                 item['category'] = {"id": self.category_id}
 
         return item
+
+    def recrypt(self, old_cipher, new_cipher):
+        self.name = new_cipher.encrypt(old_cipher.decrypt(self.name))
+        self.url = new_cipher.encrypt(old_cipher.decrypt(self.url))
+        self.account = new_cipher.encrypt(old_cipher.decrypt(self.account))
+        self.username = new_cipher.encrypt(old_cipher.decrypt(self.username))
+        self.password = new_cipher.encrypt(old_cipher.decrypt(self.password))
+        self.blob = new_cipher.encrypt(old_cipher.decrypt(self.blob))
 
 
 class Category(Base):
@@ -120,3 +115,6 @@ class Category(Base):
                 items_array.append(item.extract(cipher, False))
             category['items'] = items_array
         return category
+
+    def recrypt(self, old_cipher, new_cipher):
+        self.name = new_cipher.encrypt(old_cipher.decrypt(self.name))

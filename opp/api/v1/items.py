@@ -13,8 +13,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import base64
-
 from xkcdpass import xkcd_password as xp
 
 from opp.api.v1 import base_handler as bh
@@ -35,14 +33,6 @@ class ResponseHandler(bh.BaseResponseHandler):
         if not none_if_empty and value is None:
             return ""
         return value
-
-    def _chunk6(self, string):
-        chunk = int(len(string) / 6)
-        chunks = []
-        for i in range(0, 5):
-            chunks.append(string[chunk * i: chunk * (i + 1)])
-        chunks.append(string[chunk * 5:])
-        return chunks
 
     def _get_words(self, options):
         wordfile = xp.locate_wordfile()
@@ -121,20 +111,17 @@ class ResponseHandler(bh.BaseResponseHandler):
         username = self._parse_or_set_empty(row, 'username')
         password = password or self._parse_or_set_empty(row, 'password')
         blob = self._parse_or_set_empty(row, 'blob')
-        full_row = [name, url, account, username, password, blob]
 
         category_id = self._parse_or_set_empty(row, 'category_id', True)
 
         try:
-            # TODO: (alex) deteremine if ok to insert completely empty item
-            encoded_row = [base64.b64encode(x.encode()).decode() for
-                           x in full_row]
-            encrypted_blob = cipher.encrypt("~".join(encoded_row))
-            [name, url, account, username, password, blob] = self._chunk6(
-                encrypted_blob.decode())
-            return models.Item(id=item_id, name=name, url=url,
-                               account=account, username=username,
-                               password=password, blob=blob,
+            return models.Item(id=item_id,
+                               name=cipher.encrypt(name),
+                               url=cipher.encrypt(url),
+                               account=cipher.encrypt(account),
+                               username=cipher.encrypt(username),
+                               password=cipher.encrypt(password),
+                               blob=cipher.encrypt(blob),
                                category_id=category_id,
                                user=self.user)
         except (AttributeError, TypeError):

@@ -128,5 +128,50 @@ def del_user(config, u, p):
         sys.exit("Error: %s" % str(e))
 
 
+@click.option('--new_phrase', default=None, required=True,
+              help="New encryption passphrase")
+@click.option('--old_phrase', default=None, required=True,
+              help="Original passphrase for decryption")
+@click.option('-p', default=None, required=True,
+              help="password")
+@click.option('-u', default=None, required=True,
+              help="username")
+@main.command(name='update-phrase')
+@pass_config
+def update_phrase(config, u, p, old_phrase, new_phrase):
+    if len(new_phrase) < 6:
+        sys.exit("Error: passphrase must be at least 6 characters long!")
+    try:
+        old_cipher = aescipher.AESCipher(old_phrase)
+        new_cipher = aescipher.AESCipher(new_phrase)
+        s = api.get_scoped_session(config.conf)
+        with s.begin():
+            user = api.user_get_by_username(s, u)
+            if not user:
+                sys.exit("Error: user does not exist!")
+            if not utils.checkpw(p, user.password):
+                sys.exit("Error: incorrect password!")
+            if old_cipher.decrypt(user.phrase_check) != "OK":
+                sys.exit("Error: incorrect old passphrase supplied!")
+
+            printv(config, "Updating user information")
+            user.phrase_check = new_cipher.encrypt("OK")
+            api.user_update(s, user)
+            printv(config, "Updating user's categories")
+            categories = api.category_getall(s, user)
+            for category in categories:
+                category.recrypt(old_cipher, new_cipher)
+            api.category_update(s, categories)
+            printv(config, "Updating user's items")
+            items = api.item_getall(s, user)
+            for item in items:
+                item.recrypt(old_cipher, new_cipher)
+            api.item_update(s, items)
+            print("All of user's data has been successfuly "
+                  "re-encrypted with the new passphrase.")
+    except Exception as e:
+        sys.exit("Error: %s" % str(e))
+
+
 if __name__ == '__main__':
     main()

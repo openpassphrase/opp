@@ -17,7 +17,8 @@ import os
 import tempfile
 import unittest
 
-from opp.common import utils
+from opp.common import aescipher, opp_config, utils
+from opp.db import api, models
 
 
 class TestCase(unittest.TestCase):
@@ -120,3 +121,49 @@ class TestCase(unittest.TestCase):
         utils.execute("opp-db --config_file %s del-user -uu -pp"
                       % self.conf_filepath)
         self._assert_user_does_not_exist('u')
+
+    def test_update_phrase(self):
+        config = opp_config.OppConfig(self.conf_filepath)
+
+        # Add user
+        utils.execute("opp-db --config_file %s add-user -uu -pp "
+                      "--phrase=123456" % self.conf_filepath)
+
+        old = aescipher.AESCipher("123456")
+        new = aescipher.AESCipher("654321")
+
+        # Add category and item using old passphrase
+        session = api.get_scoped_session(config)
+        category = models.Category(name=old.encrypt("cat1"))
+        item = models.Item(
+            name=old.encrypt("item1"),
+            url=old.encrypt("url1"),
+            account=old.encrypt("account1"),
+            username=old.encrypt("username1"),
+            password=old.encrypt("password1"),
+            blob=old.encrypt("blob1"))
+        with session.begin():
+            user = api.user_get_by_username(session, 'u')
+            category.user = user
+            item.user = user
+            api.category_create(session, [category])
+            api.item_create(session, [item])
+
+        # Update passphrase
+        utils.execute("opp-db --config_file %s update-phrase -uu -pp "
+                      "--old_phrase=123456 --new_phrase=654321" %
+                      self.conf_filepath)
+
+        # Check category using new passphrase
+        session = api.get_scoped_session(config)
+        with session.begin():
+            user = api.user_get_by_username(session, 'u')
+            category = api.category_getall(session, user)[0]
+            self.assertEqual(new.decrypt(category.name), "cat1")
+            item = api.item_getall(session, user)[0]
+            self.assertEqual(new.decrypt(item.name), "item1")
+            self.assertEqual(new.decrypt(item.url), "url1")
+            self.assertEqual(new.decrypt(item.account), "account1")
+            self.assertEqual(new.decrypt(item.username), "username1")
+            self.assertEqual(new.decrypt(item.password), "password1")
+            self.assertEqual(new.decrypt(item.blob), "blob1")

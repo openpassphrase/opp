@@ -7,5 +7,5 @@ dist
 venv
 *.pyc
 opp/flask/static
-.coverage
+.coverage*
 htmlcov
