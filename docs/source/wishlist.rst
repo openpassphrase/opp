@@ -29,6 +29,23 @@ Security
 We would love to have a security expert review the implementation for holes
 and suggest ways of plugging them.
 
+UI Development
+--------------
+
+We are actively working on an Angular based responsive single page web
+application. It is a complicated endeavor and could always use more
+contributors. In addition, you are welcome to propose and work on any
+other UI solution (including an app for mobile devices).
+
+Deployment
+----------
+OpenPassPhrase is currently deployed using Apache server with mod_wsgi.
+We would like to pursue other methods of deployment, including using 
+various WSGI servers such as uWSGI, CherryPy and GreenUnicorn. Any help
+creating the necessary collateral (setup files, etc.) would be highly
+appreciated. Also, to reach a wider audience, it would be helpful to 
+investigate deployment on PaaS providers (Google App Engine, Heroku, etc.)
+
 Authentication
 --------------
 
@@ -50,18 +67,10 @@ are knowledgeable in setting up CI, using GitHub webhooks and statuses,
 and integrating 3rd party tools such as Jenkins, Gerrit and others, your
 contribution and expertise would be very valuable and appreciated.
 
-UI Development
---------------
-
-We are actively working on an Angular based responsive single page web
-application. It is a complicated endeavor and could always use more
-contributors. In addition, you are welcome to propose and work on any
-other UI solution (including an app for mobile devices).
-
 Miscellaneous Wishilst
 ----------------------
 
 - Database backup CLI for opp-db utility
-- Docs improvments (diagrams, etc...)
+- Docs improvments (diagrams, etc.)
 - Extensive and thorough review of entire code base
 - Detailed and useful code comments

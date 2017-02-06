@@ -1,4 +1,5 @@
 ..
+
       Copyright 2017 OpenPassPhrase
       All Rights Reserved.
 
@@ -18,7 +19,7 @@
 Installation
 ============
 
-OpenPassPhrase API backend is written entirely in Python (v2.7). Thus, it can
+OpenPassPhrase API backend is written entirely in Python. Thus, it can
 theoretically be deployed on any platform with a modern Python interpreter.
 However, at the moment it is only officially tested on Ubuntu and CentOS Linux
 distributions. This guide presupposes the use of one of these platforms. More
@@ -77,7 +78,7 @@ Deploying with mod_wsgi
 The following steps assume an aptly configured Linux system with the following
 minimal set of packages installed:
 
-* *python (2.7)*
+* *python (2.7 or 3.5)*
 * *git*
 * *virtualenv*
 * *pip*

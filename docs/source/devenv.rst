@@ -57,11 +57,13 @@ capabilities:
     - **PyJWT** - JSON Web token implementation in Python
     - **testtools** - unit testing framework
     - **mock** - mocking framework for unit tests
+    - **xkcdpass** - secure multiword passphrases
 
 Additionally, the following packages are used to accomplish various tasks:
 
     - **tox** - virtual environment automation and task aggregation
     - **pytest** - run unit and functional tests
+    - **pytest-cov** - code coverage plugin for pytest
     - **flake** - PEP8 source code checker
     - **Spinx** - python documentation generator from reStructuredText
 
