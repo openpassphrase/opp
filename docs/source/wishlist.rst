@@ -70,7 +70,6 @@ contribution and expertise would be very valuable and appreciated.
 Miscellaneous Wishilst
 ----------------------
 
-- Database backup CLI for opp-db utility
 - Docs improvments (diagrams, etc.)
 - Extensive and thorough review of entire code base
 - Detailed and useful code comments
