@@ -15,6 +15,7 @@
 
 from six.moves import configparser
 from os import environ, path
+import sys
 
 
 class OppConfig(object):
@@ -40,7 +41,11 @@ class OppConfig(object):
         if top_config and path.isfile(top_config):
             cfglist.append(top_config)
 
-        self.cfg = configparser.SafeConfigParser()
+        if sys.version_info >= (3, 2):
+            self.cfg = configparser.ConfigParser()
+        else:
+            self.cfg = configparser.SafeConfigParser()
+
         if cfglist:
             self.cfg.read(cfglist)
 
