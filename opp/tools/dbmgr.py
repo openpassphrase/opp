@@ -16,6 +16,7 @@
 # under the License.
 
 import sys
+from pickle import dump, load
 
 import click
 from sqlalchemy import create_engine, exc
@@ -171,6 +172,71 @@ def update_phrase(config, u, p, old_phrase, new_phrase):
                   "re-encrypted with the new passphrase.")
     except Exception as e:
         sys.exit("Error: %s" % str(e))
+
+
+@main.command()
+@pass_config
+def backup(config):
+    session = api.get_scoped_session(config.conf)
+    for table in models.Base.metadata.sorted_tables:
+        with open("%s.pickle" % table, "wb") as f:
+            query = session.query(table)
+            for row in query.all():
+                dump(row, f)
+
+    files = ["%s.pickle" % x.name for x in models.Base.metadata.sorted_tables]
+    code, out, err = utils.execute("tar zcf opp.db.tz %s" % " ".join(files),
+                                   propagate=False)
+    if code != 0:
+        sys.exit("Error creating database archive file: %s" % err)
+    code, out, err = utils.execute("rm %s" % " ".join(files),
+                                   propagate=False)
+    if code != 0:
+        print("Unable to remove .pickle files: %s" % err)
+    print("Created database backup file: opp.db.tz")
+
+
+@main.command()
+@pass_config
+def restore(config):
+    db_connect = config.conf['db_connect']
+    if not db_connect:
+        sys.exit("Error: database connection string not "
+                 "found in any of the configuration files")
+    try:
+        engine = create_engine(db_connect)
+    except exc.NoSuchModuleError as e:
+        sys.exit("Error: %s" % str(e))
+
+    if database_exists(engine.url):
+        sys.exit("Error: database already exists, will not overwrite!")
+
+    try:
+        create_database(engine.url)
+    except exc.OperationalError as e:
+        sys.exit("Error: %s" % str(e))
+    models.Base.metadata.create_all(engine)
+
+    conn = engine.connect()
+
+    print("Restoring database from backup file: opp.db.tz")
+    code, out, err = utils.execute("tar zxf opp.db.tz", propagate=False)
+    if code != 0:
+        sys.exit("Error extracting database archive file: %s" % err)
+
+    for table in models.Base.metadata.sorted_tables:
+        with open("%s.pickle" % table, "rb") as f:
+            while True:
+                try:
+                    ins = table.insert().values(load(f))
+                    conn.execute(ins)
+                except EOFError:
+                    break
+
+    files = ["%s.pickle" % x.name for x in models.Base.metadata.sorted_tables]
+    code, out, err = utils.execute("rm %s" % " ".join(files))
+    if code != 0:
+        print("Unable to remove .pickle files: %s" % err)
 
 
 if __name__ == '__main__':
