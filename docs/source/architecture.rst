@@ -50,49 +50,38 @@ opp/blob/master/opp/db/models.py>`_ module.
 Bells and whistles
 ------------------
 
-The rest of OpenPassPhrase can be logically partitioned into three distinct
+The rest of OpenPassPhrase can be logically partitioned into two distinct
 components:
 
-1. A fronted web application which runs on the server and presents a UI on
-   a client browser.
+1. A backend API web service.
 
-2. A native app running on a client mobile device.
+2. A fronted web application.
 
-3. A backend API to service both the web and mobile applications.
+Both parts are actively being developed. In the future, a 3rd component may
+be added in the future in the form of a native app running on a client mobile
+device.
 
-Parts 1 & 3 are actively being developed. The native mobile app is planned
-for the future.
+Server Architecture
+~~~~~~~~~~~~~~~~~~~
 
-Server
-~~~~~~
-The frontmost facing portion of OpenPassPhrase is a
-`Flask <http://flask.pocoo.org/>`_-enabled WSGI application. Flask takes care
-of routing requests to appropriate endpoints and sending responses out to
-the WSGI server. The application contains two Flask modules: one for serving
-up HTML for browser based access and one for delivering JSON responses for
-mobile access.
+OpenPassPhrase uses a `Flask <http://flask.pocoo.org/>`_-enabled WSGI
+application to interface with the outside world. Flask takes care of
+routing requests to appropriate endpoints and sending responses out to
+the WSGI server. The application contains two Flask modules: one for
+serving up HTML for browser based access and one for delivering JSON
+responses for API access.
 
-HTML (web app) flow
+.. _backend:
+
+Backend Web Service
 +++++++++++++++++++
 
-On a brand new session the user is presented with a login screen. A registered
-user would log in with valid credentials in order to gain access to the site.
-The user would then supply a passphrase in order to decrypt and be able to
-view/modify his/her stored data. The login session expires as soon as the
-browser process exits. This is a conscious design decision to deal with a
-slight UX incovenience in favor of greater security. Motivated power consumers
-of OpenPassPhrase can change this in their own downstream implementation.
-
-.. _jsonflow:
-
-JSON (native app) flow
-++++++++++++++++++++++
-
-In manner similar to the web app, the user would log in by sending credentials
-to the ``/auth`` endpoint. In lieu of a browser login session, the user would
-be issued a JSON Web Token (JWT). This token, along with the passphrase, will
-be included in the header of all subsequent data requests. For more information
-about JWT refer to the full `JWT specification
+The backend API provides several endpoints exposing OpenPassPhrase capabilities
+capabilities. In a typical flow consumers of the API would first call into the
+:ref:`authenticate` endpoint with the user's credentials and passphrase. In
+response a JSON Web Token (JWT) will be issued. This token, along with the
+passphrase, must be included in the header of all subsequent data access
+requests. For more information about JWT refer to the full `JWT specification
 <https://tools.ietf.org/html/rfc7519>`_. The token has an expiration time after
 which it will no longer be accepted and the user will have to re-authenticate.
 See the :ref:`expdelta` configuration setting for more details.
@@ -101,9 +90,18 @@ See the :ref:`expdelta` configuration setting for more details.
     of manually changing the secret signing key on the server. To mitigate
     this vulnerability the ``exp_delta`` configuration setting should be
     set to a value that represents a reasonable tradeoff between security
-    and convenience.
+    and convenience. The authentication endpoint also accepts an override
+    parameter for this setting, allowing full control through API.
 
-Request  handlers
+Front-end Web App
++++++++++++++++++
+
+The frontend of OpenPassPhraser is a responsive single-page application
+written in Angular JS. It utilizes the backend API for all operations.
+Login sessions are accomplished by obtaining a JWT with the expiration
+date fully controllable by the user.
+
+Request Handlers
 ~~~~~~~~~~~~~~~~~
 The backend API consists of request handlers which service the individual
 enpdoints for retrieving data from the ``categories`` and ``items`` tables

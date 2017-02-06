@@ -76,7 +76,7 @@ The following options are currently configurable for OpenPassPhrase:
     ============    =================================
 
     Used by the web server to encode and decode the signature component of the
-    JSON Web Token (JWT). Refer to the :ref:`jsonflow` section of the
+    JSON Web Token (JWT). Refer to the :ref:`backend` section of the
     architecture documentation for more information about JWT.
     
     This setting is similarly used by the web app UI endpoints to secure the
@@ -105,5 +105,5 @@ The following options are currently configurable for OpenPassPhrase:
     starting from issue time. After expiration, the token will not be
     accepted and users will have to login to generate a new token.
 
-    .. note:: This setting does not affect the web app session expiration.
-        By design, sessions expire immediately upon closing the browser.
+    .. note:: This setting can be overridden for a particular login session
+        via the :ref:`authenticate` API call.

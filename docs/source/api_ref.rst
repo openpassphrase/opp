@@ -57,6 +57,8 @@ Authentication endpoint
 -----------------------
 ``<base_url>/auth``
 
+.. _authenticate:
+
 Authenticate
 ~~~~~~~~~~~~
 
