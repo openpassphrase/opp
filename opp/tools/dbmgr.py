@@ -176,7 +176,7 @@ def update_phrase(config, u, p, old_phrase, new_phrase):
 
 @main.command()
 @pass_config
-def backup(config):
+def backup(config): # pragma: no cover
     session = api.get_scoped_session(config.conf)
     for table in models.Base.metadata.sorted_tables:
         with open("%s.pickle" % table, "wb") as f:
@@ -198,7 +198,7 @@ def backup(config):
 
 @main.command()
 @pass_config
-def restore(config):
+def restore(config): # pragma: no cover
     db_connect = config.conf['db_connect']
     if not db_connect:
         sys.exit("Error: database connection string not "
