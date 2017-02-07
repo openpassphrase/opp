@@ -16,8 +16,11 @@
 from xkcdpass import xkcd_password as xp
 
 from opp.api.v1 import base_handler as bh
-from opp.common import aescipher
+from opp.common import aescipher, opp_config
 from opp.db import api, models
+
+
+CONFIG = opp_config.OppConfig()
 
 
 class ResponseHandler(bh.BaseResponseHandler):
@@ -35,7 +38,7 @@ class ResponseHandler(bh.BaseResponseHandler):
         return value
 
     def _get_words(self, options):
-        wordfile = xp.locate_wordfile()
+        wordfile = CONFIG['wordfile'] or xp.locate_wordfile()
 
         try:
             min_length = options['min_length']

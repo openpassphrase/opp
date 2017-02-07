@@ -107,3 +107,19 @@ The following options are currently configurable for OpenPassPhrase:
 
     .. note:: This setting can be overridden for a particular login session
         via the :ref:`authenticate` API call.
+
+``wordfile``
+-------------
+
+    ============    ======
+    **Type:**       string
+
+    **Default:**    None
+    ============    ======
+
+    **Example:**
+
+    | ``wordfile = /usr/dict/my_big_word_dictionary``
+
+    Use this setting to supply a custom word dictionary for the **xkcdpass**
+    module to use when generating random passwords.
