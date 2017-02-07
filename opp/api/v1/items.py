@@ -24,8 +24,19 @@ CONFIG = opp_config.OppConfig()
 
 
 class ResponseHandler(bh.BaseResponseHandler):
+    """
+    Response handler for the `items` endpoint.
+    """
 
     def _parse_or_set_empty(self, row, key, none_if_empty=False):
+        """
+        Retrieve a value from `row` by `key`.
+
+        :param none_if_empty: specifies to return either None or empty
+        string if key is not found in object.
+
+        :returns: extracted value if found, None or "" otherwise
+        """
         try:
             value = row[key]
         except KeyError:
@@ -38,6 +49,17 @@ class ResponseHandler(bh.BaseResponseHandler):
         return value
 
     def _get_words(self, options):
+        """Locate a word file and parse it to get a list of words from which
+        xkcdpass module will randomly choose a passphrase. The word file may
+        be specified in the configuration file specific to a particular
+        deployment. Otherwise the algorithm will try to locate a standard
+        word file from well known locations.
+
+        :param options: contains options for xkcdpass configuring the type of
+        words to include.
+
+        :returns: list of words
+        """
         wordfile = CONFIG['wordfile'] or xp.locate_wordfile()
 
         try:
@@ -80,6 +102,14 @@ class ResponseHandler(bh.BaseResponseHandler):
                               None, 500)
 
     def _gen_pwd(self, words, options):
+        """
+        Wrapper function around xkcdpass password generation logic
+
+        :param words: list of words to use for password generation
+        :param options: additional password generation constraints
+
+        :returns: generated multi-word password
+        """
         try:
             numwords = options['numwords']
         except (TypeError, KeyError):
@@ -107,6 +137,18 @@ class ResponseHandler(bh.BaseResponseHandler):
                               None, 500)
 
     def make_item(self, row, cipher, password, item_id=None):
+        """
+        Extract various item data from the request and encrypt it
+
+        :param row: item object parsed from JSON request
+        :param cipher: encryption cipher
+        :param password: if specified, ignore the `password` field in
+        in the item object and instead use this auto-generated password.
+        :param item_id: should be specified for item update operations,
+        None otherwise.
+
+        :returns Item ORM model for insertion into the database
+        """
         # Extract various item data into a list
         name = self._parse_or_set_empty(row, 'name')
         url = self._parse_or_set_empty(row, 'url')
@@ -114,7 +156,6 @@ class ResponseHandler(bh.BaseResponseHandler):
         username = self._parse_or_set_empty(row, 'username')
         password = password or self._parse_or_set_empty(row, 'password')
         blob = self._parse_or_set_empty(row, 'blob')
-
         category_id = self._parse_or_set_empty(row, 'category_id', True)
 
         try:
@@ -131,6 +172,13 @@ class ResponseHandler(bh.BaseResponseHandler):
             raise bh.OppError("Invalid item data in list!")
 
     def _do_get(self, phrase):
+        """
+        Fetch all user's items.
+
+        :param phrase: decryption passphrase
+
+        :returns: success result along with decrypted items array
+        """
         response = []
         cipher = aescipher.AESCipher(phrase)
         try:
@@ -142,6 +190,15 @@ class ResponseHandler(bh.BaseResponseHandler):
         return {'result': 'success', 'items': response}
 
     def _do_put(self, phrase):
+        """
+        Create a list of items, given an array of item parameters, with
+        option to specify auto-generation of common or unique passwords
+        for each item.
+
+        :param phrase: decryption passphrase
+
+        :returns: success result along with array of newly created items
+        """
         payload_dicts = [{'name': "items",
                           'is_list': True,
                           'required': True},
@@ -189,6 +246,14 @@ class ResponseHandler(bh.BaseResponseHandler):
         return {'result': 'success', 'items': response}
 
     def _do_post(self, phrase):
+        """
+        Update a list of items. Similar options to create except that
+        item id is required for each item in the list.
+
+        :param phrase: decryption passphrase
+
+        :returns: success result
+        """
         payload_dicts = [{'name': "items",
                           'is_list': True,
                           'required': True},
@@ -240,6 +305,11 @@ class ResponseHandler(bh.BaseResponseHandler):
             raise bh.OppError("Unable to update items in the database!")
 
     def _do_delete(self):
+        """
+        Delete a list of items, identified by id.
+
+        :returns: success result
+        """
         payload_dicts = [{'name': "ids",
                           'is_list': True,
                           'required': True}]

@@ -19,8 +19,18 @@ from opp.common import aescipher
 
 
 class ResponseHandler(bh.BaseResponseHandler):
+    """
+    Response handler for the `categories` endpoint.
+    """
 
     def _do_get(self, phrase):
+        """
+        Fetch all user's categories.
+
+        :param phrase: decryption passphrase
+
+        :returns: success result along with decrypted categories array
+        """
         response = []
         cipher = aescipher.AESCipher(phrase)
         try:
@@ -32,6 +42,13 @@ class ResponseHandler(bh.BaseResponseHandler):
         return {'result': "success", 'categories': response}
 
     def _do_put(self, phrase):
+        """
+        Create a list of categories, given an array of names.
+
+        :param phrase: decryption passphrase
+
+        :returns: success result along with array of newly created categories
+        """
         payload_dicts = [{'name': "category_names",
                           'is_list': True,
                           'required': True}]
@@ -61,6 +78,13 @@ class ResponseHandler(bh.BaseResponseHandler):
         return {'result': "success", 'categories': response}
 
     def _do_post(self, phrase):
+        """
+        Update a list of category names, identified by id.
+
+        :param phrase: decryption passphrase
+
+        :returns: success result
+        """
         payload_dicts = [{'name': "categories",
                           'is_list': True,
                           'required': True}]
@@ -100,6 +124,13 @@ class ResponseHandler(bh.BaseResponseHandler):
             raise bh.OppError("Unable to update categories in the database!")
 
     def _do_delete(self):
+        """
+        Delete a list of categories, identified by id, with optional `cascade`.
+        specifier to proprage deletion of items belonging to the deleted
+        categories.
+
+        :returns: success result
+        """
         payload_dicts = [{'name': "ids",
                           'is_list': True,
                           'required': True},
