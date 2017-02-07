@@ -26,9 +26,25 @@ skilled developers:
 Security
 --------
 
-We need a security expert to review the implementation for holes and
-suggest ways of plugging them. We also need to implement an API feature
-which allows for secure random passprhase generation.
+We would love to have a security expert review the implementation for holes
+and suggest ways of plugging them.
+
+UI Development
+--------------
+
+We are actively working on an Angular based responsive single page web
+application. It is a complicated endeavor and could always use more
+contributors. In addition, you are welcome to propose and work on any
+other UI solution (including an app for mobile devices).
+
+Deployment
+----------
+OpenPassPhrase is currently deployed using Apache server with mod_wsgi.
+We would like to pursue other methods of deployment, including using 
+various WSGI servers such as uWSGI, CherryPy and GreenUnicorn. Any help
+creating the necessary collateral (setup files, etc.) would be highly
+appreciated. Also, to reach a wider audience, it would be helpful to 
+investigate deployment on PaaS providers (Google App Engine, Heroku, etc.)
 
 Authentication
 --------------
@@ -37,12 +53,11 @@ Authentication
 
     <a target="_blank" href="http://openid.net/connect/">OpenID Connect</a>
 
-Currently only single JWT based authentication is implemented, which is
-really only suitable for programmatic consumption of the API (e.g. from
-a mobile app). It is not so friendly for a web app front-end. Integrating
-multiple authentication schemes, including social, oauth2 and single-sign-on,
-e.g. |openidc| would make this solution much more attractive and usable.
-If you have experience in this field, we welcome your input.
+Currently only a single JWT based authentication scheme is implemented.
+Integrating multiple additional authentication schemes, including social,
+oauth2 and single-sign-on, e.g. |openidc| would make the end product much
+more attractive and usable. If you have experience in this field, we welcome
+your input.
 
 Continuous Integration
 ----------------------
@@ -52,19 +67,9 @@ are knowledgeable in setting up CI, using GitHub webhooks and statuses,
 and integrating 3rd party tools such as Jenkins, Gerrit and others, your
 contribution and expertise would be very valuable and appreciated.
 
-UI
---
-
-If you've gotten this far in the docs, you are probably wondering why there's
-hardly been any mention of UI or end-user experience. Rest assured, it's not
-forgotten. The front-end will require at least two more separate projects in
-the OpenPassPhrase ecosystem. Firstly, a responsive single-page html5-based web
-app needs to be written to consume the backend API. Second, a mobile app will
-definitely be required soon after. Discussions and ideas about native
-(Android, iOS) versus cross-platform (Xamarin, PhoneGap) implementations
-will be entertained. Experts in web and mobile developements are welcome.
-
-Miscellaneous Features
+Miscellaneous Wishilst
 ----------------------
 
-- Add database backup to opp-db utility
+- Docs improvments (diagrams, etc.)
+- Extensive and thorough review of entire code base
+- Detailed and useful code comments

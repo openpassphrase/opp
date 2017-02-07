@@ -21,7 +21,7 @@ import subprocess
 import sys
 
 
-def execute(cmd):
+def execute(cmd, propagate=True):
     args = shlex.split(cmd)
     process = subprocess.Popen(args,
                                stdin=subprocess.PIPE,
@@ -37,7 +37,8 @@ def execute(cmd):
                "\n\nSTDOUT: %(out)s"
                "\n\nSTDERR: %(err)s" % {'cmd': cmd, 'exitcode': exitcode,
                                         'out': out, 'err': err})
-        raise RuntimeError(msg)
+        if propagate:
+            raise RuntimeError(msg)
     return exitcode, out, err
 
 

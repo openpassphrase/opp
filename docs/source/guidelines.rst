@@ -24,10 +24,9 @@ Workflow
 
 Currently the workflow consists of a protected *master* branch which allows
 merging only via pull requests from other branches. Pull requests must be
-reviewed and approved by at least one other contributor.
-
-As the project matures, we expect to add details here about gating checkins
-via continuous integration (CI) runs.
+reviewed and approved by at least one other contributor. Pull requests are
+also gated by successful status from Travis CI, which runs tests in python
+2.7 and 3.5 as well as pep8 checks and docs generation.
 
 Coding
 ------

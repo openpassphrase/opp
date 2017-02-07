@@ -17,138 +17,191 @@ import mock
 import unittest
 
 from opp.api.v1 import base_handler as bh
+from opp.common import aescipher as ac
 
 
 class TestBaseResponseHandler(unittest.TestCase):
 
+    def assertRaisesWithMsg(self, msg, func, *args, **kwargs):
+        try:
+            func(*args, **kwargs)
+            self.assertFail()
+        except Exception as e:
+            self.assertEqual(e.error, msg)
+
     @mock.patch('flask.request')
-    def test_check_payload_missing(self, request):
-        request.get_json.return_value = {'key': "value"}
+    def test_check_payload_empty_ok(self, request):
+        request.get_json.return_value = {}
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
-        self.assertEqual(payload, None)
-        self.assertEqual(error, {'result': "error",
-                                 'message': "Payload missing!"})
+        payload = handler._check_payload()
+        self.assertEqual(payload, [])
+
+    @mock.patch('flask.request')
+    def test_check_payload_empty_not_ok(self, request):
+        request.get_json.return_value = {}
+        handler = bh.BaseResponseHandler(request, None, None)
+        self.assertRaisesWithMsg("Missing payload!",
+                                 handler._check_payload, True)
 
     @mock.patch('flask.request')
     def test_check_payload_none(self, request):
-        request.get_json.return_value = {'payload': None}
+        request.get_json.return_value = None
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
-        self.assertEqual(payload, None)
-        self.assertEqual(error, {'result': "error",
-                                 'message': "Empty payload!"})
+        self.assertRaisesWithMsg("Missing payload!",
+                                 handler._check_payload, True)
 
     @mock.patch('flask.request')
-    def test_check_payload_empty(self, request):
-        request.get_json.return_value = {'payload': ""}
+    def test_check_payload_objects(self, request):
+        payload = {'obj': {'name': "value"},
+                   'list_obj': [1, 2, 3]}
+        request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
-        self.assertEqual(payload, None)
-        self.assertEqual(error, {'result': "error",
-                                 'message': "Empty payload!"})
+        check_dict = [{'name': "obj",
+                       'is_list': False,
+                       'required': True},
+                      {'name': "list_obj",
+                       'is_list': True,
+                       'required': False}]
+        payload_objects = handler._check_payload(check_dict)
+        self.assertNotEqual(payload_objects, None)
+        self.assertEqual(len(payload_objects), 2)
+        obj, list_obj = payload_objects
+        self.assertEqual(obj['name'], "value")
+        self.assertEqual(len(list_obj), 3)
 
     @mock.patch('flask.request')
-    def test_check_payload_list(self, request):
-        request.get_json.return_value = {'payload': ["blah", "blah"]}
+    def test_check_payload_object_missing_not_required(self, request):
+        payload = {'obj': {'name': "value"}}
+        request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
-        self.assertNotEqual(payload, None)
-        self.assertIsNone(error)
+        check_dict = [{'name': "obj",
+                       'is_list': False,
+                       'required': True},
+                      {'name': "list_obj",
+                       'is_list': True,
+                       'required': False},
+                      {'name': "obj2",
+                       'is_list': False,
+                       'required': False}]
+        payload_objects = handler._check_payload(check_dict)
+        self.assertNotEqual(payload_objects, None)
+        self.assertEqual(len(payload_objects), 3)
+        self.assertEqual(payload_objects[0]['name'], "value")
+        self.assertEqual(payload_objects[1], [])
+        self.assertEqual(payload_objects[2], {})
 
     @mock.patch('flask.request')
-    def test_check_payload_not_list(self, request):
-        request.get_json.return_value = {'payload': {"blah": "blah"}}
+    def test_check_payload_object_missing_required(self, request):
+        payload = {'obj': {'name': "value"}}
+        request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=True)
-        self.assertEqual(payload, None)
-        self.assertEqual(error,
-                         {'result': "error",
-                          'message': "Payload should be in list form!"})
+        check_dict = [{'name': "obj",
+                       'is_list': False,
+                       'required': True},
+                      {'name': "list_obj",
+                       'is_list': True,
+                       'required': True}]
+        self.assertRaisesWithMsg("Required payload object "
+                                 "'list_obj' is missing!",
+                                 handler._check_payload, check_dict)
 
     @mock.patch('flask.request')
-    def test_check_payload_obj(self, request):
-        request.get_json.return_value = {'payload': {"blah": "blah"}}
+    def test_check_payload_object_expect_list(self, request):
+        payload = {'obj': {'name': "value"}}
+        request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=False)
-        self.assertNotEqual(payload, None)
-        self.assertIsNone(error)
+        check_dict = [{'name': "obj", 'is_list': True, 'required': True}]
+        self.assertRaisesWithMsg("'obj' object should be in list form!",
+                                 handler._check_payload, check_dict)
 
     @mock.patch('flask.request')
-    def test_check_payload_not_obj(self, request):
-        request.get_json.return_value = {'payload': ["blah", "blah"]}
+    def test_check_payload_object_not_list(self, request):
+        payload = {'obj': [1, 2, 3]}
+        request.get_json.return_value = payload
         handler = bh.BaseResponseHandler(request, None, None)
-        payload, error = handler._check_payload(expect_list=False)
-        self.assertEqual(payload, None)
-        self.assertEqual(error,
-                         {'result': "error",
-                          'message': "Payload should not be in list form!"})
+        check_dict = [{'name': "obj", 'is_list': False, 'required': True}]
+        self.assertRaisesWithMsg("'obj' object should not be in list form!",
+                                 handler._check_payload, check_dict)
 
     @mock.patch('flask.request')
     def test_respond_missing_phrase(self, request):
         request.headers = {}
         handler = bh.BaseResponseHandler(request, None, None)
-        self.assertEqual(handler.respond(),
-                         {'result': "error",
-                         'message': "Passphrase header missing!"})
+        self.assertRaisesWithMsg("Passphrase header missing!",
+                                 handler.respond)
+
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
+    @mock.patch('flask.request')
+    def test_respond_bad_phrase(self, request, cipher, user):
+        request.headers = {'x-opp-phrase': "123"}
+        cipher.return_value = "NOTOK"
+        handler = bh.BaseResponseHandler(request, user, None)
+        self.assertRaisesWithMsg("Incorrect passphrase supplied!",
+                                 handler.respond)
 
     def _check_called(self, func_name, *exp_args, **exp_kwargs):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(bh.BaseResponseHandler, '_do_get')
-    def test_respond_get(self, func, session, request):
+    def test_respond_get(self, func, session, request, cipher, user):
         request.method = "GET"
         request.headers = {'x-opp-phrase': "123"}
-        handler = bh.BaseResponseHandler(request, None, session)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
         handler.respond()
         self._check_called(func, "123")
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(bh.BaseResponseHandler, '_do_put')
-    def test_respond_put(self, func, session, request):
+    def test_respond_put(self, func, session, request, cipher, user):
         request.method = "PUT"
         request.headers = {'x-opp-phrase': "123"}
-        handler = bh.BaseResponseHandler(request, None, session)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
         handler.respond()
         self._check_called(func, "123")
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(bh.BaseResponseHandler, '_do_post')
-    def test_respond_post(self, func, session, request):
+    def test_respond_post(self, func, session, request, cipher, user):
         request.method = "POST"
         request.headers = {'x-opp-phrase': "123"}
-        handler = bh.BaseResponseHandler(request, None, session)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
         handler.respond()
         self._check_called(func, "123")
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(bh.BaseResponseHandler, '_do_delete')
-    def test_respond_delete(self, func, session, request):
+    def test_respond_delete(self, func, session, request, cipher, user):
         request.method = "DELETE"
         request.headers = {'x-opp-phrase': "123"}
-        handler = bh.BaseResponseHandler(request, None, session)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
         handler.respond()
         self._check_called(func)
 
+    @mock.patch('opp.db.models.User')
+    @mock.patch.object(ac.AESCipher, 'decrypt')
     @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
-    def test_respond_bad_verb(self, session, request):
+    def test_respond_bad_verb(self, session, request, cipher, user):
         request.method = "BAD"
-        handler = bh.BaseResponseHandler(request, None, session)
-        response = handler.respond(require_phrase=False)
-        expected = {'result': "error", 'message': "Method not supported!"}
-        self.assertEqual(response, expected)
-
-
-class TestErrorResponseHandler(unittest.TestCase):
-
-    def test_respond(self):
-        handler = bh.ErrorResponseHandler("some error msg")
-        response = handler.respond()
-        expected = {'message': 'some error msg', 'result': 'error'}
-        self.assertEqual(response, expected)
+        cipher.return_value = "OK"
+        handler = bh.BaseResponseHandler(request, user, session)
+        self.assertRaisesWithMsg("Method not supported!",
+                                 handler.respond, require_phrase=False)

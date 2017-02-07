@@ -1,4 +1,5 @@
 ..
+
       Copyright 2017 OpenPassPhrase
       All Rights Reserved.
 
@@ -18,7 +19,7 @@
 Installation
 ============
 
-OpenPassPhrase API backend is written entirely in Python (v2.7). Thus, it can
+OpenPassPhrase API backend is written entirely in Python. Thus, it can
 theoretically be deployed on any platform with a modern Python interpreter.
 However, at the moment it is only officially tested on Ubuntu and CentOS Linux
 distributions. This guide presupposes the use of one of these platforms. More
@@ -77,7 +78,7 @@ Deploying with mod_wsgi
 The following steps assume an aptly configured Linux system with the following
 minimal set of packages installed:
 
-* *python (2.7)*
+* *python (2.7 or 3.5)*
 * *git*
 * *virtualenv*
 * *pip*
@@ -125,8 +126,22 @@ User management is also accomplished by the opp-db utility. This a deliberate
 design decision not to expose user creation capabilities externally. To
 add/delete users, run the following commands::
 
-    opp-db add-user -u <username> -p <passsword>
+    opp-db add-user -u <username> -p <passsword> --phrase <passphrase>
     opp-db del-user -u <username> -p <passsword>
+
+.. Note:: The last argument to the ``add-user`` CLI is the passphrase that
+    the user has chosen to use as the master key for data encryption. It is
+    not stored anywhere! Rather, it is only used by the ``opp-db`` tool to
+    encrypt and store a known value in the ``users`` table. Every API request
+    that  requires a passphrase will attempt to decrypt this value with the
+    supplied passphrase and only proceed with servicing the request upon
+    successful decryption. This mechanism prevents the user from creating
+    entries with different passphrases, either intentionally or accidentally.
+    While the latter obviously avoids a horrible UX, one could argue that
+    the ability to do the former would be a useful feature. However, in the
+    opinionated opinion of the originators of this project, having multiple
+    passphrases defeats the purpose of a centralized password manager and
+    one who wishes to do that might as well remember the secrets directly.
 
 Configure mod_wsgi:
 -------------------

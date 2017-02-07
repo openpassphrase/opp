@@ -33,7 +33,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(rpat.status_code, 405)
 
     def test_fetch_all_get(self):
-        self.hdrs = {'x-opp-phrase': "123",
+        self.hdrs = {'x-opp-phrase': "123456",
                      'x-opp-jwt': self.jwt,
                      'Content-Type': "application/json"}
         path = '/v1/fetchall'
@@ -46,12 +46,12 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['categories'], [])
 
         # Add 2 categories, check for successful response
-        data = {'payload': ["cat1", "cat2"]}
+        data = {'category_names': ["cat1", "cat2"]}
         data = self._put(cpath, data)
         self.assertEqual(data['result'], "success")
 
         # Add 6 items, check for successful response
-        data = {'payload':
+        data = {'items':
                 [{"name": "i1", "category_id": 1},
                  {"name": "i2", "category_id": 1},
                  {"name": "i3", "category_id": 2},
@@ -64,27 +64,25 @@ class TestCase(BackendApiTest):
         # Perform fetchall and check
         data = self._get(path)
         self.assertEqual(data['result'], "success")
-        self.assertEqual(len(data['categories']), 3)
+        self.assertEqual(len(data['categories']), 2)
+        self.assertEqual(len(data['items']), 6)
 
-        c1, c2, c3 = data['categories']
-
-        self.assertEqual(len(c1['items']), 2)
-        self.assertEqual(len(c2['items']), 2)
-        self.assertEqual(len(c3['items']), 2)
-
+        c1, c2 = data['categories']
         self.assertEqual(c1['id'], 1)
         self.assertEqual(c2['id'], 2)
-        self.assertEqual(c3['id'], None)
-
         self.assertEqual(c1['name'], "cat1")
         self.assertEqual(c2['name'], "cat2")
-        self.assertEqual(c3['name'], "default")
 
-        self.assertEqual(c1['items'][0]['name'], "i1")
-        self.assertEqual(c1['items'][1]['name'], "i2")
-
-        self.assertEqual(c2['items'][0]['name'], "i3")
-        self.assertEqual(c2['items'][1]['name'], "i4")
-
-        self.assertEqual(c3['items'][0]['name'], "i5")
-        self.assertEqual(c3['items'][1]['name'], "i6")
+        i1, i2, i3, i4, i5, i6 = data['items']
+        self.assertEqual(i1['name'], "i1")
+        self.assertEqual(i2['name'], "i2")
+        self.assertEqual(i3['name'], "i3")
+        self.assertEqual(i4['name'], "i4")
+        self.assertEqual(i5['name'], "i5")
+        self.assertEqual(i6['name'], "i6")
+        self.assertEqual(i1['category_id'], 1)
+        self.assertEqual(i2['category_id'], 1)
+        self.assertEqual(i3['category_id'], 2)
+        self.assertEqual(i4['category_id'], 2)
+        self.assertEqual(i5['category_id'], None)
+        self.assertEqual(i6['category_id'], None)

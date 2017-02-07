@@ -37,8 +37,8 @@ class BackendApiTest(unittest.TestCase):
         os.environ['OPP_TOP_CONFIG'] = cls.conf_filepath
         # Create database and a user
         utils.execute("opp-db --config_file %s init" % cls.conf_filepath)
-        utils.execute("opp-db --config_file %s add-user -u u -p p"
-                      % cls.conf_filepath)
+        utils.execute("opp-db --config_file %s add-user -uu -pp "
+                      "--phrase=123456" % cls.conf_filepath)
 
         # Create a test client and propgate exceptions to it
         cls.client = app.test_client()
