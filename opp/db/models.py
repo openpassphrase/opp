@@ -77,6 +77,8 @@ class Item(Base):
                 item['category'] = self.category.extract(cipher)
             else:
                 item['category'] = {"id": self.category_id}
+        else:
+            item['category_id'] = self.category_id
 
         return item
 

@@ -15,25 +15,26 @@
 
 from opp.api.v1 import base_handler
 from opp.common import aescipher
-from opp.db import api, models
+from opp.db import api
 
 
 class ResponseHandler(base_handler.BaseResponseHandler):
 
     def _do_get(self, phrase):
         cat_array = []
+        item_array = []
         cipher = aescipher.AESCipher(phrase)
         try:
             categories = api.category_getall(self.session, self.user)
             for category in categories:
-                cat_array.append(category.extract(cipher, with_items=True))
+                cat_array.append(category.extract(cipher, with_items=False))
 
-            items = api.item_getall_orphan(self.session, self.user)
-            if items:
-                category = models.Category(name=cipher.encrypt("default"),
-                                           items=items)
-                cat_array.append(category.extract(cipher, with_items=True))
+            items = api.item_getall(self.session, self.user)
+            for item in items:
+                item_array.append(item.extract(cipher, with_category=False))
         except Exception:
             return self.error("Unable to fetch from the database!")
 
-        return {'result': 'success', 'categories': cat_array}
+        return {'result': 'success',
+                'categories': cat_array,
+                'items': item_array}

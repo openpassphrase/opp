@@ -87,10 +87,10 @@ Fetch All Endpoint
 | ``{``
 |   ``"result": "success",``
 |   ``"categories": [``
-|     ``{"id": 1, "name": "category1", "items": [{<item1>}, {<item2>}]},``
-|     ``{"id": 2, "name": "category2", "items": [{<item3>}, {<item4>}]},``
-|     ``{"id": null, "name": "default", "items": [{<item5>}, {<item6>}]}``
+|     ``{"id": 1, "name": "category1"},``
+|     ``{"id": 2, "name": "category2"}``
 |   ``]``
+|   ``"items": [{<item1>}, {<item2>}]``
 | ``}``
 
 Where ``item`` objects contain:
@@ -102,12 +102,9 @@ Where ``item`` objects contain:
 |   ``"account": "01457XA8900",``
 |   ``"username": "mylogin",``
 |   ``"password": "mypassword",``
-|   ``"blob": "any custom data, may be delimited"``
+|   ``"blob": "any custom data, may be delimited",``
+|   ``"category_id": 1``
 | ``}``
-
-.. note:: The "default" category name is reserved. This category is
-    automatically created for items that are not assigned a category
-    id upon creation.
 
 Categories endpoint
 -------------------
@@ -214,10 +211,6 @@ the following optional fields:
 |   ``"blob": "any custom data, may be delimited",``
 |   ``"category_id": 1``
 | ``}``
-
-.. Note:: If ``category_id`` field is omitted, the item will be assigned
-   a category ID of 0 which will be mapped to a reserved **"default"**
-   category in the ``fetchall`` response.
 
 Remaining fields are optional and pertain to automatic generation of
 passwords for the items in the ``items`` array:
