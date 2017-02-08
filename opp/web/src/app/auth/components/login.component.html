@@ -19,7 +19,28 @@
           <md-input-container>
             <input md-input formControlName="password" placeholder="Password" required type="password">
           </md-input-container>
+        </div>
 
+        <br />
+
+        <div>
+          <md-card-subtitle>How soon should your session expire?</md-card-subtitle>
+
+          <div fxLayout fxLayoutAlign="start center" fxLayoutGap="5px">
+            <md-input-container>
+              <input md-input formControlName="exp_delta_amount" placeholder="Type in amount" type="number">
+            </md-input-container>
+
+            <md-select name="items" formControlName="exp_delta_multiplier" placeholder="Select interval">
+              <md-option value=""></md-option>
+              <md-option value="60">minute(s)</md-option>
+              <md-option value="3600">hour(s)</md-option>
+              <md-option value="86400">day(s)</md-option>
+            </md-select>
+          </div>
+        </div>
+
+        <div>
           <button md-raised-button type="submit" color="primary" [disabled]="authForm.invalid">Submit</button>
         </div>
       </form>

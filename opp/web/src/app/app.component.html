@@ -1,6 +1,7 @@
 <app-header
   [loggedIn]="isLoggedIn"
   (logout)="logout()"
+  (secretPhraseChange)="secretPhraseChange($event)"
   ></app-header>
 
 <main class="main">

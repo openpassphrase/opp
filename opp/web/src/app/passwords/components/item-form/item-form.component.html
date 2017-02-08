@@ -1,0 +1,64 @@
+<h1>Add new item</h1>
+<form novalidate [formGroup]="saveItemForm" (ngSubmit)="saveItem()">
+  <div>
+    <md-input-container>
+      <input md-input 
+        formControlName="name"
+        placeholder="Name"
+        required
+        autocomplete="off"
+        type="text"
+        focused>
+    </md-input-container>
+
+    <md-input-container>
+      <input md-input 
+        formControlName="url"
+        placeholder="URL"
+        autocomplete="off"
+        type="url">
+    </md-input-container>
+  </div>
+
+  <div>
+    <md-input-container>
+      <input md-input 
+        formControlName="account"
+        placeholder="Account"
+        autocomplete="off"
+        type="text">
+    </md-input-container>
+
+    <md-input-container>
+      <input md-input 
+        formControlName="password"
+        placeholder="Password"
+        autocomplete="off"
+        type="text">
+    </md-input-container>
+  </div>
+
+  <div fxLayout>
+    <md-input-container fxFlex>
+      <textarea md-input 
+        formControlName="blob"
+        placeholder="Blob"
+        autocomplete="off"
+        type="text">
+      </textarea>
+    </md-input-container>
+  </div>
+
+  <div fxLayout fxLayoutGap="10px">
+    <span fxFlex></span>
+
+    <button md-raised-button type="submit" [disabled]="!saveItemForm.valid" color="accent">
+      Save
+    </button>
+
+    <button md-button type="button" (click)="dialogRef.close()">
+      cancel
+    </button>
+  </div>
+
+</form>

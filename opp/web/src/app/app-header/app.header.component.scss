@@ -1,0 +1,15 @@
+:host /deep/ md-toolbar-row {
+  height: 80px;
+}
+
+md-input-container /deep/ {
+  label {
+    color: #ffd740;
+  }
+  .md-input-underline {
+    border-color: #ffd740 !important;
+  }
+  md-hint {
+    color: #f44336;
+  }
+}

@@ -1,6 +1,12 @@
 <md-toolbar color="primary">
   <div fxFlexFill fxLayout="row" fxLayoutAlign="space-between center">
-    <span >Open Pass Phrase</span>
+    <span>Open Pass Phrase</span>
+
+    <md-input-container *ngIf="loggedIn" dividerColor="accent" fxFlex="265px">
+      <input md-input [formControl]="secretPhrase" type="password" placeholder="secret phrase to decode data">
+      <md-hint *ngIf="secretPhrase.dirty && !secretPhrase.valid">Must be at least 6 chars</md-hint>
+    </md-input-container>
+
     <button md-button color="accent" *ngIf="loggedIn" (click)="logout.emit()">Sign out</button>
   </div>
 </md-toolbar>
