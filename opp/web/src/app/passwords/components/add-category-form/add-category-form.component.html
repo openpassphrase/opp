@@ -9,5 +9,11 @@
       type="text">
   </md-input-container>
   
-  <button md-fab type="submit"><md-icon>add</md-icon></button>
+  <button md-raised-button
+    md-tooltip="Add new category"
+    type="submit"
+    [disabled]="!addCategoryForm.valid"
+    color="accent">
+    <md-icon>add</md-icon>
+  </button>
 </form>

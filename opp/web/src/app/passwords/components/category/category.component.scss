@@ -1,0 +1,30 @@
+@import '~@angular/material/card/card';
+
+.category {
+  //margin: 10px 0;
+}
+
+.shadow-wrapper {
+  overflow: hidden;
+}
+
+.shadow {
+  border-radius: $md-card-border-radius;
+  @include md-elevation(2);
+  @include md-elevation-transition;
+}
+
+.category-name {
+  padding: 0 10px;
+  cursor: pointer;
+  text-transform: capitalize;
+}
+
+.category-items {
+  padding: 0 10px;
+  
+  .items-header {
+    font-weight: bold;
+    padding-bottom: 10px;
+  }
+}

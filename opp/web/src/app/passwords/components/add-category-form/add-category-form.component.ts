@@ -8,7 +8,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class AddCategoryFormComponent implements OnInit {
   addCategoryForm: FormGroup;
-  @Output() add = new EventEmitter(false);
+  @Output() add = new EventEmitter<string>(false);
 
   constructor(private _fb: FormBuilder) { }
 
@@ -22,6 +22,7 @@ export class AddCategoryFormComponent implements OnInit {
     if (this.addCategoryForm.valid) {
       const name = this.addCategoryForm.value.category.trim();
       this.add.emit(name);
+      this.addCategoryForm.controls['category'].setValue('');
     }
   }
 
