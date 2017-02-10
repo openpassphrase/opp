@@ -3,8 +3,11 @@ import { Http } from '@angular/http';
 import { tokenNotExpired } from 'angular2-jwt';
 import { Observable } from 'rxjs/Observable';
 import { Subscriber } from 'rxjs/Subscriber';
+import { environment } from '../../../environments/environment';
 
 import 'rxjs/add/observable/timer';
+
+const baseUrl = `${window.location.protocol}//${window.location.hostname}${environment.baseHref}`;
 
 @Injectable()
 export class Auth {
@@ -21,7 +24,7 @@ export class Auth {
   }
 
   login(data: { username: string, password: string }) {
-    return this.http.post('/api/v1/auth', data)
+    return this.http.post(`${baseUrl}/api/v1/auth`, data)
       .map(res => res.json());
   }
 

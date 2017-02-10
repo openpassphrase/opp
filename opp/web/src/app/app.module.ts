@@ -29,7 +29,7 @@ import { ItemEffects } from './effects/items';
     HttpModule,
     AppRoutingModule,
     MaterialModule.forRoot(),
-    FlexLayoutModule.forRoot(),
+    FlexLayoutModule,
     AuthModule,
     PasswordsModule,
     ReactiveFormsModule,

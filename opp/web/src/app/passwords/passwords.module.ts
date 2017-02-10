@@ -9,7 +9,6 @@ import { ClipboardModule } from 'ngx-clipboard';
 import { PasswordsRoutingModule } from './passwords-routing.module';
 import { PasswordsComponent } from './passwords.component';
 import { BackendService } from './services/backend.service';
-//import { StoreService } from './services/store.service';
 import { AddCategoryFormComponent } from './components/add-category-form/add-category-form.component';
 import { CategoryComponent, DeleteCategoryDialogComponent } from './components/category/category.component';
 import { ItemComponent, DeleteItemDialogComponent } from './components/item/item.component';
@@ -43,7 +42,6 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
   ],
   providers: [
     BackendService,
-    //StoreService,
     {
       provide: AuthHttp,
       useFactory: authHttpServiceFactory,
