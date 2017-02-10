@@ -19,8 +19,18 @@ from opp.db import api
 
 
 class ResponseHandler(base_handler.BaseResponseHandler):
+    """
+    Response handler for the `fetchall` endpoint.
+    """
 
     def _do_get(self, phrase):
+        """
+        Fetch all categories and items data for a particular user.
+
+        :param phrase: decryption passphrase
+
+        :returns: success result along with categories and items arrays
+        """
         cat_array = []
         item_array = []
         cipher = aescipher.AESCipher(phrase)

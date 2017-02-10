@@ -20,13 +20,31 @@ from opp.common import aescipher
 
 
 class BaseResponseHandler(object):
+    """
+    This a base class implementing functionality common
+    to all response handlers derived from it.
+    """
 
     def __init__(self, request, user, session):
+        # Request data
         self.request = request
+        # User context
         self.user = user
+        # SQLAlchemy scoped session
         self.session = session
 
     def _check_payload(self, check_dict=None):
+        """
+        This function checks the JSON payload for presence of objects
+        specified in the check_dict array.
+
+        :param check_dict: an array of items where each item contains the
+        name of the JSON object to search for, whether or not it is required
+        to be present, and whether it is a regular JSON object or a JSON array.
+
+        :returns: a list of objects extracted from the payload, in the same
+        order as specified in check_dict array.
+        """
         request_body = self.request.get_json()
         payload_objects = []
 
@@ -60,18 +78,26 @@ class BaseResponseHandler(object):
         return payload_objects
 
     def _do_get(self, phrase):
+        """This is the HTTP GET handler implemented in the derived class."""
         raise OppError("Action not implemented")
 
     def _do_put(self, phrase):
+        """This is the HTTP PUT handler implemented in the derived class."""
         raise OppError("Action not implemented")
 
     def _do_post(self, phrase):
+        """This is the HTTP POST handler implemented in the derived class."""
         raise OppError("Action not implemented")
 
     def _do_delete(self):
+        """This is the HTTP DELETE handler implemented in the derived class."""
         raise OppError("Action not implemented")
 
     def respond(self, require_phrase=True):
+        """
+            This is the main function called by the request processing logic
+            to generate a response for a particular endpoint call.
+        """
         # Validate passphrase if required
         if require_phrase:
             try:
@@ -101,6 +127,7 @@ class BaseResponseHandler(object):
 
 
 class OppError(Exception):
+    """Generic error class for propagating HTTP error codes and messages."""
     def __init__(self, error, desc=None, status=400, headers=None):
         self.error = error or ""
         self.desc = desc or ""
