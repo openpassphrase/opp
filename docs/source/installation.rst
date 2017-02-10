@@ -166,7 +166,7 @@ the OpenPassPhrase API::
         SSLCertificateFile "<path/to/your/certificate/file>"
         SSLCertificateChainFile "<path/to/your/certificate/chain/file>"
 
-        WSGIScriptAlias <path/to/desired/root/url> <path/to/openpassphrase/repo/setup.wsgi>
+        WSGIScriptAlias <path/to/desired/root/url> <path/to/openpassphrase/repo/mod_wsgi.run>
         WSGIDaemonProcess <yourserver.com> processes=2 threads=15 display-name=%{GROUP}
         WSGIProcessGroup <yourserver.com>
 
@@ -178,7 +178,7 @@ the OpenPassPhrase API::
 
 .. Note:: The values inside the <> brackets must be set specifically for
    your environment. Also note the WSGIScriptAlias setting which points to
-   ``setup.wsgi`` file, which resides in the top level of the repository.
+   ``mod_wsgi.run`` file, which resides in the top level of the repository.
    The contents of this file need to be altered based on your particular
    directory structure setup.
 
