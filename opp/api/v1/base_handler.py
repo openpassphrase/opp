@@ -106,7 +106,10 @@ class BaseResponseHandler(object):
                 raise OppError("Passphrase header missing!")
 
             cipher = aescipher.AESCipher(phrase)
-            if cipher.decrypt(self.user.phrase_check) != "OK":
+            try:
+                if cipher.decrypt(self.user.phrase_check) != "OK":
+                    raise OppError("Incorrect passphrase supplied!")
+            except UnicodeDecodeError:
                 raise OppError("Incorrect passphrase supplied!")
         else:
             phrase = None

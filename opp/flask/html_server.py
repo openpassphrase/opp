@@ -15,11 +15,9 @@
 
 import logging
 
-from flask import Flask, redirect, request, send_from_directory
-from flask import session, url_for
+from flask import Flask, send_from_directory
 
-from opp.common import opp_config, utils
-from opp.db import api
+from opp.common import opp_config
 
 
 CONF = opp_config.OppConfig()
@@ -34,6 +32,7 @@ logging.basicConfig(filename=logname, level=logging.DEBUG)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = CONF['SECRET_KEY']
 app.config['PREFERRED_URL_SCHEME'] = "https"
+
 
 @app.route('/')
 def index():
