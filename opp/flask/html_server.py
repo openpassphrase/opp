@@ -14,6 +14,7 @@
 # under the License.
 
 import logging
+from os import path as ospath
 
 from flask import Flask, send_from_directory
 
@@ -41,4 +42,7 @@ def index():
 
 @app.route('/<path:filename>')
 def angular(filename):
-    return send_from_directory('static', filename)
+    if ospath.isfile("static/%s" % filename):
+        return send_from_directory('static', filename)
+    else:
+        return app.send_static_file('index.html')
