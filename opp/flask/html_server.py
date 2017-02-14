@@ -42,7 +42,9 @@ def index():
 
 @app.route('/<path:filename>')
 def angular(filename):
-    if ospath.isfile("static/%s" % filename):
+    cwd = ospath.dirname(ospath.realpath(__file__))
+    full_path = "/".join([cwd, "static", filename])
+    if ospath.isfile(full_path):
         return send_from_directory('static', filename)
     else:
         return app.send_static_file('index.html')
