@@ -97,20 +97,22 @@ def add_user(config, u, p, phrase):
             api.user_create(s, user)
             user = api.user_get_by_username(s, u)
             if user:
-                print("Successfully added new user: %s" % u)
+                print("Successfully added new user: '%s'" % u)
             else:
-                print("Error: unable to add user: %s" % u)
+                print("Error: unable to add user: '%s'" % u)
     except Exception as e:
         sys.exit("Error: %s" % str(e))
 
 
+@click.option('--remove_data', is_flag=True,
+              help="Remove all of the data associated with the user")
 @click.option('-p', default=None, required=True,
               help="password")
 @click.option('-u', default=None, required=True,
               help="username")
 @main.command(name='del-user')
 @pass_config
-def del_user(config, u, p):
+def del_user(config, u, p, remove_data):
     try:
         s = api.get_scoped_session(config.conf)
         with s.begin():
@@ -119,12 +121,60 @@ def del_user(config, u, p):
                 sys.exit("Error: user does not exist!")
             if not utils.checkpw(p, user.password):
                 sys.exit("Error: incorrect password!")
+
+            if remove_data:
+                printv(config, "Removing user's categories data ...")
+                api.category_delete_all(s, user, True)
+                printv(config, "Removing user's items data ...")
+                api.item_delete_all(s, user)
+
+            printv(config, "Removing user ...")
             api.user_delete(s, user)
+
             user = api.user_get_by_username(s, u)
             if user:
-                print("Error: unable to delete user: %s" % u)
+                print("Error: unable to delete user: '%s'" % u)
             else:
-                print("Successfully deleted user: %s" % u)
+                print("Successfully deleted user: '%s'" % u)
+    except Exception as e:
+        sys.exit("Error: %s" % str(e))
+
+
+@click.option('--new_password', default=None,
+              help="New password")
+@click.option('--new_username', default=None,
+              help="New username")
+@click.option('-p', default=None, required=True,
+              help="password")
+@click.option('-u', default=None, required=True,
+              help="username")
+@main.command(name='update-user')
+@pass_config
+def update_user(config, u, p, new_username, new_password):
+    if not(new_username or new_password):
+        sys.exit("Error: at least one of: [--new_username, --new_password]"
+                 " options must be specified!")
+    try:
+        s = api.get_scoped_session(config.conf)
+        with s.begin():
+            user = api.user_get_by_username(s, u)
+            if not user:
+                sys.exit("Error: user does not exist!")
+            if not utils.checkpw(p, user.password):
+                sys.exit("Error: incorrect password!")
+
+            if new_username:
+                new_user = api.user_get_by_username(s, new_username)
+                if new_user:
+                    sys.exit("Username: '%s' already exists!" % new_username)
+
+            printv(config, "Updating user information")
+            if new_username:
+                user.username = new_username
+            if new_password:
+                user.password = utils.hashpw(new_password)
+            api.user_update(s, user)
+            print("Successfully updated user %s" % user.username)
     except Exception as e:
         sys.exit("Error: %s" % str(e))
 

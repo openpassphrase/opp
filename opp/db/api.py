@@ -129,6 +129,11 @@ def category_delete_by_id(session, user, filter_ids, cascade):
     category_delete(session, categories, cascade)
 
 
+def category_delete_all(session, user, cascade):
+    categories = category_getall(session, user)
+    category_delete(session, categories, cascade)
+
+
 def item_create(session, items):
     if session and items:
         session.add_all(items)
@@ -185,3 +190,8 @@ def item_delete_by_id(session, user, filter_ids):
     if filter_ids:
         items = item_getall(session, user, filter_ids)
         item_delete(session, items)
+
+
+def item_delete_all(session, user):
+    items = item_getall(session, user)
+    item_delete(session, items)

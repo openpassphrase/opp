@@ -71,6 +71,7 @@ class TestCase(unittest.TestCase):
         utils.execute("opp-db --config_file %s add-user -uu -pp "
                       "--phrase=123456" % self.conf_filepath)
         self._assert_user_exists('u')
+
         utils.execute("opp-db --config_file %s del-user -uu -pp"
                       % self.conf_filepath)
         self._assert_user_does_not_exist('u')
@@ -122,6 +123,41 @@ class TestCase(unittest.TestCase):
                       % self.conf_filepath)
         self._assert_user_does_not_exist('u')
 
+    def test_update_user(self):
+        utils.execute("opp-db --config_file %s add-user -uu -pp "
+                      "--phrase=123456" % self.conf_filepath)
+
+        # Try to update with no "new" parameters supplied
+        try:
+            utils.execute("opp-db --config_file %s update-user -uu -pp "
+                          % self.conf_filepath)
+            self.assertFail("Expected 'at least one of...' errro message!")
+        except Exception as e:
+            msg = ("Error: at least one of: [--new_username, "
+                   "--new_password] options must be specified!")
+            self.assertIn(msg, str(e))
+
+        # Try to update with incorrect password
+        try:
+            utils.execute("opp-db --config_file %s update-user -uu -pp1 "
+                          "--new_password blah" % self.conf_filepath)
+            self.assertFail("Expected 'incorrect password' errro message!")
+        except Exception as e:
+            self.assertIn("Error: incorrect password!", str(e))
+
+        # Update username and password
+        self._assert_user_does_not_exist('u1')
+        utils.execute("opp-db --config_file %s update-user -uu -pp "
+                      "--new_username u1 --new_password p1"
+                      % self.conf_filepath)
+        self._assert_user_exists('u1')
+        self._assert_user_does_not_exist('u')
+
+        # Cleanup, this should not raise if above password update succeeded
+        utils.execute("opp-db --config_file %s del-user -uu1 -pp1"
+                      % self.conf_filepath)
+        self._assert_user_does_not_exist('u1')
+
     def test_update_phrase(self):
         config = opp_config.OppConfig(self.conf_filepath)
 
@@ -154,7 +190,7 @@ class TestCase(unittest.TestCase):
                       "--old_phrase=123456 --new_phrase=654321" %
                       self.conf_filepath)
 
-        # Check category using new passphrase
+        # Check data using new passphrase
         session = api.get_scoped_session(config)
         with session.begin():
             user = api.user_get_by_username(session, 'u')
@@ -167,3 +203,8 @@ class TestCase(unittest.TestCase):
             self.assertEqual(new.decrypt(item.username), "username1")
             self.assertEqual(new.decrypt(item.password), "password1")
             self.assertEqual(new.decrypt(item.blob), "blob1")
+
+        # Cleanup
+        utils.execute("opp-db --config_file %s del-user -uu -pp"
+                      " --remove_data" % self.conf_filepath)
+        self._assert_user_does_not_exist('u')
