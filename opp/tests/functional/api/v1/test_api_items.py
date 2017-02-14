@@ -127,7 +127,13 @@ class TestCase(BackendApiTest):
         data = self._post(path, data, 400)
         self.assertEqual(data['error'], "Invalid item data in list!")
 
+        #  Attempt to retrieve items with the wrong passphrase
+        self.hdrs['x-opp-phrase'] = "123457"
+        data = self._get(path, 400)
+        self.assertEqual(data['error'], "Incorrect passphrase supplied!")
+
         # Clean up by deleting the item
+        self.hdrs['x-opp-phrase']  = "123456"
         data = {'ids': [item_id]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "success")

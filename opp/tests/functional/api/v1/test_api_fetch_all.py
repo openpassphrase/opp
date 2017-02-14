@@ -86,3 +86,8 @@ class TestCase(BackendApiTest):
         self.assertEqual(i4['category_id'], 2)
         self.assertEqual(i5['category_id'], None)
         self.assertEqual(i6['category_id'], None)
+
+        # Attempt to retrieve data with the wrong passphrase
+        self.hdrs['x-opp-phrase'] = "123457"
+        data = self._get(path, 400)
+        self.assertEqual(data['error'], "Incorrect passphrase supplied!")

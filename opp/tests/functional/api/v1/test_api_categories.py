@@ -170,7 +170,13 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['error'], ("'ids' object should "
                                          "be in list form!"))
 
+        #  Attempt to retrieve categories with the wrong passphrase
+        self.hdrs['x-opp-phrase'] = "123457"
+        data = self._get(path, 400)
+        self.assertEqual(data['error'], "Incorrect passphrase supplied!")
+
         # Clean up by deleting the category
+        self.hdrs['x-opp-phrase'] = "123456"
         data = {'cascade': False, 'ids': [cat_id]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "success")
