@@ -96,14 +96,14 @@ def category_getall(session, user, filter_ids=None):
     if session and user:
         session.add(user)
         if filter_ids:
-            query = session.query(models.Category).order_by(
-                models.Category.id).filter(
-                models.Category.id.in_(filter_ids)).filter(
-                models.User.id == user.id).options(
+            query = session.query(models.Category).filter(
+                models.Category.user_id == user.id).filter(
+                models.Category.id.in_(filter_ids)).order_by(
+                models.Category.id).options(
                 subqueryload(models.Category.items))
         else:
             query = session.query(models.Category).filter(
-                models.User.id == user.id).order_by(
+                models.Category.user_id == user.id).order_by(
                 models.Category.id).options(
                 subqueryload(models.Category.items))
         return query.all()
@@ -150,7 +150,7 @@ def item_getall(session, user, filter_ids=None):
                 models.Item).order_by(
                 models.Item.id).filter(
                 models.Item.id.in_(filter_ids)).filter(
-                models.User.id == user.id).outerjoin(
+                models.Item.user_id == user.id).outerjoin(
                 models.Category).options(
                 subqueryload(models.Item.category))
 
@@ -158,7 +158,7 @@ def item_getall(session, user, filter_ids=None):
             query = session.query(
                 models.Item).order_by(
                 models.Item.id).filter(
-                models.User.id == user.id).outerjoin(
+                models.Item.user_id == user.id).outerjoin(
                 models.Category).options(
                 subqueryload(models.Item.category))
         return query.all()
@@ -170,7 +170,7 @@ def item_getall_orphan(session, user):
         query = session.query(
             models.Item).order_by(
             models.Item.id).filter(
-            models.User.id == user.id).filter(
+            models.Item.user_id == user.id).filter(
             models.Item.category_id.is_(None))
         return query.all()
 

@@ -178,3 +178,40 @@ class TestCase(unittest.TestCase):
         with self.s.begin():
             items = api.item_getall(self.s, self.u)
             self.assertEqual(len(items), 0)
+
+    def test_items_access_by_user(self):
+        # Verify item list empty initially and add some items
+        with self.s.begin():
+            items = api.item_getall(self.s, self.u)
+            self.assertEqual(items, [])
+            items = [models.Item(blob="item1", user=self.u),
+                     models.Item(blob="item2", user=self.u)]
+            api.item_create(self.s, items)
+
+        # Retrieve and verify inserted items
+        with self.s.begin():
+            items = api.item_getall(self.s, self.u)
+            self.assertEqual(len(items), 2)
+            self.assertEqual(items[0].blob, "item1")
+            self.assertEqual(items[1].blob, "item2")
+
+        # Add another user and retrieve it
+        utils.execute("opp-db --config_file %s add-user -uu2 -pp "
+                      "--phrase=123456" % self.conf_filepath)
+        new_u = api.user_get_by_username(self.s, "u2")
+        self.assertEqual(new_u.username, "u2")
+
+        # Attempt to retrieve items with new user
+        with self.s.begin():
+            new_items = api.item_getall(self.s, new_u)
+            self.assertEqual(len(new_items), 0)
+
+        # Clean up
+        with self.s.begin():
+            items = api.item_getall(self.s, self.u)
+            api.item_delete(self.s, items)
+
+        # Verify clean up successful
+        with self.s.begin():
+            items = api.item_getall(self.s, self.u)
+            self.assertEqual(len(items), 0)

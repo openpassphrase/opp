@@ -13,12 +13,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from opp.api.v1 import base_handler
+from opp.api.v1 import base_handler as bh
 from opp.common import aescipher
 from opp.db import api
 
 
-class ResponseHandler(base_handler.BaseResponseHandler):
+class ResponseHandler(bh.BaseResponseHandler):
     """
     Response handler for the `fetchall` endpoint.
     """
@@ -43,7 +43,7 @@ class ResponseHandler(base_handler.BaseResponseHandler):
             for item in items:
                 item_array.append(item.extract(cipher, with_category=False))
         except Exception:
-            return self.error("Unable to fetch from the database!")
+            raise bh.OppError("Unable to fetch from the database!")
 
         return {'result': 'success',
                 'categories': cat_array,

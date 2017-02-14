@@ -65,7 +65,7 @@ class TestCase(unittest.TestCase):
         pass
 
     def test_categories_basic(self):
-        # Verify item list empty initially and insert a category
+        # Verify category list empty initially and insert a category
         with self.s.begin():
             categories = api.category_getall(self.s, self.u)
             self.assertEqual(categories, [])
@@ -280,3 +280,41 @@ class TestCase(unittest.TestCase):
         with self.s.begin():
             items = api.item_getall(self.s, self.u)
             self.assertEqual(len(items), 0)
+
+    def test_categories_access_by_user(self):
+        # Verify category list empty initially, add a category and some items
+        with self.s.begin():
+            categories = api.category_getall(self.s, self.u)
+            self.assertEqual(categories, [])
+            category = models.Category(name="name", user=self.u)
+            api.category_create(self.s, [category])
+            items = [models.Item(blob="item1", category_id=1, user=self.u),
+                     models.Item(blob="item2", category_id=1, user=self.u)]
+            api.item_create(self.s, items)
+
+        # Retrieve and verify inserted category
+        with self.s.begin():
+            categories = api.category_getall(self.s, self.u)
+            self.assertEqual(len(categories), 1)
+            self.assertEqual(categories[0].name, "name")
+            self.assertEqual(len(categories[0].items), 2)
+
+        # Add another user and retrieve it
+        utils.execute("opp-db --config_file %s add-user -uu2 -pp "
+                      "--phrase=123456" % self.conf_filepath)
+        new_u = api.user_get_by_username(self.s, "u2")
+        self.assertEqual(new_u.username, "u2")
+
+        # Attempt to retrieve categories with new user
+        with self.s.begin():
+            new_categories = api.category_getall(self.s, new_u)
+            self.assertEqual(len(new_categories), 0)
+
+        # Clean up
+        with self.s.begin():
+            api.category_delete(self.s, categories, True)
+
+        # Verify clean up successful
+        with self.s.begin():
+            categories = api.category_getall(self.s, self.u)
+            self.assertEqual(len(categories), 0)
