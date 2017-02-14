@@ -176,6 +176,13 @@ the OpenPassPhrase API::
         </Directory>
     </VirtualHost>
 
+    # Redirect all HTTP requests to the openpassphrase endpoint to HTTPS
+    <VirtualHost *:80>
+        ServerName <yourserver.com>
+        ServerAlias <www.yourserver.com>
+        Redirect permanent <path/to/desired/root/url> https://<yourserver.com/<path/to/desired/root/url>
+    </VirtualHost>
+
 .. Note:: The values inside the <> brackets must be set specifically for
    your environment. Also note the WSGIScriptAlias setting which points to
    ``mod_wsgi.run`` file, which resides in the top level of the repository.
