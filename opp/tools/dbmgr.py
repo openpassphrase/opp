@@ -152,7 +152,10 @@ def update_phrase(config, u, p, old_phrase, new_phrase):
                 sys.exit("Error: user does not exist!")
             if not utils.checkpw(p, user.password):
                 sys.exit("Error: incorrect password!")
-            if old_cipher.decrypt(user.phrase_check) != "OK":
+            try:
+                if old_cipher.decrypt(user.phrase_check) != "OK":
+                    sys.exit("Error: incorrect old passphrase supplied!")
+            except UnicodeDecodeError:
                 sys.exit("Error: incorrect old passphrase supplied!")
 
             printv(config, "Updating user information")

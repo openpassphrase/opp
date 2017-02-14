@@ -37,6 +37,8 @@ class ResponseHandler(bh.BaseResponseHandler):
             categories = api.category_getall(self.session, self.user)
             for category in categories:
                 response.append(category.extract(cipher))
+        except UnicodeDecodeError:
+            raise bh.OppError("Unable to decrypt data!")
         except Exception:
             raise bh.OppError("Unable to fetch categories from the database!")
         return {'result': "success", 'categories': response}

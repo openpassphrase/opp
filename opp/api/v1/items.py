@@ -185,6 +185,8 @@ class ResponseHandler(bh.BaseResponseHandler):
             items = api.item_getall(self.session, self.user)
             for item in items:
                 response.append(item.extract(cipher))
+        except UnicodeDecodeError:
+            raise bh.OppError("Unable to decrypt data!")
         except Exception:
             raise bh.OppError("Unable to fetch items from the database!")
         return {'result': 'success', 'items': response}
