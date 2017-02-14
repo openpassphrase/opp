@@ -133,7 +133,7 @@ class TestCase(BackendApiTest):
         self.assertEqual(data['error'], "Incorrect passphrase supplied!")
 
         # Clean up by deleting the item
-        self.hdrs['x-opp-phrase']  = "123456"
+        self.hdrs['x-opp-phrase'] = "123456"
         data = {'ids': [item_id]}
         data = self._delete(path, data)
         self.assertEqual(data['result'], "success")
