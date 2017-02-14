@@ -16,6 +16,7 @@
 import base64
 import bcrypt
 import hashlib
+import logging
 import shlex
 import subprocess
 import sys
@@ -55,3 +56,23 @@ def hashpw(password):
     digest = hashlib.sha256(password.encode()).digest()
     encoded = base64.b64encode(digest)
     return bcrypt.hashpw(encoded, bcrypt.gensalt())
+
+
+_LOGGER = None
+
+
+def getLogger(config, name):
+    global _LOGGER
+    if not _LOGGER:
+        log_name = config['log_filename'] or '/tmp/openpassphrase.log'
+        log_level = config['log_level'] or logging.DEBUG
+
+        _LOGGER = logging.getLogger(name)
+        handler = logging.FileHandler(log_name)
+        formatter = logging.Formatter(
+            '%(levelname)s %(name)s %(asctime)s %(message)s')
+        handler.setFormatter(formatter)
+        _LOGGER.addHandler(handler)
+        _LOGGER.setLevel(log_level)
+
+    return _LOGGER

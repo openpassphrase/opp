@@ -15,7 +15,6 @@
 
 from datetime import timedelta
 import json
-import logging
 
 
 from flask import Flask, g, request, _app_ctx_stack
@@ -28,27 +27,23 @@ from opp.flask.flask_jwt import JWT, jwt_required
 
 
 CONF = opp_config.OppConfig()
-
-
-# Logging config
-logname = CONF['log_filename'] or '/tmp/openpassphrase.log'
-logging.basicConfig(filename=logname, level=logging.DEBUG)
+LOG = utils.getLogger(CONF, __name__)
 
 
 # JWT and session configs
 CONF = opp_config.OppConfig()
 if CONF['secret_key'] == "default-insecure":
-    logging.warning("Config option 'secret_key' not specified."
-                    " Using default insecure value!")
+    LOG.warning("Config option 'secret_key' not specified."
+                " Using default insecure value!")
 try:
     exp_delta = int(CONF['exp_delta'])
     if CONF['exp_delta'] > pow(2, 31):
-        logging.warning("Invalid value specified for 'exp_delta' "
-                        "config option. Defaulting to 300 seconds.")
+        LOG.warning("Invalid value specified for 'exp_delta' "
+                    "config option. Defaulting to 300 seconds.")
         exp_delta = 300
 except Exception:
-    logging.warning("Invalid value specified for 'exp_delta' "
-                    "config option. Defaulting to 300 seconds.")
+    LOG.warning("Invalid value specified for 'exp_delta' "
+                "config option. Defaulting to 300 seconds.")
     exp_delta = 300
 
 # Flask app
@@ -61,7 +56,7 @@ app.config['PREFERRED_URL_SCHEME'] = "https"
 
 @app.errorhandler(base_handler.OppError)
 def error_handler(error):
-    logging.error(error)
+    LOG.error(error)
     return error.json(), error.status, error.headers
 
 

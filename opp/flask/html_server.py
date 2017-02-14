@@ -13,20 +13,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import logging
 from os import path as ospath
 
 from flask import Flask, send_from_directory
 
-from opp.common import opp_config
+from opp.common import opp_config, utils
 
 
 CONF = opp_config.OppConfig()
-
-
-# Logging config
-logname = CONF['log_filename'] or '/tmp/openpassphrase.log'
-logging.basicConfig(filename=logname, level=logging.DEBUG)
+LOG = utils.getLogger(CONF, __name__)
 
 
 # Flask app
