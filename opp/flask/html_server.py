@@ -17,11 +17,10 @@ from os import path as ospath
 
 from flask import Flask, send_from_directory
 
-from opp.common import opp_config, utils
+from opp.common import opp_config
 
 
 CONF = opp_config.OppConfig()
-LOG = utils.getLogger(CONF, __name__)
 
 
 # Flask app

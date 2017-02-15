@@ -10,7 +10,6 @@
     License: MIT
 """
 
-import logging
 import warnings
 
 from collections import OrderedDict
@@ -22,9 +21,11 @@ import jwt
 from flask import current_app, request, jsonify, _app_ctx_stack
 from werkzeug.local import LocalProxy
 
+from opp.common import utils
+
 __version__ = '0.3.2'
 
-logger = logging.getLogger(__name__)
+logger = utils.getLogger(__name__)
 
 current_identity = LocalProxy(lambda: getattr(_app_ctx_stack.top,
                                               'current_identity', None))

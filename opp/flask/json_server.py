@@ -27,7 +27,7 @@ from opp.flask.flask_jwt import JWT, jwt_required
 
 
 CONF = opp_config.OppConfig()
-LOG = utils.getLogger(CONF, __name__)
+LOG = utils.getLogger(__name__, CONF)
 
 
 # JWT and session configs

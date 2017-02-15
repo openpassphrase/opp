@@ -21,6 +21,8 @@ import shlex
 import subprocess
 import sys
 
+from opp.common import opp_config
+
 
 def execute(cmd, propagate=True):
     args = shlex.split(cmd)
@@ -58,21 +60,18 @@ def hashpw(password):
     return bcrypt.hashpw(encoded, bcrypt.gensalt())
 
 
-_LOGGER = None
+def getLogger(name, config=None):
+    config = config or opp_config.OppConfig()
+    log_level = config['log_level'] or logging.DEBUG
+    log_name = config['log_filename'] or '/tmp/openpassphrase.log'
+    logger = logging.getLogger(name)
 
-
-def getLogger(config, name):
-    global _LOGGER
-    if not _LOGGER:
-        log_name = config['log_filename'] or '/tmp/openpassphrase.log'
-        log_level = config['log_level'] or logging.DEBUG
-
-        _LOGGER = logging.getLogger(name)
-        handler = logging.FileHandler(log_name)
+    if not logging.root.handlers:
         formatter = logging.Formatter(
-            '%(levelname)s %(name)s %(asctime)s %(message)s')
+            '%(levelname)-7s %(name)s %(asctime)s %(message)s')
+        handler = logging.FileHandler(log_name)
         handler.setFormatter(formatter)
-        _LOGGER.addHandler(handler)
-        _LOGGER.setLevel(log_level)
+        logger.addHandler(handler)
+        logger.setLevel(log_level)
 
-    return _LOGGER
+    return logger
