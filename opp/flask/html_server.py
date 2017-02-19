@@ -21,7 +21,7 @@ from opp.common import opp_config
 
 
 CONF = opp_config.OppConfig()
-
+STATIC_FOLDER = CONF['static_folder'] or 'static'
 
 # Flask app
 app = Flask(__name__)
@@ -31,14 +31,14 @@ app.config['PREFERRED_URL_SCHEME'] = "https"
 
 @app.route('/')
 def index():
-    return app.send_static_file('index.html')
+    return send_from_directory(STATIC_FOLDER, 'index.html')
 
 
 @app.route('/<path:filename>')
 def angular(filename):
     cwd = ospath.dirname(ospath.realpath(__file__))
-    full_path = "/".join([cwd, "static", filename])
+    full_path = "/".join([cwd, STATIC_FOLDER, filename])
     if ospath.isfile(full_path):
-        return send_from_directory('static', filename)
+        return send_from_directory(STATIC_FOLDER, filename)
     else:
-        return app.send_static_file('index.html')
+        return send_from_directory(STATIC_FOLDER, 'index.html')
