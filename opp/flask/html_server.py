@@ -21,7 +21,12 @@ from opp.common import opp_config
 
 
 CONF = opp_config.OppConfig()
-STATIC_FOLDER = CONF['static_folder'] or 'static'
+if CONF['static_folder']:
+    STATIC_FOLDER = CONF['static_folder']
+else:
+    STATIC_FOLDER = "/".join([ospath.dirname(ospath.realpath(__file__)),
+                             "static"])
+
 
 # Flask app
 app = Flask(__name__)
@@ -36,9 +41,7 @@ def index():
 
 @app.route('/<path:filename>')
 def angular(filename):
-    cwd = ospath.dirname(ospath.realpath(__file__))
-    full_path = "/".join([cwd, STATIC_FOLDER, filename])
-    if ospath.isfile(full_path):
-        return send_from_directory(STATIC_FOLDER, filename)
-    else:
-        return send_from_directory(STATIC_FOLDER, 'index.html')
+    full_path = "/".join([STATIC_FOLDER, filename])
+    if not ospath.isfile(full_path):
+        filename = "index.html"
+    return send_from_directory(STATIC_FOLDER, filename)

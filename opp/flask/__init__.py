@@ -23,5 +23,7 @@ from opp.flask.json_server import app as json_app
 app = DispatcherMiddleware(html_app, {'/api': json_app})
 
 if __name__ == '__main__':
+    from flask_cors import CORS
+    CORS(json_app)
     run_simple('localhost', 5000, app, use_evalex=True,
                use_reloader=True, use_debugger=True)
