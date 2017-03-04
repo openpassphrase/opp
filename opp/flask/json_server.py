@@ -35,13 +35,18 @@ if CONF['secret_key'] == "default-insecure":
     LOG.warning("Config option 'secret_key' not specified."
                 " Using default insecure value!")
 try:
-    exp_delta = int(CONF['exp_delta'])
-    if CONF['exp_delta'] > pow(2, 31):
-        LOG.warning("Invalid value specified for 'exp_delta' "
-                    "config option. Defaulting to 300 seconds.")
+    if CONF['exp_delta']:
+        exp_delta = int(CONF['exp_delta'])
+        if exp_delta < 0 or exp_delta > pow(2, 31):
+            LOG.warning("Invalid value specified for 'exp_delta' "
+                        "config option. Defaulting to 300 seconds.")
+            exp_delta = 300
+    else:
+        LOG.warning("Config value for 'exp_delta' not "
+                    "specified. Defaulting to 300 seconds.")
         exp_delta = 300
 except Exception:
-    LOG.warning("Invalid value specified for 'exp_delta' "
+    LOG.warning("Unable to parse value for 'exp_delta' "
                 "config option. Defaulting to 300 seconds.")
     exp_delta = 300
 
