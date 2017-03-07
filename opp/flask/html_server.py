@@ -19,7 +19,6 @@ from flask import Flask, send_from_directory
 
 from opp.common import opp_config
 
-
 CONF = opp_config.OppConfig()
 if CONF['static_folder']:
     STATIC_FOLDER = CONF['static_folder']
@@ -41,7 +40,14 @@ def index():
 
 @app.route('/<path:filename>')
 def angular(filename):
+    gzip = False
     full_path = "/".join([STATIC_FOLDER, filename])
     if not ospath.isfile(full_path):
         filename = "index.html"
-    return send_from_directory(STATIC_FOLDER, filename)
+    elif ospath.isfile(".".join([full_path, "gz"])):
+        filename = ".".join([filename, "gz"])
+        gzip = True
+    response = send_from_directory(STATIC_FOLDER, filename)
+    if gzip:
+        response.headers['Content-Encoding'] = 'gzip'
+    return response
