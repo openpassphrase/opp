@@ -108,8 +108,26 @@ The following options are currently configurable for OpenPassPhrase:
     .. note:: This setting can be overridden for a particular login session
         via the :ref:`authenticate` API call.
 
+``static_folder``
+-----------------
+
+    ============    ======
+    **Type:**       string
+
+    **Default:**    static
+
+                    (relative to the application Flask module path)
+    ============    ======
+
+    **Example:**
+
+    | ``static_folder = /var/www/openpassphrase/frontend``
+
+    This is the location of the static Angular2 app from which the Flask HTML
+    app will server the front-end UI.
+
 ``wordfile``
--------------
+------------
 
     ============    ======
     **Type:**       string
