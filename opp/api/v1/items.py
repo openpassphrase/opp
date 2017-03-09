@@ -239,13 +239,12 @@ class ResponseHandler(bh.BaseResponseHandler):
 
         try:
             items = api.item_create(self.session, items)
+            response = []
+            for item in items:
+                response.append(item.extract(cipher))
+            return {'result': 'success', 'items': response}
         except Exception:
             raise bh.OppError("Unable to add new items to the database!")
-
-        response = []
-        for item in items:
-            response.append(item.extract(cipher))
-        return {'result': 'success', 'items': response}
 
     def _do_post(self, phrase):
         """
@@ -302,7 +301,10 @@ class ResponseHandler(bh.BaseResponseHandler):
 
         try:
             api.item_update(self.session, items)
-            return {'result': "success"}
+            response = []
+            for item in items:
+                response.append(item.extract(cipher))
+            return {'result': 'success', 'items': response}
         except Exception:
             raise bh.OppError("Unable to update items in the database!")
 
