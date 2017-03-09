@@ -93,13 +93,15 @@ See the :ref:`expdelta` configuration setting for more details.
     and convenience. The authentication endpoint also accepts an override
     parameter for this setting, allowing full control through API.
 
-Front-end Web App
-+++++++++++++++++
+Frontend Web App
+++++++++++++++++
 
-The frontend of OpenPassPhraser is a responsive single-page application
-written in Angular JS. It utilizes the backend API for all operations.
+The frontend of OpenPassPhrase is a responsive single-page application
+written in Angular2. It utilizes the backend API for all operations.
 Login sessions are accomplished by obtaining a JWT with the expiration
-date fully controllable by the user.
+date fully controllable by the user. This UI app is hosted in its own
+repo, please refer to `Opp-Web <https://github.com/openpassphrase/opp-web>`_
+for details and source code.
 
 Request Handlers
 ~~~~~~~~~~~~~~~~~
