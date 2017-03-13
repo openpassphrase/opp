@@ -14,6 +14,8 @@
       License for the specific language governing permissions and limitations
       under the License.
 
+.. title:: OpenPassPhrase
+
 Welcome to OpenPassPhrase!
 ==========================
 
@@ -37,6 +39,12 @@ generation.
 YAPM - yet another password manager?
 ====================================
 
+.. |demo| raw:: html
+
+    <a target="_blank"
+    href="https://openpassphrase.com/demo">
+    live demo</a>
+
 The motivations for this project are several. With incidents of hacking
 prolifirating in modern times, it is more important than ever to keep
 sensitive data such as passwords and account information as secure as
@@ -57,7 +65,10 @@ from any internet-enabled device. Assuming of course you trust the
 device/browser that you are using and you trust TLS to secure the
 communication with your server. But the same trust issue exists with
 client-based solutions as well. If you like what you've heard so far, 
-read on!
+check out the |demo| of the project in action. Use
+**demo/demo** for username/password credentials and **phrase** to decrypt
+the data. If you'd like to make use of OpenPassPhrase or contribute to
+the development, read on!
 
 Deploying
 =========
