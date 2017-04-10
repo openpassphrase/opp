@@ -9,11 +9,12 @@ BS = 16
 
 
 def pad(s):
-    return s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
+    padding = BS - len(s) % BS
+    return s + (padding * chr(padding)).encode('utf-8')
 
 
 def unpad(s):
-    return s[0:-ord(s.decode()[-1])]
+    return s[0:-ord(s.decode('utf-8')[-1])]
 
 
 # Usage:
@@ -27,7 +28,7 @@ class AESCipher(object):
         self.key = hashlib.sha256(key.encode('utf-8')).digest()
 
     def encrypt(self, raw):
-        raw = pad(raw)
+        raw = pad(raw.encode('utf-8'))
         iv = Random.new().read(AES.block_size)
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         return base64.b64encode(iv + cipher.encrypt(raw))
@@ -36,4 +37,4 @@ class AESCipher(object):
         enc = base64.b64decode(enc)
         iv = enc[:16]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        return unpad(cipher.decrypt(enc[16:])).decode()
+        return unpad(cipher.decrypt(enc[16:])).decode('utf-8')

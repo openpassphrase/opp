@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Copyright 2017 OpenPassPhrase
 # All Rights Reserved.
 #
@@ -36,6 +38,12 @@ class TestAESCipher(unittest.TestCase):
         encrypted = cipher.encrypt("My Secret Message")
         decrypted = cipher.decrypt(encrypted)
         self.assertEqual(decrypted, "My Secret Message")
+
+    def test_encrypt_decrypt_unicode_data(self):
+        cipher = aescipher.AESCipher("secret passphrase")
+        encrypted = cipher.encrypt(u"Привет Мир!")
+        decrypted = cipher.decrypt(encrypted)
+        self.assertEqual(decrypted, u"Привет Мир!")
 
 
 class TestConfig(unittest.TestCase):
