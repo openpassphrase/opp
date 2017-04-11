@@ -66,7 +66,7 @@ class ResponseHandler(bh.BaseResponseHandler):
             try:
                 blob = cipher.encrypt(cat)
                 categories.append(models.Category(name=blob, user=self.user))
-            except TypeError:
+            except (TypeError, AttributeError):
                 raise bh.OppError("Invalid category name in list!")
 
         try:
@@ -116,7 +116,7 @@ class ResponseHandler(bh.BaseResponseHandler):
                 blob = cipher.encrypt(category)
                 categories.append(models.Category(id=cat_id, name=blob,
                                                   user=self.user))
-            except TypeError:
+            except (TypeError, AttributeError):
                 raise bh.OppError("Invalid category name in list!")
 
         try:
