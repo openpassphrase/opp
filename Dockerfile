@@ -17,6 +17,7 @@ WORKDIR /opp
 # Copy the current directory contents into the container at /app
 ADD . /opp
 
+RUN sed -i "s/localhost/0.0.0.0/" opp/flask/__init__.py
 RUN pip install -r requirements.txt
 RUN pip install -r test-requirements.txt
 RUN python setup.py install
