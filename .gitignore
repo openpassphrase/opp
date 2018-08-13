@@ -10,3 +10,5 @@ opp/flask/static
 .coverage*
 htmlcov
 opp.db.tz
+.pytest_cache
+frontend

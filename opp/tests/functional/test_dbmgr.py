@@ -131,7 +131,7 @@ class TestCase(unittest.TestCase):
         try:
             utils.execute("opp-db --config_file %s update-user -uu -pp "
                           % self.conf_filepath)
-            self.assertFail("Expected 'at least one of...' errro message!")
+            self.assertFail("Expected 'at least one of...' error message!")
         except Exception as e:
             msg = ("Error: at least one of: [--new_username, "
                    "--new_password] options must be specified!")
