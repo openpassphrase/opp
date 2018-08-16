@@ -288,3 +288,51 @@ Delete Item
 ``{"ids": [1, 2]}``
 
 **Response:** ``{"result": "success"}``
+
+User endpoint
+-------------------
+``<base_url>/user``
+
+Create User
+~~~~~~~~~~~
+
+**Request:** ``PUT``
+
+**Body:** JSON object object containing username, password and phrase inputs.
+
+*Example:*
+
+``{"username": "user1", "password": "pwd1", "phrase": "phrase1"}``
+
+**Response:** ``{"result": "success"}``
+
+Update User
+~~~~~~~~~~~
+
+**Request:** ``POST``
+
+**Body:** JSON object containing existing username and password and optional
+new username and password parameters.
+
+*Example:*
+
+``{"username": "user1", "password": "pwd1"},
+``{"new_username": "new_user1", "new_password": "new_pwd1"}``
+
+.. Note:: At least of the the ``[new_username, new_password]`` paramters
+          must be specified.
+
+**Response:** ``{"result": "success"}``
+
+Delete User
+~~~~~~~~~~~
+
+**Request:** ``DELETE``
+
+**Body:** JSON object object containing username, password and phrase inputs.
+
+*Example:*
+
+``{"username": "user1", "password": "pwd1", "phrase": "phrase1"}``
+
+**Response:** ``{"result": "success"}``
