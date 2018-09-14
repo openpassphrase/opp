@@ -99,12 +99,12 @@ def category_getall(session, user, filter_ids=None):
             query = session.query(models.Category).filter(
                 models.Category.user_id == user.id).filter(
                 models.Category.id.in_(filter_ids)).order_by(
-                models.Category.id).options(
+                models.Category.sort_id).options(
                 subqueryload(models.Category.items))
         else:
             query = session.query(models.Category).filter(
                 models.Category.user_id == user.id).order_by(
-                models.Category.id).options(
+                models.Category.sort_id).options(
                 subqueryload(models.Category.items))
         return query.all()
 
@@ -153,7 +153,7 @@ def item_getall(session, user, filter_ids=None):
         if filter_ids:
             query = session.query(
                 models.Item).order_by(
-                models.Item.id).filter(
+                models.Item.sort_id).filter(
                 models.Item.id.in_(filter_ids)).filter(
                 models.Item.user_id == user.id).outerjoin(
                 models.Category).options(
@@ -162,7 +162,7 @@ def item_getall(session, user, filter_ids=None):
         else:
             query = session.query(
                 models.Item).order_by(
-                models.Item.id).filter(
+                models.Item.sort_id).filter(
                 models.Item.user_id == user.id).outerjoin(
                 models.Category).options(
                 subqueryload(models.Item.category))
@@ -174,7 +174,7 @@ def item_getall_orphan(session, user):
         session.add(user)
         query = session.query(
             models.Item).order_by(
-            models.Item.id).filter(
+            models.Item.sort_id).filter(
             models.Item.user_id == user.id).filter(
             models.Item.category_id.is_(None))
         return query.all()
