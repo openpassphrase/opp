@@ -56,6 +56,7 @@ class Item(Base):
     username = Column(String(255), nullable=True, default=None)
     password = Column(String(255), nullable=True, default=None)
     blob = Column(String(4096), nullable=True, default=None)
+    sort_id = Column(Integer, default=0)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
@@ -71,7 +72,8 @@ class Item(Base):
                 'account': cipher.decrypt(self.account),
                 'username': cipher.decrypt(self.username),
                 'password': cipher.decrypt(self.password),
-                'blob': cipher.decrypt(self.blob)}
+                'blob': cipher.decrypt(self.blob),
+                'sort_id': self.sort_id}
         if with_category:
             if self.category:
                 item['category'] = self.category.extract(cipher)
@@ -100,6 +102,7 @@ class Category(Base):
     name = Column(String(255), nullable=False)
     user_id = Column(Integer, Sequence('user_id_seq'),
                      ForeignKey('users.id'), nullable=False)
+    sort_id = Column(Integer, default=0)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
@@ -110,7 +113,8 @@ class Category(Base):
 
     def extract(self, cipher, with_items=False):
         category = {'id': self.id,
-                    'name': cipher.decrypt(self.name)}
+                    'name': cipher.decrypt(self.name),
+                    'sort_id': self.sort_id}
         if with_items:
             items_array = []
             for item in self.items:
