@@ -9,5 +9,5 @@ SQLAlchemy-Utils>=0.32.12 # BSD
 xkcdpass>=1.9.2 # BSD
 
 # These are needed if wishing to run with MySQL instead of SQLite
-MySQL-python>=1.2.5 # GPL
+# MySQL-python>=1.2.5 # GPL
 # PyMySQL>=0.7.5 # MIT
