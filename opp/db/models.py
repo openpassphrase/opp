@@ -56,7 +56,7 @@ class Item(Base):
     username = Column(String(255), nullable=True, default=None)
     password = Column(String(255), nullable=True, default=None)
     blob = Column(String(4096), nullable=True, default=None)
-    sort_id = Column(Integer, default=1)
+    sort_id = Column(Integer, default=0)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
@@ -102,7 +102,7 @@ class Category(Base):
     name = Column(String(255), nullable=False)
     user_id = Column(Integer, Sequence('user_id_seq'),
                      ForeignKey('users.id'), nullable=False)
-    sort_id = Column(Integer, default=1)
+    sort_id = Column(Integer, default=0)
     created_at = Column(DateTime, default=lambda: datetime.now(),
                         nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(),
