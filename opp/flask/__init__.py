@@ -14,7 +14,7 @@
 # under the License.
 
 from werkzeug.serving import run_simple
-from werkzeug.wsgi import DispatcherMiddleware
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 from opp.flask.html_server import app as html_app
 from opp.flask.json_server import app as json_app
