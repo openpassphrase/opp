@@ -19,7 +19,6 @@ import hashlib
 import logging
 import shlex
 import subprocess
-import sys
 
 from opp.common import opp_config
 
@@ -47,7 +46,10 @@ def execute(cmd, propagate=True):
 
 def checkpw(password, hashed):
     digest = hashlib.sha256(password.encode()).digest()
-    return bcrypt.checkpw(base64.b64encode(digest), hashed.encode())
+    if type(hashed is bytes):
+        return bcrypt.checkpw(base64.b64encode(digest), hashed)
+    else:
+        return bcrypt.checkpw(base64.b64encode(digest), hashed.encode())
 
 
 def hashpw(password):
