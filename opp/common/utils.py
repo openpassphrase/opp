@@ -47,11 +47,7 @@ def execute(cmd, propagate=True):
 
 def checkpw(password, hashed):
     digest = hashlib.sha256(password.encode()).digest()
-    encoded = base64.b64encode(digest)
-    if sys.version_info >= (3, 0):
-        return bcrypt.checkpw(encoded, hashed)
-    else:
-        return bcrypt.checkpw(encoded, hashed.encode())
+    return bcrypt.checkpw(base64.b64encode(digest), hashed.encode())
 
 
 def hashpw(password):

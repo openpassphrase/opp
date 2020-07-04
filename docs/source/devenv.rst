@@ -79,14 +79,14 @@ To run syntax checker::
 
 To run tests::
 
-    tox -e py27
+    tox -e py35
 
 To generate docs::
 
     tox -e docs
 
 To have tox recreate the virtual environment from scratch, either ``rm -rf
-.tox`` folder or use the -r flag in the tox command, e.g.: ``tox -r -e py27``.
+.tox`` folder or use the -r flag in the tox command, e.g.: ``tox -r -e py35``.
 
 
 Please refer to the :ref:`guidelines` section for information on how to get

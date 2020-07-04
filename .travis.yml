@@ -1,13 +1,11 @@
 language: python
 python:
-  - "2.7"
   - "3.5"
 # command to install dependencies
 install:
-  - pip install tox
+  - pip3 install tox
 # command to run tests
 script:
-  - if [[ $TRAVIS_PYTHON_VERSION == 3* ]]; then tox -e py35; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then tox -e pep8; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then tox -e py27; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 2* ]]; then tox -e docs; fi
+  - tox -e py35
+  - tox -e pep8
+  - tox -e docs

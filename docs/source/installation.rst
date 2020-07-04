@@ -78,7 +78,7 @@ Deploying with mod_wsgi
 The following steps assume an aptly configured Linux system with the following
 minimal set of packages installed:
 
-* *python (2.7 or 3.5)*
+* *python 3.5*
 * *git*
 * *virtualenv*
 * *pip*
@@ -145,11 +145,9 @@ add/delete users, run the following commands::
 
 Configure mod_wsgi:
 -------------------
-Make sure the ``mod_wsgi`` Apache module is installed (e.g. ``yum install
-mod_wsgi`` on CentOS or ``sudo apt-get install mod_wsgi`` on Ubuntu. Or
-follow the `mod_wsgi Quick Installation Guide <https://modwsgi.readthedocs.io
-/en/develop/user-guides/quick-installation-guide.html>`_ of the **mod_wsgi**
-documentation.
+Make sure the ``mod_wsgi`` Apache module is installed (``sudo apt-get install libapache2-mod-wsgi-py3``
+on Ubuntu. Or follow the `mod_wsgi Quick Installation Guide <https://modwsgi.readthedocs.io
+/en/develop/user-guides/quick-installation-guide.html>`_ of the **mod_wsgi** documentation.
 
 The following is a sample Apache config file to enable routing of requests to
 the OpenPassPhrase API::
@@ -166,7 +164,7 @@ the OpenPassPhrase API::
         SSLCertificateFile "<path/to/your/certificate/file>"
         SSLCertificateChainFile "<path/to/your/certificate/chain/file>"
 
-        WSGIScriptAlias <path/to/desired/root/url> <path/to/openpassphrase/repo/mod_wsgi.run>
+        WSGIScriptAlias <path/to/desired/root/url> <path/to/openpassphrase/repo/mod_wsgi3.run>
         WSGIDaemonProcess <yourserver.com> processes=2 threads=15 display-name=%{GROUP}
         WSGIProcessGroup <yourserver.com>
 
