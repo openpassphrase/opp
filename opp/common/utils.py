@@ -46,10 +46,10 @@ def execute(cmd, propagate=True):
 
 def checkpw(password, hashed):
     digest = hashlib.sha256(password.encode()).digest()
-    if type(hashed is bytes):
-        return bcrypt.checkpw(base64.b64encode(digest), hashed)
-    else:
+    try:
         return bcrypt.checkpw(base64.b64encode(digest), hashed.encode())
+    except AttributeError:
+        return bcrypt.checkpw(base64.b64encode(digest), hashed)
 
 
 def hashpw(password):

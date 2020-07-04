@@ -7,7 +7,4 @@ PyJWT>=1.4.0,<1.5.0 # MIT
 SQLAlchemy>=1.3.15 # MIT
 SQLAlchemy-Utils>=0.36.3 # BSD
 xkcdpass>=1.17.3 # BSD
-
-# These are needed if wishing to run with MySQL instead of SQLite
-# MySQL-python>=1.2.5 # GPL
-# PyMySQL>=0.7.5 # MIT
+PyMySQL>=0.7.5 # MIT
