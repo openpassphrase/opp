@@ -4,11 +4,11 @@
 build
 dist
 *.egg-info
-venv
+venv*
 *.pyc
-opp/flask/static
+opp/flask/static*
 .coverage*
 htmlcov
 opp.db.tz
 .pytest_cache
-frontend
+frontend*

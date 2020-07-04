@@ -17,12 +17,11 @@ sudo locale-gen en_US.UTF-8
 # Required packages
 sudo apt-get install -y build-essential
 sudo apt-get install -y libffi-dev
-sudo apt-get install -y python2.7-dev
 sudo apt-get install -y sqlite
 sudo apt-get install -y libsqlite3-dev
-sudo apt-get install -y python-pip
-sudo pip install -U pip # upgrade pip
-sudo pip install tox # this will also install virtualenv
+sudo apt-get install -y python3-pip
+sudo pip3 install -U pip3 # upgrade pip
+sudo pip3 install tox # this will also install virtualenv
 
 # Useful packages
 sudo apt-get install -y git
