@@ -57,5 +57,6 @@ def angular(filename):
 def apply_headers(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self' 'unsafe-inline';"
+    csp = "default-src 'self'; style-src 'self' 'unsafe-inline';"
+    response.headers["Content-Security-Policy"] = csp
     return response
