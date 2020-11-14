@@ -51,3 +51,11 @@ def angular(filename):
     if gzip:
         response.headers['Content-Encoding'] = 'gzip'
     return response
+
+
+@app.after_request
+def apply_headers(response):
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self' 'unsafe-inline';"
+    return response
