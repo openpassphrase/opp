@@ -1,33 +1,25 @@
 FROM ubuntu:xenial
 
-# Update repositories
+# Init
 RUN apt-get update
 
-# Install libraries and tools
-RUN apt-get install -y \
-    build-essential \
-    libffi-dev \
-    sqlite \
-    libsqlite3-dev \
-    python3.5-dev \
-    python3-pip \
-    curl
+# Install python3.7, pip and other dependencies
+RUN apt-get install -y software-properties-common
+RUN add-apt-repository -y ppa:deadsnakes/ppa
+RUN apt-get update
+RUN apt-get install -y python3.7 
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 0
+RUN apt-get install -y sqlite python3-pip
 RUN pip3 install -U pip
-
-# Set the working directory to /opp
-WORKDIR /opp
-
-# Copy the current directory contents into the container at /app
-ADD . /opp
-
-# Install all dependencies
-RUN pip3 install -r requirements.txt
 
 # Allow click to run in UTF mode
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
 # OpenPassphrase install and setup
+WORKDIR /opp
+ADD . /opp
+RUN pip install -r requirements.txt -r test-requirements.txt
 RUN python3 setup.py install
 RUN mkdir /etc/opp
 RUN echo '[DEFAULT]' > /etc/opp/opp.cfg
