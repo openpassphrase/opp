@@ -16,11 +16,20 @@
 import mock
 import unittest
 
+from flask import Flask
 from opp.api.v1 import base_handler as bh
 from opp.common import aescipher as ac
 
 
 class TestBaseResponseHandler(unittest.TestCase):
+
+    def setUp(self):
+        app = Flask(__name__)
+        self.ctx = app.test_request_context()
+        self.ctx.push()
+
+    def tearDown(self):
+        self.ctx.pop()
 
     def assertRaisesWithMsg(self, msg, func, *args, **kwargs):
         try:

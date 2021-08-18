@@ -1,15 +1,13 @@
-FROM ubuntu:xenial
+FROM ubuntu:bionic
 
 # Update repositories
 RUN apt-get update
 
 # Install libraries and tools
 RUN apt-get install -y \
-    build-essential \
-    libffi-dev \
+    python3-minimal \
     sqlite \
     libsqlite3-dev \
-    python3.5-dev \
     python3-pip \
     curl
 RUN pip3 install -U pip
@@ -21,11 +19,11 @@ WORKDIR /opp
 ADD . /opp
 
 # Install all dependencies
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt -r test-requirements.txt
 
 # Allow click to run in UTF mode
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
 # OpenPassphrase install and setup
 RUN python3 setup.py install

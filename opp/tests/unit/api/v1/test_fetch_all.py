@@ -16,11 +16,20 @@
 import mock
 import unittest
 
+from flask import Flask
 from opp.api.v1 import fetch_all as api
 from opp.common import aescipher as ac
 
 
 class TestResponseHandler(unittest.TestCase):
+
+    def setUp(self):
+        app = Flask(__name__)
+        self.ctx = app.test_request_context()
+        self.ctx.push()
+
+    def tearDown(self):
+        self.ctx.pop()
 
     def _check_called(self, func_name, *exp_args, **exp_kwargs):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
