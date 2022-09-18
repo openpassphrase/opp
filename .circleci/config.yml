@@ -1,0 +1,16 @@
+version: '2.1'
+orbs:
+  python: circleci/python@1.0.0
+jobs:
+  test:
+    docker:
+      - image: cimg/python:3.10.4
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt-get install sqlite3 libsqlite3-dev
+      - run: pip install tox && tox
+workflows:
+  main:
+    jobs:
+      - test

@@ -20,12 +20,6 @@ from flask import Flask, send_from_directory
 from opp.common import opp_config
 
 CONF = opp_config.OppConfig()
-if CONF['static_folder']:
-    STATIC_FOLDER = CONF['static_folder']
-else:
-    STATIC_FOLDER = "/".join([ospath.dirname(ospath.realpath(__file__)),
-                             "static"])
-
 
 # Flask app
 app = Flask(__name__)
@@ -35,19 +29,19 @@ app.config['PREFERRED_URL_SCHEME'] = "https"
 
 @app.route('/')
 def index():
-    return send_from_directory(STATIC_FOLDER, 'index.html')
+    return send_from_directory(CONF['static_folder'], 'index.html')
 
 
 @app.route('/<path:filename>')
 def angular(filename):
     gzip = False
-    full_path = "/".join([STATIC_FOLDER, filename])
+    full_path = "/".join([CONF['static_folder'], filename])
     if not ospath.isfile(full_path):
         filename = "index.html"
     elif ospath.isfile(".".join([full_path, "gz"])):
         filename = ".".join([filename, "gz"])
         gzip = True
-    response = send_from_directory(STATIC_FOLDER, filename)
+    response = send_from_directory(CONF['static_folder'], filename)
     if gzip:
         response.headers['Content-Encoding'] = 'gzip'
     return response
@@ -57,6 +51,6 @@ def angular(filename):
 def apply_headers(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-Content-Type-Options"] = "nosniff"
-    csp = "default-src 'self'; style-src 'self' 'unsafe-inline';"
+    csp = "default-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
     response.headers["Content-Security-Policy"] = csp
     return response

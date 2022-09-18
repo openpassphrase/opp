@@ -27,7 +27,7 @@ starting out.
 System setup
 ------------
 
-The recommended development platform is Ubuntu Xenial. At a minimum, you
+The recommended development platform is Ubuntu Jammy. At a minimum, you
 will need several packages in order to start development. There is a handy
 `setup <dev/opp_setup.sh>`_ script that you may use to initialize your dev
 system. Refer to the script for a full list of required and useful packages.

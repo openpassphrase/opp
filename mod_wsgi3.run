@@ -1,15 +1,16 @@
 import sys
 
 
+os.environ["OPP_TOP_CONFIG"] = "/var/www/openpassphrase/.opp/opp.cfg"
 sys.path.insert(0, "/var/www/openpassphrase")
-sys.path.insert(0, "/var/www/openpassphrase/venv3/lib/python3.5/site-packages")
+sys.path.insert(0, "/var/www/openpassphrase/venv/lib/python3.10/site-packages")
 
 
 def execfile(filename):
     globals = dict( __file__ = filename )
     exec( open(filename).read(), globals )
 
-activate_this = '/var/www/openpassphrase/venv3/bin/activate_this.py'
+activate_this = '/var/www/openpassphrase/venv/bin/activate_this.py'
 execfile(activate_this)
 
 

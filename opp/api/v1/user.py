@@ -107,7 +107,7 @@ class ResponseHandler(bh.BaseResponseHandler):
         p = self._validate(payload_objects[1], 'password')
         new_u = payload_objects[2].strip()
         new_p = payload_objects[3].strip()
-        if not(new_u or new_p):
+        if not (new_u or new_p):
             raise bh.OppError("at least one of: "
                               "[--new_username, --new_password] is required!")
 

@@ -66,7 +66,11 @@ def error_handler(error):
 
 @app.before_request
 def get_scoped_session():
-    g.session = api.get_scoped_session()
+    try:
+        g.session = api.get_scoped_session()
+    except Exception as e:
+        g.session = None
+        LOG.error(f'error calling get_scoped_session {e}')
 
 
 @app.teardown_appcontext

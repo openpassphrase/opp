@@ -151,7 +151,7 @@ def del_user(config, u, p, remove_data):
 @main.command(name='update-user')
 @pass_config
 def update_user(config, u, p, new_username, new_password):
-    if not(new_username or new_password):
+    if not (new_username or new_password):
         sys.exit("Error: at least one of: [--new_username, --new_password]"
                  " options must be specified!")
     try:

@@ -9,6 +9,8 @@ venv*
 opp/flask/static*
 .coverage*
 htmlcov
+.opp
+opp.db
 opp.db.tz
 .pytest_cache
 frontend*
