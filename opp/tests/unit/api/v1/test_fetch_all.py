@@ -16,32 +16,23 @@
 import mock
 import unittest
 
-from flask import Flask
+from mock_request import MockRequest
+
 from opp.api.v1 import fetch_all as api
 from opp.common import aescipher as ac
 
 
 class TestResponseHandler(unittest.TestCase):
 
-    def setUp(self):
-        app = Flask(__name__)
-        self.ctx = app.test_request_context()
-        self.ctx.push()
-
-    def tearDown(self):
-        self.ctx.pop()
-
     def _check_called(self, func_name, *exp_args, **exp_kwargs):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
 
     @mock.patch('opp.db.models.User')
     @mock.patch.object(ac.AESCipher, 'decrypt')
-    @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(api.ResponseHandler, '_do_get')
-    def test_respond_get(self, func, session, request, cipher, user):
-        request.method = "GET"
-        request.headers = {'x-opp-phrase': "123"}
+    def test_respond_get(self, func, session, cipher, user):
+        request = MockRequest('GET', {'x-opp-phrase': '123'}, None)
         cipher.return_value = "OK"
         handler = api.ResponseHandler(request, user, session)
         handler.respond()

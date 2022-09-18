@@ -16,46 +16,36 @@
 import mock
 import unittest
 
-from flask import Flask
+from mock_request import MockRequest
+
 from opp.api.v1 import user as api
 
 
 class TestResponseHandler(unittest.TestCase):
 
-    def setUp(self):
-        app = Flask(__name__)
-        self.ctx = app.test_request_context()
-        self.ctx.push()
-
-    def tearDown(self):
-        self.ctx.pop()
-
     def _check_called(self, func_name, *exp_args, **exp_kwargs):
         func_name.assert_called_once_with(*exp_args, **exp_kwargs)
 
-    @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(api.ResponseHandler, '_do_put')
-    def test_respond_put(self, func, session, request):
-        request.method = "PUT"
+    def test_respond_put(self, func, session):
+        request = MockRequest('PUT', None, None)
         handler = api.ResponseHandler(request, None, session)
         handler.respond(require_phrase=False)
         self._check_called(func, None)
 
-    @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(api.ResponseHandler, '_do_post')
-    def test_respond_post(self, func, session, request):
-        request.method = "POST"
+    def test_respond_post(self, func, session):
+        request = MockRequest('POST', None, None)
         handler = api.ResponseHandler(request, None, session)
         handler.respond(require_phrase=False)
         self._check_called(func, None)
 
-    @mock.patch('flask.request')
     @mock.patch('sqlalchemy.orm.scoped_session')
     @mock.patch.object(api.ResponseHandler, '_do_delete')
-    def test_respond_delete(self, func, session, request):
-        request.method = "DELETE"
+    def test_respond_delete(self, func, session):
+        request = MockRequest('DELETE', None, None)
         handler = api.ResponseHandler(request, None, session)
         handler.respond(require_phrase=False)
         self._check_called(func)
