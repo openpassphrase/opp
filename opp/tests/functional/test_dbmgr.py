@@ -42,7 +42,7 @@ class TestCase(unittest.TestCase):
         os.rmdir(cls.test_dir)
 
     def _assert_table_exists(self, db_table):
-        cmd = ("sqlite3 {0} \"SELECT name FROM sqlite_master WHERE "
+        cmd = ("sqlite3 -noheader {0} \"SELECT name FROM sqlite_master WHERE "
                "type='table' AND name='{1}'\"").format(self.db_filepath,
                                                        db_table)
         code, out, err = utils.execute(cmd)
@@ -50,14 +50,14 @@ class TestCase(unittest.TestCase):
         self.assertEqual(out.rstrip().decode(), db_table, msg)
 
     def _assert_user_exists(self, name):
-        cmd = ("sqlite3 {0} \"SELECT username FROM users WHERE "
+        cmd = ("sqlite3 -noheader {0} \"SELECT username FROM users WHERE "
                "username='{1}'\"").format(self.db_filepath, name)
         code, out, err = utils.execute(cmd)
         msg = "Expected user was not found in the users table"
         self.assertEqual(out.rstrip().decode(), name, msg)
 
     def _assert_user_does_not_exist(self, name):
-        cmd = ("sqlite3 {0} \"SELECT username FROM users WHERE "
+        cmd = ("sqlite3 -noheader {0} \"SELECT username FROM users WHERE "
                "username='{1}'\"").format(self.db_filepath, name)
         code, out, err = utils.execute(cmd)
         msg = "Unxpected user found in the users table"
