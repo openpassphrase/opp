@@ -167,7 +167,6 @@ class TestCase(BackendApiTest):
         self.assertEqual(item1['name'], "i1")
         self.assertEqual(item2['name'], "i2")
         self.assertEqual(item1['password'], item2['password'])
-        self.assertEqual(len(item1['password'].split(" ")), 6)
 
         # Add 2 items with autogenerate password and unique options
         data = {'items':
@@ -183,8 +182,6 @@ class TestCase(BackendApiTest):
         self.assertEqual(item1['name'], "i3")
         self.assertEqual(item2['name'], "i4")
         self.assertNotEqual(item1['password'], item2['password'])
-        self.assertEqual(len(item1['password'].split("~")), 10)
-        self.assertEqual(len(item2['password'].split("~")), 10)
 
         # Clean up
         data = self._get(path)
@@ -227,7 +224,6 @@ class TestCase(BackendApiTest):
         self.assertEqual(len(data['items']), 2)
         item1, item2 = data['items']
         self.assertEqual(item1['password'], item2['password'])
-        self.assertEqual(len(item1['password'].split(" ")), 6)
 
         # Update items with autogenerate password and unique options
         data = {'items':
@@ -242,8 +238,6 @@ class TestCase(BackendApiTest):
         self.assertEqual(len(data['items']), 2)
         item1, item2 = data['items']
         self.assertNotEqual(item1['password'], item2['password'])
-        self.assertEqual(len(item1['password'].split("~")), 10)
-        self.assertEqual(len(item2['password'].split("~")), 10)
 
         # Clean up
         data = self._get(path)

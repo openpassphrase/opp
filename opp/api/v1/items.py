@@ -13,6 +13,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from random import shuffle
 from xkcdpass import xkcd_password as xp
 
 from opp.api.v1 import base_handler as bh
@@ -69,7 +70,7 @@ class ResponseHandler(bh.BaseResponseHandler):
         try:
             max_length = options['max_length']
         except (TypeError, KeyError):
-            max_length = 9
+            max_length = 15
         try:
             valid_chars = options['valid_chars']
         except (TypeError, KeyError):
@@ -113,11 +114,7 @@ class ResponseHandler(bh.BaseResponseHandler):
         try:
             numwords = options['numwords']
         except (TypeError, KeyError):
-            numwords = 6
-        try:
-            delimiter = options['delimiter']
-        except (TypeError, KeyError):
-            delimiter = " "
+            numwords = 4
 
         # Sanity validation
         if numwords < 1 or numwords > 20:
@@ -127,11 +124,15 @@ class ResponseHandler(bh.BaseResponseHandler):
             raise bh.OppError(msg, desc)
 
         try:
-            return xp.generate_xkcdpassword(words,
-                                            numwords=numwords,
-                                            interactive=False,
-                                            acrostic=False,
-                                            delimiter=delimiter)
+            phrase = xp.generate_xkcdpassword(words,
+                                              numwords=numwords,
+                                              interactive=False,
+                                              acrostic=False,
+                                              random_delimiters=True,
+                                              case='random')
+            phrase = list(phrase)
+            shuffle(phrase)
+            return ''.join(phrase)
         except Exception:
             raise bh.OppError("Exception during password generation!",
                               None, 500)
