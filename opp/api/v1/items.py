@@ -13,6 +13,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from random import shuffle
+import re
 from xkcdpass import xkcd_password as xp
 
 from opp.api.v1 import base_handler as bh
@@ -69,7 +71,7 @@ class ResponseHandler(bh.BaseResponseHandler):
         try:
             max_length = options['max_length']
         except (TypeError, KeyError):
-            max_length = 9
+            max_length = 15
         try:
             valid_chars = options['valid_chars']
         except (TypeError, KeyError):
@@ -113,11 +115,7 @@ class ResponseHandler(bh.BaseResponseHandler):
         try:
             numwords = options['numwords']
         except (TypeError, KeyError):
-            numwords = 6
-        try:
-            delimiter = options['delimiter']
-        except (TypeError, KeyError):
-            delimiter = " "
+            numwords = 4
 
         # Sanity validation
         if numwords < 1 or numwords > 20:
@@ -127,14 +125,27 @@ class ResponseHandler(bh.BaseResponseHandler):
             raise bh.OppError(msg, desc)
 
         try:
-            return xp.generate_xkcdpassword(words,
-                                            numwords=numwords,
-                                            interactive=False,
-                                            acrostic=False,
-                                            delimiter=delimiter)
+            tries = 50
+            while True:
+                phrase = xp.generate_xkcdpassword(words,
+                                                  numwords=numwords,
+                                                  interactive=False,
+                                                  acrostic=False,
+                                                  random_delimiters=True,
+                                                  case='random')
+                if self._validate_pwd(phrase):
+                    break
+                tries -= 1
+                if not tries:
+                    raise bh.OppError("Cannot generate compliant password after 50 tries, giving up!", None, 500)
+            phrase = list(phrase)
+            shuffle(phrase)
+            return ''.join(phrase)
         except Exception:
-            raise bh.OppError("Exception during password generation!",
-                              None, 500)
+            raise bh.OppError("Exception during password generation!", None, 500)
+
+    def _validate_pwd(self, s):
+        return re.search('[a-z]', s) and re.search('[A-Z]', s) and re.search('[!@#$%^&*()-+=\\_]', s)
 
     def make_item(self, row, cipher, password, item_id=None):
         """
