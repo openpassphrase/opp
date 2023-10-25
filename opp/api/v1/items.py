@@ -80,14 +80,14 @@ class ResponseHandler(bh.BaseResponseHandler):
         # Sanity validation
         msg = "Invalid password generation options!"
 
-        if min_length < 1 or min_length > 15:
+        if min_length < 5 or min_length > 15:
             desc = ("For sanity's sake, minimum length must be "
-                    "a positive number less than or equal to 15.")
+                    "a number in the range between 5 and 15.")
             raise bh.OppError(msg, desc)
 
         if max_length < 5 or max_length > 20:
             desc = ("For sanity's sake, maximum length must"
-                    " be a number between 5 and 20.")
+                    " be a number in the range between 5 and 20.")
             raise bh.OppError(msg, desc)
 
         if min_length > max_length:
@@ -100,8 +100,7 @@ class ResponseHandler(bh.BaseResponseHandler):
                                         max_length=max_length,
                                         valid_chars=valid_chars)
         except Exception:
-            raise bh.OppError("Exception during password generation!",
-                              None, 500)
+            raise bh.OppError("Exception during wordlist generation!", None, 500)
 
     def _gen_pwd(self, words, options):
         """
@@ -113,27 +112,26 @@ class ResponseHandler(bh.BaseResponseHandler):
         :returns: generated multi-word password
         """
         try:
-            numwords = options['numwords']
+            minlen = options['min_length']
         except (TypeError, KeyError):
-            numwords = 4
+            minlen = 16
 
         # Sanity validation
-        if numwords < 1 or numwords > 20:
+        if minlen < 8 or minlen > 100:
             msg = "Invalid password generation options!"
-            desc = ("For sanity's sake, numwords must be a "
-                    "positive number less than or equal to 20.")
+            desc = ("For sanity's sake, min_lenght must be between 8 and 20 characters.")
             raise bh.OppError(msg, desc)
 
         try:
             tries = 50
             while True:
                 phrase = xp.generate_xkcdpassword(words,
-                                                  numwords=numwords,
+                                                  numwords=minlen//4,
                                                   interactive=False,
                                                   acrostic=False,
                                                   random_delimiters=True,
                                                   case='random')
-                if self._validate_pwd(phrase):
+                if self._validate_pwd(phrase, minlen):
                     break
                 tries -= 1
                 if not tries:
@@ -144,8 +142,9 @@ class ResponseHandler(bh.BaseResponseHandler):
         except Exception:
             raise bh.OppError("Exception during password generation!", None, 500)
 
-    def _validate_pwd(self, s):
-        return re.search('[a-z]', s) and re.search('[A-Z]', s) and re.search('[!@#$%^&*()-+=\\_]', s)
+    def _validate_pwd(self, s, minlen):
+        valid_chars = re.search('[a-z]', s) and re.search('[A-Z]', s) and re.search('[!@#$%^&*()-+=\\_]', s)
+        return valid_chars and len(s) >= minlen
 
     def make_item(self, row, cipher, password, item_id=None):
         """
