@@ -194,7 +194,7 @@ Create Item
 |       ``"min_length":5,``
 |       ``"max_length":15,``
 |       ``"valid_chars":".",``
-|       ``"numwords":16,``
+|       ``"numChars":16,``
 |       ``"delimiter":" "``
 |     ``}``
 | ``}``
