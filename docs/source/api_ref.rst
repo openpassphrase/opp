@@ -192,9 +192,9 @@ Create Item
 |   ``"genopts":``
 |     ``{``
 |       ``"min_length":5,``
-|       ``"max_length":9,``
+|       ``"max_length":15,``
 |       ``"valid_chars":".",``
-|       ``"numwords":6,``
+|       ``"numwords":16,``
 |       ``"delimiter":" "``
 |     ``}``
 | ``}``
@@ -263,9 +263,9 @@ Update Item
 |   ``"genopts":``
 |     ``{``
 |       ``"min_length":5,``
-|       ``"max_length":9,``
+|       ``"max_length":15,``
 |       ``"valid_chars":".",``
-|       ``"numwords":6,``
+|       ``"numChars":16,``
 |       ``"delimiter":" "``
 |     ``}``
 | ``}``
