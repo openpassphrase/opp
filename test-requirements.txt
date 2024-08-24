@@ -1,5 +1,5 @@
 flake8==5.0.4 # MIT
-Flask-Cors==3.0.10 #MIT
+Flask-Cors==4.0.1 #MIT
 mock==4.0.3 # BSD
 pytest==7.1.3 # MIT
 pytest-cov==3.0.0 # MIT
