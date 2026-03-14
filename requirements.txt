@@ -3,7 +3,7 @@ click==8.1.3 # BSD
 config==0.5.1 # Public Domain
 Flask==2.3.2 # BSD
 pycryptodome==3.19.1 # BSD
-PyJWT==2.4.0 # MIT
+PyJWT==2.12.0 # MIT
 SQLAlchemy==1.3.24 # MIT
 SQLAlchemy-Utils==0.38.3 # BSD
 six==1.16.0 # MIT
